@@ -1,0 +1,67 @@
+
+//
+d_com_agent2_t::d_com_agent2_t()
+{
+}
+
+
+//
+d_com_agent2_t::~d_com_agent2_t()
+{
+}
+
+
+//
+tbool d_com_agent2_t::Conn( std::string strname )
+{
+	m_strConnStr = strname;
+	return m_aCom.Conn(strname);
+}
+
+int d_com_agent2_t::getFd( int *fileDes )
+{
+	//m_strConnStr = strname;
+	return m_aCom.getFd(fileDes);
+}
+
+//
+void d_com_agent2_t::DisConn()
+{
+	 m_aCom.DisConn();
+}
+
+
+
+//
+tbool d_com_agent2_t::send_bin( const SCake & ckData )
+{
+	return m_aCom.send_bin(ckData);
+}
+
+
+
+//
+tbool d_com_agent2_t::recv_len( SCake & ckData , tsize iWantDataLen )
+{
+	return m_aCom.recv_len( ckData, iWantDataLen );
+}
+
+
+
+//
+tbool d_com_agent2_t::recv_bin( SCake & ckData )
+{
+	return m_aCom.recv_bin(ckData);
+}
+
+
+
+//
+tbool d_com_agent2_t::recv_all( SCake & ckData )
+{
+	return m_aCom.recv_bin(ckData);
+}
+
+
+
+

@@ -1,0 +1,116 @@
+
+
+//
+d_com_agent2_t::d_com_agent2_t()
+{
+}
+
+
+//
+d_com_agent2_t::~d_com_agent2_t()
+{
+}
+
+
+
+//
+tbool d_com_agent2_t::Conn( std::string strname )
+{
+	m_strConnStr = strname;
+
+	m_sp2.Conn( "192.168.20.102:4321" );
+
+	return 1;
+}
+
+
+
+//
+void d_com_agent2_t::DisConn()
+{
+	m_sp2.DisConn();
+}
+
+
+
+//
+tbool d_com_agent2_t::send_bin( const SCake & ckData )
+{
+	WNava nv;
+
+	nv.let( "Conn", m_strConnStr );
+	nv.let( "Cmd", "send" );
+	nv.let( "Data", ckData.Seri_S() );
+
+	m_sp2.send_str( nv.serialize() + "\n" );
+
+	return 1;
+}
+
+
+
+//
+tbool d_com_agent2_t::recv_len( SCake & ckData , tsize iWantDataLen )
+{
+	WNava nv;
+	SCake ck;
+
+	nv.let( "Conn", m_strConnStr );
+	nv.let( "Cmd", "recv_len" );
+	nv.let( "iWantDataLen", iWantDataLen );
+
+	m_sp2.send_str( nv.serialize() + "\n" );
+	
+	m_sp2.recv_ln( ck );
+	nv.unserialize( ck.mk_str() );
+
+	ckData.UnSeri_S( nv.get("Data") );
+
+	return 1;
+}
+
+
+
+//
+tbool d_com_agent2_t::recv_bin( SCake & ckData )
+{
+	WNava nv;
+	SCake ck;
+
+	nv.let( "Conn", m_strConnStr );
+	nv.let( "Cmd", "recv_bin" );
+
+	m_sp2.send_str( nv.serialize() + "\n" );
+	
+	m_sp2.recv_ln( ck );
+	nv.unserialize( ck.mk_str() );
+
+	ckData.UnSeri_S( nv.get("Data") );
+
+	return 1;
+}
+
+
+
+//
+tbool d_com_agent2_t::recv_all( SCake & ckData )
+{
+	WNava nv;
+	SCake ck;
+
+	nv.let( "Conn", m_strConnStr );
+	nv.let( "Cmd", "recv_all" );
+
+	m_sp2.send_str( nv.serialize() + "\n" );
+	
+	m_sp2.recv_ln( ck );
+	nv.unserialize( ck.mk_str() );
+
+	ckData.UnSeri_S( nv.get("Data") );
+
+	return 1;
+}
+
+
+
+
