@@ -1,0 +1,256 @@
+
+
+
+//
+void bu_backman_ele_t::f_emitticket_sense() 
+{
+	m_Scr1.clear();
+	
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	wl::tuint8 SensorStatus[8];
+
+	memcpy( SensorStatus, R8701.m_SensorStatus.a, 8 );
+
+
+	//
+	//SensorStatus[0]	Bit7:=1/0  1元补币箱：0，到位；1，未到位	
+	if( SStrf::readbit( SensorStatus[0], 7 ) == 1 ) m_Scr1.push_back( "1元补币箱 未到位" );
+	if( SStrf::readbit( SensorStatus[0], 7 ) == 0 ) m_Scr1.push_back( "1元补币箱 到位" );
+	
+
+	//SensorStatus[0]	Bit6:=1/0  5角补币箱（保留）：0，到位；1，未到位	
+	if( SStrf::readbit( SensorStatus[0], 6 ) == 1 ) m_Scr1.push_back( "5角补币箱 未到位" );
+	if( SStrf::readbit( SensorStatus[0], 6 ) == 0 ) m_Scr1.push_back( "5角补币箱 到位" );
+
+
+	//SensorStatus[0]	Bit5:=1/0  清币翻板旋转电磁铁：0，退币位置到位；1，退币位置未到位 
+	if( SStrf::readbit( SensorStatus[0], 5 ) == 1 ) m_Scr1.push_back( "退币位置 未到位" );
+	if( SStrf::readbit( SensorStatus[0], 5 ) == 0 ) m_Scr1.push_back( "退币位置 到位" );
+
+
+	//SensorStatus[0]	Bit4:=1/0  提升机构是否忙碌：0，空闲；1，忙碌
+	if( SStrf::readbit( SensorStatus[0], 4 ) == 1 ) m_Scr1.push_back( "提升机构  忙碌" );
+	if( SStrf::readbit( SensorStatus[0], 4 ) == 0 ) m_Scr1.push_back( "提升机构  空闲" );
+
+
+	//SensorStatus[0]	Bit3:=1/0  循环找零器（锁）：0，到位；1，未到位 
+	if( SStrf::readbit( SensorStatus[0], 3 ) == 1 ) m_Scr1.push_back( "循环找零器（锁） 未到位" );
+	if( SStrf::readbit( SensorStatus[0], 3 ) == 0 ) m_Scr1.push_back( "循环找零器（锁） 到位" );
+
+	//SensorStatus[0]	Bit2:=1/0  投币口状态：0，关闭；1，打开 
+	if( SStrf::readbit( SensorStatus[0], 2 ) == 1 ) m_Scr1.push_back( "投币口状态 打开" );
+	if( SStrf::readbit( SensorStatus[0], 2 ) == 0 ) m_Scr1.push_back( "投币口状态 关闭" );
+
+
+	//SensorStatus[0]	Bit1:=1/0  纸币找零器到位（锁）：0，到位；1，未到位  
+	if( SStrf::readbit( SensorStatus[0], 1 ) == 1 ) m_Scr1.push_back( "纸币找零器到位（锁） 未到位" );
+	if( SStrf::readbit( SensorStatus[0], 1 ) == 0 ) m_Scr1.push_back( "纸币找零器到位（锁） 到位" );
+
+
+	//SensorStatus[0]	Bit0:=1/0  硬币模块：0，到位；1，未到位 
+	if( SStrf::readbit( SensorStatus[0], 0 ) == 1 ) m_Scr1.push_back( "硬币模块 未到位" );
+	if( SStrf::readbit( SensorStatus[0], 0 ) == 0 ) m_Scr1.push_back( "硬币模块 到位" );
+
+
+
+	//
+	//[out] SensorStatus[1]
+	//	Bit7:=1/0  取票口照明：0，关，1，开
+	if( SStrf::readbit( SensorStatus[1], 7 ) == 1 ) m_Scr1.push_back( "取票口照明 开" );
+	if( SStrf::readbit( SensorStatus[1], 7 ) == 0 ) m_Scr1.push_back( "取票口照明 关" );
+
+
+	//Bit6:=1/0  报警喇叭：0，关；1，开
+	if( SStrf::readbit( SensorStatus[1], 6 ) == 1 ) m_Scr1.push_back( "报警喇叭 开" );
+	if( SStrf::readbit( SensorStatus[1], 6 ) == 0 ) m_Scr1.push_back( "报警喇叭 关" );
+
+
+	//Bit5:=1/0  发卡模块到位（保留）：0，到位；1，未到位
+	if( SStrf::readbit( SensorStatus[1], 5 ) == 1 ) m_Scr1.push_back( "发卡模块到位 未到位" );
+	if( SStrf::readbit( SensorStatus[1], 5 ) == 0 ) m_Scr1.push_back( "发卡模块到位 到位" );
+
+
+	//Bit4:=1/0  1点币箱没锁上；0，锁上
+	if( SStrf::readbit( SensorStatus[1], 4 ) == 1 ) m_Scr1.push_back( "点币箱 没锁上" );
+	if( SStrf::readbit( SensorStatus[1], 4 ) == 0 ) m_Scr1.push_back( "点币箱 锁上" );
+
+
+	//Bit3:=1/0  1，暂存退币闸门开；0，关
+	if( SStrf::readbit( SensorStatus[1], 3 ) == 1 ) m_Scr1.push_back( "暂存退币闸门 开" );
+	if( SStrf::readbit( SensorStatus[1], 3 ) == 0 ) m_Scr1.push_back( "暂存退币闸门 关" );
+
+
+	//Bit2:=1/0  1，暂存循环闸门开；0：关
+	if( SStrf::readbit( SensorStatus[1], 2 ) == 1 ) m_Scr1.push_back( "暂存循环闸门 开" );
+	if( SStrf::readbit( SensorStatus[1], 2 ) == 0 ) m_Scr1.push_back( "暂存循环闸门 关" );
+
+
+	//Bit1:=1/0  门锁到位（保留）：0，到位；1，未到位
+	if( SStrf::readbit( SensorStatus[1], 1 ) == 1 ) m_Scr1.push_back( "门锁到位 未到位" );
+	if( SStrf::readbit( SensorStatus[1], 1 ) == 0 ) m_Scr1.push_back( "门锁到位 到位" );
+
+
+	//Bit0:=1/0  门到位：0，到位；1，未到位
+	if( SStrf::readbit( SensorStatus[1], 0 ) == 1 ) m_Scr1.push_back( "门: 未到位" );
+	if( SStrf::readbit( SensorStatus[1], 0 ) == 0 ) m_Scr1.push_back( "门: 到位" );
+
+
+	//
+	//[out] SensorStatus[2]	BYTE	硬币回收箱
+	//Bit7:=1/0  硬币回收箱：0，正常；1，满
+	if( SStrf::readbit( SensorStatus[2], 7 ) == 1 ) m_Scr1.push_back( "硬币回收箱满否 满" );
+	if( SStrf::readbit( SensorStatus[2], 7 ) == 0 ) m_Scr1.push_back( "硬币回收箱满否 正常" );
+
+
+	//Bit6:=1/0  硬币回收箱：0，正常；1，堵
+	if( SStrf::readbit( SensorStatus[2], 6 ) == 1 ) m_Scr1.push_back( "硬币回收箱堵否 堵" );
+	if( SStrf::readbit( SensorStatus[2], 6 ) == 0 ) m_Scr1.push_back( "硬币回收箱堵否 正常" );
+
+
+	//Bit5:=1/0  硬币回收箱到位：0，到位；1，未到位
+	if( SStrf::readbit( SensorStatus[2], 5 ) == 1 ) m_Scr1.push_back( "硬币回收箱到位否 未到位" );
+	if( SStrf::readbit( SensorStatus[2], 5 ) == 0 ) m_Scr1.push_back( "硬币回收箱到位否 到位" );
+
+
+	//Bit4:=1/0  硬币回收箱币位信号1：0，到位；1，未到位
+	if( SStrf::readbit( SensorStatus[2], 4 ) == 1 ) m_Scr1.push_back( "硬币回收箱币位信号1 未到位" );
+	if( SStrf::readbit( SensorStatus[2], 4 ) == 0 ) m_Scr1.push_back( "硬币回收箱币位信号1  到位" );
+
+
+	//Bit3:=1/0  硬币回收箱币位信号2：0，到位；1，未到位
+	if( SStrf::readbit( SensorStatus[2], 3 ) == 1 ) m_Scr1.push_back( "硬币回收箱币位信号2 未到位" );
+	if( SStrf::readbit( SensorStatus[2], 3 ) == 0 ) m_Scr1.push_back( "硬币回收箱币位信号2  到位" );
+
+
+	//Bit2:=1/0  硬币回收箱币位信号3：0，到位；1，未到位
+	if( SStrf::readbit( SensorStatus[2], 2 ) == 1 ) m_Scr1.push_back( "硬币回收箱币位信号3 未到位" );
+	if( SStrf::readbit( SensorStatus[2], 2 ) == 0 ) m_Scr1.push_back( "硬币回收箱币位信号3  到位" );
+
+	//Bit1:=1/0  1投币入口光感没遮挡  0投币入口光感遮挡
+	if( SStrf::readbit( SensorStatus[2], 1 ) == 1 ) m_Scr1.push_back( "投币入口光感 没遮挡" );
+	if( SStrf::readbit( SensorStatus[2], 1 ) == 0 ) m_Scr1.push_back( "投币入口光感  遮挡" );
+
+	 
+	//Bit0:=1/0  1投币废币出口光感没遮挡 	//0投币废币出口光感遮挡
+	if( SStrf::readbit( SensorStatus[2], 0 ) == 1 ) m_Scr1.push_back( "投币废币出口光感 没遮挡" );
+	if( SStrf::readbit( SensorStatus[2], 0 ) == 0 ) m_Scr1.push_back( "投币废币出口光感 遮挡" );
+
+	
+
+	m_Scr1.push_back( "1元循环找零箱状态：" );
+	//
+	//[out] SensorStatus[3]	BYTE	1元循环找零箱状态：
+	//Bit7~Bit6:未使用
+	//Bit5: =1/0  1找零箱锁不到位    0找零箱锁到位
+	if( SStrf::readbit( SensorStatus[3], 5 ) == 1 ) m_Scr1.push_back( "找零箱锁不到位" );
+	if( SStrf::readbit( SensorStatus[3], 5 ) == 0 ) m_Scr1.push_back( "找零箱锁到位" );
+
+
+	//Bit4: =1/0  1双向电磁铁故障    0双向电磁铁正常
+	if( SStrf::readbit( SensorStatus[3], 4 ) == 1 ) m_Scr1.push_back( "双向电磁铁故障" );
+	if( SStrf::readbit( SensorStatus[3], 4 ) == 0 ) m_Scr1.push_back( "双向电磁铁正常" );
+
+
+	//Bit3: =1/0  1找零器高币位没遮挡	  0找零器高币位遮挡（满）
+	if( SStrf::readbit( SensorStatus[3], 3 ) == 1 ) m_Scr1.push_back( "找零器高币位没遮挡" );
+	if( SStrf::readbit( SensorStatus[3], 3 ) == 0 ) m_Scr1.push_back( "找零器高币位遮挡（满）" );
+
+
+	//Bit2:=1/0  1找零器低币位没遮挡（空）     0找零器低币位遮挡
+	if( SStrf::readbit( SensorStatus[3], 2 ) == 1 ) m_Scr1.push_back( "找零器低币位没遮挡（空）" );
+	if( SStrf::readbit( SensorStatus[3], 2 ) == 0 ) m_Scr1.push_back( "找零器低币位遮挡" );
+
+	//Bit1:=1/0  （保留）
+	//Bit0:=1/0  （保留）
+	 
+
+
+	m_Scr1.push_back( "5角循环找零箱状态：" );
+	//
+	//[out] SensorStatus[4]	BYTE	5角循环找零箱状态：
+	//Bit7~Bit5:未使用
+	//Bit4: =1/0  1双向电磁铁故障      0双向电磁铁正常
+	if( SStrf::readbit( SensorStatus[4], 4 ) == 1 ) m_Scr1.push_back( "双向电磁铁故障" );
+	if( SStrf::readbit( SensorStatus[4], 4 ) == 0 ) m_Scr1.push_back( "双向电磁铁正常" );
+
+
+	//Bit3: =1/0  1找零器高币位没遮挡	  0找零器高币位遮挡（满）
+	if( SStrf::readbit( SensorStatus[4], 3 ) == 1 ) m_Scr1.push_back( "找零器高币位没遮挡" );
+	if( SStrf::readbit( SensorStatus[4], 3 ) == 0 ) m_Scr1.push_back( "找零器高币位遮挡（满）" );
+
+
+	//Bit2:=1/0  1找零器低币位没遮挡（空）      0找零器低币位遮挡
+	if( SStrf::readbit( SensorStatus[4], 2 ) == 1 ) m_Scr1.push_back( "找零器低币位没遮挡（空）" );
+	if( SStrf::readbit( SensorStatus[4], 2 ) == 0 ) m_Scr1.push_back( "找零器低币位遮挡" );
+
+	//Bit1:=1/0  （保留）
+	//Bit0:=1/0  （保留）
+	//
+	
+
+
+	m_Scr1.push_back( "1元专用找零箱状态：" );
+	//
+	//[out] SensorStatus[5]	BYTE	1元专用找零箱状态：
+	//Bit7~Bit6:未使用
+	//Bit5: =1/0  1找零箱锁不到位      0找零箱锁到位
+	if( SStrf::readbit( SensorStatus[5], 5 ) == 1 ) m_Scr1.push_back( "找零箱锁不到位" );
+	if( SStrf::readbit( SensorStatus[5], 5 ) == 0 ) m_Scr1.push_back( "找零箱锁到位" );
+
+
+	//Bit4: =1/0  1双向电磁铁故障      0双向电磁铁正常
+	if( SStrf::readbit( SensorStatus[5], 4 ) == 1 ) m_Scr1.push_back( "双向电磁铁故障" );
+	if( SStrf::readbit( SensorStatus[5], 4 ) == 0 ) m_Scr1.push_back( "双向电磁铁正常" );
+
+
+	//Bit3: =1/0  1找零器高币位没遮挡	  0找零器高币位遮挡（满）
+	if( SStrf::readbit( SensorStatus[5], 3 ) == 1 ) m_Scr1.push_back( "找零器高币位没遮挡" );
+	if( SStrf::readbit( SensorStatus[5], 3 ) == 0 ) m_Scr1.push_back( "找零器高币位遮挡" );
+
+
+	//Bit2:=1/0  1找零器低币位没遮挡（空）      0找零器低币位遮挡
+	if( SStrf::readbit( SensorStatus[5], 2 ) == 1 ) m_Scr1.push_back( "找零器低币位没遮挡" );
+	if( SStrf::readbit( SensorStatus[5], 2 ) == 0 ) m_Scr1.push_back( "找零器低币位遮挡" );
+
+
+	//Bit1:=1/0  （保留）
+	//Bit0:=1/0  （保留）
+
+
+
+	m_Scr1.push_back( "5角专用找零箱状态：" );
+	//
+	//[out] SensorStatus[6]	BYTE	5角专用找零箱状态：
+	//Bit7~Bit5:未使用
+	//Bit4: =1/0  1双向电磁铁故障  0双向电磁铁正常
+	if( SStrf::readbit( SensorStatus[6], 4 ) == 1 ) m_Scr1.push_back( "双向电磁铁故障" );
+	if( SStrf::readbit( SensorStatus[6], 4 ) == 0 ) m_Scr1.push_back( "双向电磁铁正常" );
+
+
+	//Bit3: =1/0  1找零器高币位没遮挡  0找零器高币位遮挡（满）
+	if( SStrf::readbit( SensorStatus[6], 3 ) == 1 ) m_Scr1.push_back( "找零器高币位没遮挡" );
+	if( SStrf::readbit( SensorStatus[6], 3 ) == 0 ) m_Scr1.push_back( "找零器高币位遮挡" );
+
+
+	//Bit2:=1/0  1找零器低币位没遮挡（空）  0找零器低币位遮挡
+	if( SStrf::readbit( SensorStatus[6], 2 ) == 1 ) m_Scr1.push_back( "找零器低币位没遮挡" );
+	if( SStrf::readbit( SensorStatus[6], 2 ) == 0 ) m_Scr1.push_back( "找零器低币位遮挡" );
+
+	//Bit0:=1/0  1提升机构堵转故障    0提升机构正常
+	if( SStrf::readbit( SensorStatus[6], 0 ) == 1 ) m_Scr1.push_back( "提升机构堵转故障" );
+	if( SStrf::readbit( SensorStatus[6], 0 ) == 0 ) m_Scr1.push_back( "提升机构正常" );
+
+
+	//Bit1:=1/0  （保留）
+	//Bit0:=1/0  （保留）
+
+}
+
+
+
+
+
+
+
+
+

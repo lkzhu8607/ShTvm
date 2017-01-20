@@ -1,0 +1,885 @@
+/////////////////////////////////////////////////
+//
+#if	 0
+//#THREADBEGIN#
+void flow()
+{
+	//#FUNCBEGIN#
+
+	//显示欢迎
+	WebFormBegin( "总欢迎title" );
+	WebSendString( "欢迎" );
+	WebAddCr();
+	WebAddButt( "OK", "OK   " );
+	WebAddCr();
+			##DELAY#
+	while( 1 )
+	{
+		//用户验证";
+		if(1)
+		{
+			WebFormBegin( "要求输入用户名密码title" );
+			WebSendString( "用户名：" );
+		    WebAddTextBox( "username", "" );
+			WebAddCr();
+			WebSendString( "密 码：" );
+		    WebAddTextBox( "passwd", "" );
+			WebAddCr();
+		    WebAddButt( "OK", "OKvalue" );
+			WebAddCr();
+
+					##DELAY#
+			//验证用户名密码
+			if( m_nvA.get("username") == "1" && m_nvA.get("passwd") == "1" )
+			{
+				break;
+			}
+			WebFormBegin( "再要求输入用户名密码title" );
+
+			//	提示用户名密码错
+			SDte dt;
+			dt.MakeNow();
+			WebSendString( "提示：用户名密码错 " + dt.ReadString() );
+			WebAddCr();
+			continue;
+		}
+	}
+	while( 1 )
+	{
+		WebFormBegin( "输入条件-title" );
+		if(1)
+		{
+			WebSendString( "表名称：" );
+			WebAddTextBox( "tblname", "" );
+			WebAddCr();
+			WebSendString( "显示倒数的行数：" );
+			WebAddTextBox( "linenum", "10" );
+			WebAddCr();
+            WebAddButt( "BUTTOK", "确定" );
+			WebAddCr();
+			WebAddButt( "BUTTCANCEL", "cancel" );
+			WebAddCr();
+		}
+				##DELAY#
+		if(1)
+		{
+			WebFormBegin( "输出" );
+			std::string strtblname = m_nvA.get("tblname");
+			long linenum = wl::SStrf::satol(m_nvA.get("linenum"));
+			if(1)
+			{
+				tbool rc(0);
+				if( m_nvA.get("BUTTCANCEL") == "cancel" )
+				{
+					continue;
+				}
+				for( std::map< std::string, unitbl_base_t* > ::iterator it = gp_db->m_mTbllPointer.begin(); it != gp_db->m_mTbllPointer.end(); ++it )
+				{
+					unitbl_base_t * p = it->second;
+					unitbl_base_t &t(*p);
+					wl::WCrsc aLock( t.m_ut_tbl_lck );
+					if( it->first == strtblname )
+					{
+						rc = 1;
+						WebSendString( "<table border=1 width=\"100%\">" );
+						WebAddCr();
+
+						WebSendString( "<tr>" );
+						WebAddCr();
+						WebSendString( "<td>" );
+						//WebSendString("行号");
+						WebSendString("总行数 " + wl::SStrf::sltoa(p->ut_GetRowAmount()) );
+						WebSendString( "</td>" );
+						WebAddCr();
+						//表头
+						for( int x = 0; x < p->ut_GetColAmount(); x++ )
+						{
+							WebSendString( "<td>" );
+
+							WebSendString( p->ut_GetColName(x) );
+
+							WebSendString( "</td>" );
+							WebAddCr();
+						}
+						WebSendString( "</tr>" );
+						WebAddCr();
+						//表体
+						int ycount(0);
+						for( int y = p->ut_GetRowAmount() - 1; y >= 0; y-- )
+						{
+							ycount ++;
+							WebSendString( "<tr>" );
+							WebAddCr();
+
+							WebSendString( "<td>" );
+							WebSendString( wl::SStrf::sltoa(ycount) );
+							WebSendString( "</td>" );
+							WebAddCr();
+							for( int x = 0; x < p->ut_GetColAmount(); x++ )
+							{
+								WebSendString( "<td>" );
+
+								WebSendString( p->ut_GetItemStr(y,x) );
+
+								WebSendString( "</td>" );
+								WebAddCr();
+							}
+							WebSendString( "</tr>" );
+							WebAddCr();
+							if( ycount >= linenum ) break;
+						}
+						WebSendString( "</table>" );
+						WebAddCr();
+					}
+					if( rc == 1 ) break;
+				}
+			}
+		}
+		if(1)
+		{
+			SDte dt;
+			dt.MakeNow();
+			WebSendString( "制表时间：" );
+			WebAddCr();
+			WebSendString( dt.ReadString() );
+			WebAddCr();
+           WebAddButt( "BUTTOK", "再次输入别的条件" );
+			WebAddCr();
+		}
+				##DELAY#
+	}
+	//#FUNCEND#
+}
+//#THREADEND#
+#endif
+
+
+/*======== donnot modify the generated code manually =========*/ 
+
+void (AFlowEle_t::*pf_thread__)();
+//void f_thread_c367df5b1_0();
+//void f_thread_c367df5b1_1();
+//void f_thread_c367df5b1_2();
+//void f_thread_c367df5b1_3();
+
+
+void flow()
+{
+if( pf_thread__!=NULL ) { (this->*pf_thread__)(); return; }
+//显示欢迎
+WebFormBegin( "总欢迎title" );
+WebSendString( "欢迎" );
+WebAddCr();
+WebAddButt( "OK", "OK   " );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_0; return;
+//L_3ff70abf3_0:;
+while( 1 )
+{
+//用户验证";
+if(1)
+{
+WebFormBegin( "要求输入用户名密码title" );
+WebSendString( "用户名：" );
+WebAddTextBox( "username", "" );
+WebAddCr();
+WebSendString( "密 码：" );
+WebAddTextBox( "passwd", "" );
+WebAddCr();
+WebAddButt( "OK", "OKvalue" );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_1; return;
+//L_3ff70abf3_1:;
+//验证用户名密码
+if( m_nvA.get("username") == "1" && m_nvA.get("passwd") == "1" )
+{
+break;
+}
+WebFormBegin( "再要求输入用户名密码title" );
+//	提示用户名密码错
+SDte dt;
+dt.MakeNow();
+WebSendString( "提示：用户名密码错 " + dt.ReadString() );
+WebAddCr();
+continue;
+}
+}
+while( 1 )
+{
+WebFormBegin( "输入条件-title" );
+if(1)
+{
+WebSendString( "表名称：" );
+WebAddTextBox( "tblname", "" );
+WebAddCr();
+WebSendString( "显示倒数的行数：" );
+WebAddTextBox( "linenum", "10" );
+WebAddCr();
+WebAddButt( "BUTTOK", "确定" );
+WebAddCr();
+WebAddButt( "BUTTCANCEL", "cancel" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_2; return;
+//L_3ff70abf3_2:;
+if(1)
+{
+WebFormBegin( "输出" );
+std::string strtblname = m_nvA.get("tblname");
+long linenum = wl::SStrf::satol(m_nvA.get("linenum"));
+if(1)
+{
+tbool rc(0);
+if( m_nvA.get("BUTTCANCEL") == "cancel" )
+{
+continue;
+}
+for( std::map< std::string, unitbl_base_t* > ::iterator it = gp_db->m_mTbllPointer.begin(); it != gp_db->m_mTbllPointer.end(); ++it )
+{
+unitbl_base_t * p = it->second;
+unitbl_base_t &t(*p);
+MYAUTOLOCK( t.m_ut_tbl_lck );
+if( it->first == strtblname )
+{
+rc = 1;
+WebSendString( "<table border=1 width=\"100%\">" );
+WebAddCr();
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+//WebSendString("行号");
+WebSendString("总行数 " + wl::SStrf::sltoa(p->ut_GetRowAmount()) );
+WebSendString( "</td>" );
+WebAddCr();
+//表头
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetColName(x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+//表体
+int ycount(0);
+for( int y = p->ut_GetRowAmount() - 1; y >= 0; y-- )
+{
+ycount ++;
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+WebSendString( wl::SStrf::sltoa(ycount) );
+WebSendString( "</td>" );
+WebAddCr();
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetItemStr(y,x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+if( ycount >= linenum ) break;
+}
+WebSendString( "</table>" );
+WebAddCr();
+}
+if( rc == 1 ) break;
+}
+}
+}
+if(1)
+{
+SDte dt;
+dt.MakeNow();
+WebSendString( "制表时间：" );
+WebAddCr();
+WebSendString( dt.ReadString() );
+WebAddCr();
+WebAddButt( "BUTTOK", "再次输入别的条件" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_3; return;
+//L_3ff70abf3_3:;
+}
+//#FUNCEND#
+}
+
+void f_thread_c367df5b1_0()
+{
+goto L_3ff70abf3_0;
+//显示欢迎
+WebFormBegin( "总欢迎title" );
+WebSendString( "欢迎" );
+WebAddCr();
+WebAddButt( "OK", "OK   " );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_0; return;
+L_3ff70abf3_0:;
+while( 1 )
+{
+//用户验证";
+if(1)
+{
+WebFormBegin( "要求输入用户名密码title" );
+WebSendString( "用户名：" );
+WebAddTextBox( "username", "" );
+WebAddCr();
+WebSendString( "密 码：" );
+WebAddTextBox( "passwd", "" );
+WebAddCr();
+WebAddButt( "OK", "OKvalue" );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_1; return;
+//L_3ff70abf3_1:;
+//验证用户名密码
+if( m_nvA.get("username") == "1" && m_nvA.get("passwd") == "1" )
+{
+break;
+}
+WebFormBegin( "再要求输入用户名密码title" );
+//	提示用户名密码错
+SDte dt;
+dt.MakeNow();
+WebSendString( "提示：用户名密码错 " + dt.ReadString() );
+WebAddCr();
+continue;
+}
+}
+while( 1 )
+{
+WebFormBegin( "输入条件-title" );
+if(1)
+{
+WebSendString( "表名称：" );
+WebAddTextBox( "tblname", "" );
+WebAddCr();
+WebSendString( "显示倒数的行数：" );
+WebAddTextBox( "linenum", "10" );
+WebAddCr();
+WebAddButt( "BUTTOK", "确定" );
+WebAddCr();
+WebAddButt( "BUTTCANCEL", "cancel" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_2; return;
+//L_3ff70abf3_2:;
+if(1)
+{
+WebFormBegin( "输出" );
+std::string strtblname = m_nvA.get("tblname");
+long linenum = wl::SStrf::satol(m_nvA.get("linenum"));
+if(1)
+{
+tbool rc(0);
+if( m_nvA.get("BUTTCANCEL") == "cancel" )
+{
+continue;
+}
+for( std::map< std::string, unitbl_base_t* > ::iterator it = gp_db->m_mTbllPointer.begin(); it != gp_db->m_mTbllPointer.end(); ++it )
+{
+unitbl_base_t * p = it->second;
+unitbl_base_t &t(*p);
+MYAUTOLOCK( t.m_ut_tbl_lck );
+if( it->first == strtblname )
+{
+rc = 1;
+WebSendString( "<table border=1 width=\"100%\">" );
+WebAddCr();
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+//WebSendString("行号");
+WebSendString("总行数 " + wl::SStrf::sltoa(p->ut_GetRowAmount()) );
+WebSendString( "</td>" );
+WebAddCr();
+//表头
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetColName(x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+//表体
+int ycount(0);
+for( int y = p->ut_GetRowAmount() - 1; y >= 0; y-- )
+{
+ycount ++;
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+WebSendString( wl::SStrf::sltoa(ycount) );
+WebSendString( "</td>" );
+WebAddCr();
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetItemStr(y,x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+if( ycount >= linenum ) break;
+}
+WebSendString( "</table>" );
+WebAddCr();
+}
+if( rc == 1 ) break;
+}
+}
+}
+if(1)
+{
+SDte dt;
+dt.MakeNow();
+WebSendString( "制表时间：" );
+WebAddCr();
+WebSendString( dt.ReadString() );
+WebAddCr();
+WebAddButt( "BUTTOK", "再次输入别的条件" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_3; return;
+//L_3ff70abf3_3:;
+}
+//#FUNCEND#
+}
+
+void f_thread_c367df5b1_1()
+{
+goto L_3ff70abf3_1;
+//显示欢迎
+WebFormBegin( "总欢迎title" );
+WebSendString( "欢迎" );
+WebAddCr();
+WebAddButt( "OK", "OK   " );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_0; return;
+//L_3ff70abf3_0:;
+while( 1 )
+{
+//用户验证";
+if(1)
+{
+WebFormBegin( "要求输入用户名密码title" );
+WebSendString( "用户名：" );
+WebAddTextBox( "username", "" );
+WebAddCr();
+WebSendString( "密 码：" );
+WebAddTextBox( "passwd", "" );
+WebAddCr();
+WebAddButt( "OK", "OKvalue" );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_1; return;
+L_3ff70abf3_1:;
+//验证用户名密码
+if( m_nvA.get("username") == "1" && m_nvA.get("passwd") == "1" )
+{
+break;
+}
+WebFormBegin( "再要求输入用户名密码title" );
+//	提示用户名密码错
+SDte dt;
+dt.MakeNow();
+WebSendString( "提示：用户名密码错 " + dt.ReadString() );
+WebAddCr();
+continue;
+}
+}
+while( 1 )
+{
+WebFormBegin( "输入条件-title" );
+if(1)
+{
+WebSendString( "表名称：" );
+WebAddTextBox( "tblname", "" );
+WebAddCr();
+WebSendString( "显示倒数的行数：" );
+WebAddTextBox( "linenum", "10" );
+WebAddCr();
+WebAddButt( "BUTTOK", "确定" );
+WebAddCr();
+WebAddButt( "BUTTCANCEL", "cancel" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_2; return;
+//L_3ff70abf3_2:;
+if(1)
+{
+WebFormBegin( "输出" );
+std::string strtblname = m_nvA.get("tblname");
+long linenum = wl::SStrf::satol(m_nvA.get("linenum"));
+if(1)
+{
+tbool rc(0);
+if( m_nvA.get("BUTTCANCEL") == "cancel" )
+{
+continue;
+}
+for( std::map< std::string, unitbl_base_t* > ::iterator it = gp_db->m_mTbllPointer.begin(); it != gp_db->m_mTbllPointer.end(); ++it )
+{
+unitbl_base_t * p = it->second;
+unitbl_base_t &t(*p);
+MYAUTOLOCK( t.m_ut_tbl_lck );
+if( it->first == strtblname )
+{
+rc = 1;
+WebSendString( "<table border=1 width=\"100%\">" );
+WebAddCr();
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+//WebSendString("行号");
+WebSendString("总行数 " + wl::SStrf::sltoa(p->ut_GetRowAmount()) );
+WebSendString( "</td>" );
+WebAddCr();
+//表头
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetColName(x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+//表体
+int ycount(0);
+for( int y = p->ut_GetRowAmount() - 1; y >= 0; y-- )
+{
+ycount ++;
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+WebSendString( wl::SStrf::sltoa(ycount) );
+WebSendString( "</td>" );
+WebAddCr();
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetItemStr(y,x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+if( ycount >= linenum ) break;
+}
+WebSendString( "</table>" );
+WebAddCr();
+}
+if( rc == 1 ) break;
+}
+}
+}
+if(1)
+{
+SDte dt;
+dt.MakeNow();
+WebSendString( "制表时间：" );
+WebAddCr();
+WebSendString( dt.ReadString() );
+WebAddCr();
+WebAddButt( "BUTTOK", "再次输入别的条件" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_3; return;
+//L_3ff70abf3_3:;
+}
+//#FUNCEND#
+}
+
+void f_thread_c367df5b1_2()
+{
+goto L_3ff70abf3_2;
+//显示欢迎
+WebFormBegin( "总欢迎title" );
+WebSendString( "欢迎" );
+WebAddCr();
+WebAddButt( "OK", "OK   " );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_0; return;
+//L_3ff70abf3_0:;
+while( 1 )
+{
+//用户验证";
+if(1)
+{
+WebFormBegin( "要求输入用户名密码title" );
+WebSendString( "用户名：" );
+WebAddTextBox( "username", "" );
+WebAddCr();
+WebSendString( "密 码：" );
+WebAddTextBox( "passwd", "" );
+WebAddCr();
+WebAddButt( "OK", "OKvalue" );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_1; return;
+//L_3ff70abf3_1:;
+//验证用户名密码
+if( m_nvA.get("username") == "1" && m_nvA.get("passwd") == "1" )
+{
+break;
+}
+WebFormBegin( "再要求输入用户名密码title" );
+//	提示用户名密码错
+SDte dt;
+dt.MakeNow();
+WebSendString( "提示：用户名密码错 " + dt.ReadString() );
+WebAddCr();
+continue;
+}
+}
+while( 1 )
+{
+WebFormBegin( "输入条件-title" );
+if(1)
+{
+WebSendString( "表名称：" );
+WebAddTextBox( "tblname", "" );
+WebAddCr();
+WebSendString( "显示倒数的行数：" );
+WebAddTextBox( "linenum", "10" );
+WebAddCr();
+WebAddButt( "BUTTOK", "确定" );
+WebAddCr();
+WebAddButt( "BUTTCANCEL", "cancel" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_2; return;
+L_3ff70abf3_2:;
+if(1)
+{
+WebFormBegin( "输出" );
+std::string strtblname = m_nvA.get("tblname");
+long linenum = wl::SStrf::satol(m_nvA.get("linenum"));
+if(1)
+{
+tbool rc(0);
+if( m_nvA.get("BUTTCANCEL") == "cancel" )
+{
+continue;
+}
+for( std::map< std::string, unitbl_base_t* > ::iterator it = gp_db->m_mTbllPointer.begin(); it != gp_db->m_mTbllPointer.end(); ++it )
+{
+unitbl_base_t * p = it->second;
+unitbl_base_t &t(*p);
+MYAUTOLOCK( t.m_ut_tbl_lck );
+if( it->first == strtblname )
+{
+rc = 1;
+WebSendString( "<table border=1 width=\"100%\">" );
+WebAddCr();
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+//WebSendString("行号");
+WebSendString("总行数 " + wl::SStrf::sltoa(p->ut_GetRowAmount()) );
+WebSendString( "</td>" );
+WebAddCr();
+//表头
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetColName(x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+//表体
+int ycount(0);
+for( int y = p->ut_GetRowAmount() - 1; y >= 0; y-- )
+{
+ycount ++;
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+WebSendString( wl::SStrf::sltoa(ycount) );
+WebSendString( "</td>" );
+WebAddCr();
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetItemStr(y,x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+if( ycount >= linenum ) break;
+}
+WebSendString( "</table>" );
+WebAddCr();
+}
+if( rc == 1 ) break;
+}
+}
+}
+if(1)
+{
+SDte dt;
+dt.MakeNow();
+WebSendString( "制表时间：" );
+WebAddCr();
+WebSendString( dt.ReadString() );
+WebAddCr();
+WebAddButt( "BUTTOK", "再次输入别的条件" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_3; return;
+//L_3ff70abf3_3:;
+}
+//#FUNCEND#
+}
+
+void f_thread_c367df5b1_3()
+{
+goto L_3ff70abf3_3;
+//显示欢迎
+WebFormBegin( "总欢迎title" );
+WebSendString( "欢迎" );
+WebAddCr();
+WebAddButt( "OK", "OK   " );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_0; return;
+//L_3ff70abf3_0:;
+while( 1 )
+{
+//用户验证";
+if(1)
+{
+WebFormBegin( "要求输入用户名密码title" );
+WebSendString( "用户名：" );
+WebAddTextBox( "username", "" );
+WebAddCr();
+WebSendString( "密 码：" );
+WebAddTextBox( "passwd", "" );
+WebAddCr();
+WebAddButt( "OK", "OKvalue" );
+WebAddCr();
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_1; return;
+//L_3ff70abf3_1:;
+//验证用户名密码
+if( m_nvA.get("username") == "1" && m_nvA.get("passwd") == "1" )
+{
+break;
+}
+WebFormBegin( "再要求输入用户名密码title" );
+//	提示用户名密码错
+SDte dt;
+dt.MakeNow();
+WebSendString( "提示：用户名密码错 " + dt.ReadString() );
+WebAddCr();
+continue;
+}
+}
+while( 1 )
+{
+WebFormBegin( "输入条件-title" );
+if(1)
+{
+WebSendString( "表名称：" );
+WebAddTextBox( "tblname", "" );
+WebAddCr();
+WebSendString( "显示倒数的行数：" );
+WebAddTextBox( "linenum", "10" );
+WebAddCr();
+WebAddButt( "BUTTOK", "确定" );
+WebAddCr();
+WebAddButt( "BUTTCANCEL", "cancel" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_2; return;
+//L_3ff70abf3_2:;
+if(1)
+{
+WebFormBegin( "输出" );
+std::string strtblname = m_nvA.get("tblname");
+long linenum = wl::SStrf::satol(m_nvA.get("linenum"));
+if(1)
+{
+tbool rc(0);
+if( m_nvA.get("BUTTCANCEL") == "cancel" )
+{
+continue;
+}
+for( std::map< std::string, unitbl_base_t* > ::iterator it = gp_db->m_mTbllPointer.begin(); it != gp_db->m_mTbllPointer.end(); ++it )
+{
+unitbl_base_t * p = it->second;
+unitbl_base_t &t(*p);
+MYAUTOLOCK( t.m_ut_tbl_lck );
+if( it->first == strtblname )
+{
+rc = 1;
+WebSendString( "<table border=1 width=\"100%\">" );
+WebAddCr();
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+//WebSendString("行号");
+WebSendString("总行数 " + wl::SStrf::sltoa(p->ut_GetRowAmount()) );
+WebSendString( "</td>" );
+WebAddCr();
+//表头
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetColName(x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+//表体
+int ycount(0);
+for( int y = p->ut_GetRowAmount() - 1; y >= 0; y-- )
+{
+ycount ++;
+WebSendString( "<tr>" );
+WebAddCr();
+WebSendString( "<td>" );
+WebSendString( wl::SStrf::sltoa(ycount) );
+WebSendString( "</td>" );
+WebAddCr();
+for( int x = 0; x < p->ut_GetColAmount(); x++ )
+{
+WebSendString( "<td>" );
+WebSendString( p->ut_GetItemStr(y,x) );
+WebSendString( "</td>" );
+WebAddCr();
+}
+WebSendString( "</tr>" );
+WebAddCr();
+if( ycount >= linenum ) break;
+}
+WebSendString( "</table>" );
+WebAddCr();
+}
+if( rc == 1 ) break;
+}
+}
+}
+if(1)
+{
+SDte dt;
+dt.MakeNow();
+WebSendString( "制表时间：" );
+WebAddCr();
+WebSendString( dt.ReadString() );
+WebAddCr();
+WebAddButt( "BUTTOK", "再次输入别的条件" );
+WebAddCr();
+}
+pf_thread__ = &AFlowEle_t::f_thread_c367df5b1_3; return;
+L_3ff70abf3_3:;
+}
+//#FUNCEND#
+}
+
