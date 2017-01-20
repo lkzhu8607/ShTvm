@@ -1,0 +1,554 @@
+
+//
+de_coin_t::de_coin_t()
+{
+	m_de_ShouldReset = 0;  
+}
+
+
+//
+de_coin_t::~de_coin_t()
+{
+}
+
+
+
+//
+void de_coin_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_coin_t::tr_on_user_run()
+{
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	
+	gp_db->LasyRiseSaveFlag_b8701(R8701);
+
+	if( m_de_state == 0 ) //0= idle ;
+	{
+		while( m_de_state == 0 )  
+			WThrd::tr_sleepu( 0.21 ); //do nothing
+		WThrd::tr_sleepu( 0.21 );
+		return 1;
+	}
+
+	if( m_de_state == 1 ) //1= reset & idle ;
+	{
+		int &rc(R8701.m_RtnVal);
+
+		while(1)
+		{
+			rc = this->dCoin_Reset();
+
+			if( rc == -2 )	//	-2	端口未打开	
+			{
+				R8701.m_ConnState = 0;
+				this->CoinAdvice();
+				WThrd::tr_sleepu( 5 );
+				continue;
+			}
+		
+			if( rc != 0 )
+			{
+				R8701.m_ConnState = 1;
+				this->CoinAdvice();
+				WThrd::tr_sleepu( 3 );
+				continue;
+			}
+
+			break;
+		}
+
+		R8701.m_ConnState = 1;
+		this->CoinAdvice();
+
+		while( m_de_state == 1 )  
+			WThrd::tr_sleepu( 0.21 );
+
+		return 1;
+	} //1= reset & idle ;
+
+
+	if( m_de_state == 2 ) // 2= loop query 
+	{
+		while(1)
+		{
+			int rc = this->dCoin_Query();
+
+			if( R8701.m_RtnVal != rc )
+			{
+				R8701.m_RtnVal = rc;
+				this->CoinAdvice();
+			}
+			
+			if( m_de_state == 2 ) 
+			{
+				WThrd::tr_sleepu( 0.31 );
+				continue;
+			}
+			else
+				return 1;
+		}
+	}
+
+	WThrd::tr_sleepu( 0.21 );
+
+	return 1;
+}
+
+
+
+// 
+void de_coin_t::CoinAdvice()
+{
+	gp_frontinput->input_KIN_COIN();
+}
+
+
+// 
+void de_coin_t::CoinInit()
+{
+	this->tr_open();
+
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	R8701.m_ConnState = 1;
+	R8701.m_BigErr = 0;
+	R8701.m_RtnVal =0;
+}
+
+
+// 
+bool de_coin_t::dCommOpen()
+{
+	return true;
+}
+
+
+// 
+void de_coin_t::dCommClose()
+{
+}
+
+
+// 
+int de_coin_t::dCoin_State()
+{
+	return 0;
+}
+
+
+//
+int de_coin_t::dCoin_Test(BYTE Data[2])
+{
+	return 0;
+}
+
+
+//
+int de_coin_t::dCoin_Reset()
+{
+	return 0;
+}
+
+
+// 
+int de_coin_t::dCoin_GetVersion()
+{
+	MYAUTOLOCK( gp_db->m_b8701.m_ut_tbl_lck );
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+
+		//R8701.m_Major = Major;
+		//R8701.m_Minor = Minor;
+	return 0;
+}
+
+
+//
+int de_coin_t::dCoin_Change( BYTE Box[2] )
+{
+	return 0;
+}
+
+
+//
+int de_coin_t::dCoin_End_Change( BYTE Data )
+{
+	return 0;
+}
+
+//
+int de_coin_t::dCoin_Clean( BYTE Box )
+{
+	return 0;
+}
+
+
+
+//
+int de_coin_t::dCoin_End_Clean( BYTE Data )
+{
+	return 0;
+}
+
+
+//
+int de_coin_t::dCoin_OpenClose( BYTE Data1[2] )
+{
+	return 0;
+}
+
+
+//
+int de_coin_t::dCoin_Poll( BYTE Data1 )
+{
+	return 0;
+}
+
+
+
+//
+int de_coin_t::dCoin_Add( BYTE Box )
+{
+	return 0;
+}
+
+
+int de_coin_t::dCoin_Work( tbool enable_mao5, tbool enable_yuan1 )
+{
+	b8701_t::ROWTYPE &Rb8701(gp_db->GetTheRowb8701());
+	Rb8701.m_CoinPollData.a[0] = Rb8701.m_CoinPollData.a[1] = Rb8701.m_CoinPollData.a[2] = 0;
+	
+	return 0;
+}
+
+
+//
+int de_coin_t::dCoin_Work()
+{
+	//后续work钱数不要清0
+
+	return 0;
+}
+
+void de_coin_t::returnCoin()
+{
+
+}
+
+//
+int de_coin_t::dCoin_Stop()
+{
+	return 0;
+	
+}
+
+int de_coin_t::SupplementaryYuan1Coins(long Yuan1Count)
+{
+	return 0;
+}
+
+int de_coin_t::CyrcleJiao5ChgOut( long PlanJiao5 )
+{
+	return 0;
+}
+int de_coin_t::CycleBoxChg(long Yuan1Count)
+{
+	return 0;
+}
+
+//
+int de_coin_t::dCoin_Query()
+{
+	WFile fl;
+	b8701_t::ROWTYPE &Rb8701(gp_db->GetTheRowb8701());
+
+	fl.bind( gp_conf->Get_datapath4() + "coin_add.txt" );
+	if( fl.exists() )
+	{
+		fl.erase();
+
+		Rb8701.m_CoinPollData.a[0] ++;
+		Rb8701.m_CoinPollData.a[0] ++;
+		Rb8701.m_CoinPollData.a[0] ++;
+		Rb8701.m_CoinPollData.a[1] ++;
+	
+		this->CoinAdvice();
+	}
+
+	return 0;
+	
+}
+
+
+
+//
+static BYTE v_inData1_0 = 0;
+
+
+//
+int de_coin_t::dCoinHold()
+{
+	BYTE Data1[2] = {0,0};
+
+	//[in] Data1[0]	BYTE	Bit7-6:未使用
+	//Bit5: =1/0  1电源箱开关开（保留）
+	//Bit4: =1/0  预留
+	//Bit3: =1/0  1卡币解除马达启动，0停
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	//Bit0:=1/0   1 暂存循环回收闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 0 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+
+//
+int de_coin_t::dCoin2CircleChg()
+{
+	BYTE Data1[2] = {0,0};
+	int irc;
+
+	//Bit0:=1/0   1 暂存循环回收闸门开，0关 
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 0 );
+	SStrf::writebit( &(Data1[0]), 0, 1 );
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+
+	return irc;
+}
+
+
+//
+int de_coin_t::dCoin2StoreBox()
+{
+	BYTE Data1[2] = {0,0};
+	int irc;
+
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 1 );
+	SStrf::writebit( &(Data1[0]), 1, 1 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+
+	return irc;
+}
+
+
+//
+int de_coin_t::dCoin2CircleChg( long coin1, long coin5 /*= 0*/ )
+{
+	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Data1[2] = {0,0};
+	int irc;
+
+	//Bit0:=1/0   1 暂存循环回收闸门开，0关 
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 0 );
+	SStrf::writebit( &(Data1[0]), 0, 1 );
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+
+	if( irc == 0 )
+	{
+		Rb8701.m_A1YuanCycleChg += coin1;
+		Rb8701.m_A5MaoCycleChg += coin5;
+	}
+
+	return irc;
+}
+
+
+//
+int de_coin_t::dCoin2StoreBox( long coin1, long coin5 /*= 0*/ )
+{
+	BYTE Data1[2] = {0,0};
+	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	int irc;
+
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 1 );
+	SStrf::writebit( &(Data1[0]), 1, 1 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+	if( irc == 0 )
+	{
+		Rb8701.m_A1YuanStoreBox += coin1;
+		Rb8701.m_A5MaoStoreBox += coin5;
+	}
+
+	return irc;
+}
+
+
+
+
+//
+int de_coin_t::dCoin2Return()
+{
+	BYTE Data1[2] = {0,0};
+
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 1 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+
+
+//
+int de_coin_t::dCoinOpenUplight()
+{
+	BYTE Data1[2] = {0,0};
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 5, 1 );
+	SStrf::writebit( &(Data1[1]), 4, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//
+int de_coin_t::dCoinCloseUplight()
+{
+	BYTE Data1[2] = {0,0};
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 5, 0 );
+	SStrf::writebit( &(Data1[1]), 4, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//
+int de_coin_t::dCoinOpenDownlight()
+{
+	BYTE Data1[2] = {0,0};
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 3, 1 );
+	SStrf::writebit( &(Data1[1]), 2, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//
+int de_coin_t::dCoinCloseDownlight()
+{
+	BYTE Data1[2] = {0,0};
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 3, 0 );
+	SStrf::writebit( &(Data1[1]), 2, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//
+int de_coin_t::dCoinOpenAlert()
+{
+	BYTE Data1[2] = {0,0};
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 1, 1 );
+	SStrf::writebit( &(Data1[1]), 0, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+
+//
+int de_coin_t::dCoinCloseAlert()
+{
+	BYTE Data1[2] = {0,0};
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 1, 0 );
+	SStrf::writebit( &(Data1[1]), 0, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+
+//
+int de_coin_t::CircleChgOut( long PlanYuan1 )
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+
+	Box[0] = 0x01; // [in] Box[0]	  BYTE  1元循环找零
+	Box[1] = (BYTE)PlanYuan1; //[in] Box[1]	BYTE	找零数1~48
+
+	if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Change( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x01);	// 0x01：1元循环找零
+
+	return irc;
+}
+
+
+//
+int de_coin_t::SpecialChgOut( long PlanYuan1 )
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+
+	Box[0] = 0x04; // [in] Box[0]	  BYTE  0x04：1元专用找零；
+	Box[1] = (BYTE)PlanYuan1; //[in] Box[1]	BYTE	找零数1~48
+
+	if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Change( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x01);	// 0x04：1元专用找零
+
+	return irc;
+}
+
+
+bool de_coin_t::IsVaultFull()
+{
+	return false;
+}
+
+int  de_coin_t::RecoverErr()
+{	
+	return 1;
+	
+}
+
+
+
+

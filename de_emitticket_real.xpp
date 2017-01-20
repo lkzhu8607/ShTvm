@@ -1,0 +1,468 @@
+
+#include "TicketCommand.h"
+
+
+#define LOGOBJECT	 (gp_log[LOGEMTICKET])	 
+#define DBOBJECT	 (gp_db->m_b8703)	
+
+//
+de_emitticket_t::de_emitticket_t()
+{
+	this->SetShouldReset();
+}
+
+
+//
+de_emitticket_t::~de_emitticket_t()
+{
+	tr_destruct();
+}
+
+
+
+//
+void de_emitticket_t::OnRunTask( std::string t ) 
+{
+	
+		goto L_TASKEND;
+	
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_emitticket_t::tr_on_user_run()
+{
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	
+	gp_db->LasyRiseSaveFlag_b8703(Rb8703);
+
+	if( m_de_state == 0 ) //0= idle ;
+	{
+		while( m_de_state == 0 )  
+			WThrd::tr_sleepu( 0.21 ); //do nothing
+		WThrd::tr_sleepu( 0.21 );
+		return 1;
+	}
+
+	if( m_de_state == 1 ) //1= reset & idle ; 不实现。用不上。 
+	{
+		while( m_de_state == 1 )  
+			WThrd::tr_sleepu( 0.21 );
+
+		return 1;
+	}
+
+	if( m_de_state == 2 ) // 2= loop query 
+	{
+		
+		while(1)
+		{
+			int rc = this->eTicket_Poll();
+
+			if( Rb8703.m_RtnVal != rc )
+			{
+				Rb8703.m_RtnVal = rc;
+				this->EmttAdvice();
+			}
+			
+			if( m_de_state == 2 ) 
+			{
+				WThrd::tr_sleepu( 5 );
+				continue;
+			}
+			else
+				return 1;
+		}
+
+
+	}
+
+	WThrd::tr_sleepu( 1 );
+
+	return 1;
+}
+
+
+// 
+void de_emitticket_t::EmttAdvice()
+{
+	gp_frontinput->input_KIN_EMTICKET();
+}
+
+
+// 
+void de_emitticket_t::EmttInit()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	//′ò?a′??ú
+	if( !CommOpen() )
+	{
+		Rb8703.m_ConnState = 0;
+		Rb8703.m_BigErr = 1;
+		this->EmttAdvice();
+		WThrd::tr_sleepu( 5 );
+	}
+	else
+	{
+		Rb8703.m_ConnState = 1;
+		Rb8703.m_BigErr = 0;
+		
+		Rb8703.m_RtnVal = this->eTicket_Reset();
+		Rb8703.m_RtnVal = this->eTicket_GetVersion();
+		
+		this->EmttAdvice();
+		
+	}
+
+	m_de_state = 2;
+
+	this->tr_open();
+}
+
+
+// 
+bool de_emitticket_t::CommOpen()
+{
+	bool isOpen;
+    isOpen=cticket.Ticket_CommOpen(); 
+	return isOpen;
+}
+
+
+// 
+void de_emitticket_t::CommClose()
+{
+	cticket.Ticket_CommClose();
+}
+
+
+// 
+int de_emitticket_t::eTicket_Poll()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	int iResult;
+	BYTE SensorStatus[6];
+	int irc = 0;
+	
+	iResult=cticket.Ticket_Poll(SensorStatus);
+
+	if( 1 == Rb8703.m_ConnState && 0 != iResult )
+	{
+		int i = 0;
+		for( i=0 ;i<2 ;i++ )
+		{
+			wl::WThrd::tr_sleepu( 5 );
+			iResult=cticket.Ticket_Poll(SensorStatus);
+			if( 0 == iResult )
+			{
+				break;
+			}
+		}
+
+		if( 2 == i )
+		{
+			Rb8703.m_ConnState = 0;   //三次错误，设定错误标志，
+			this->EmttAdvice();
+		}
+	}
+
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 6; i++ )
+		{
+			if( Rb8703.m_SensorStatus.a[i] != SensorStatus[i] )
+				irc ++, Rb8703.m_SensorStatus.a[i] = SensorStatus[i];
+		}
+
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "eTicket_Poll Result="<<iResult<<"SensorStatus="
+		                               <<wl::SStrf::sltoa(SensorStatus[0])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[1])<<" " 
+									   <<wl::SStrf::sltoa(SensorStatus[2])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[3])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[4])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[5]) );
+
+		Rb8703.m_ConnState = 1;    //清除错误标记
+		this->EmttAdvice();
+
+	}
+
+	
+	if( irc )
+		this->EmttAdvice();
+
+	return iResult;
+}
+
+
+
+//
+int de_emitticket_t::eTicket_PowerTest(BYTE Index)
+{
+	MYAUTOLOCK( m_DevLck );
+	int iResult;
+	
+	iResult=cticket.Ticket_PowerTest(Index);
+	
+	return iResult;
+}
+
+
+//
+int de_emitticket_t::eTicket_Reset()
+{
+	MYAUTOLOCK( m_DevLck );
+	int iResult;
+
+	iResult=cticket.Ticket_Reset( );
+
+	return iResult;
+}
+
+
+// 
+int de_emitticket_t::eTicket_GetVersion()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	int iResult;
+	BYTE Major;
+	BYTE Minor;		
+	
+	iResult=cticket.Ticket_GetVersion(Major,Minor); 
+
+	if( iResult == 0 )
+	{
+		Rb8703.m_Major = Major;
+		Rb8703.m_Minor = Minor;
+	}
+
+	return iResult;
+}
+
+//
+int de_emitticket_t::eTicket_PrepareCard()//1|?ü￡o???¨·￠μ??áD′???? 
+{
+	MYAUTOLOCK( m_DevLck );
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	int iResult;
+	BYTE Wrong;
+	BYTE Data2[6];
+	
+	iResult=cticket.Ticket_SendCard(0x01,Wrong,Data2);
+	
+	if( iResult == 0 )
+	{
+		Rb8703.m_WrongCode = Wrong;
+
+		for( int i = 0;i < 6; i++ )
+			Rb8703.m_SensorStatus.a[i] = Data2[i];
+	}
+
+	return iResult;
+}
+
+
+//
+int de_emitticket_t::eTicket_SendOutIn( BYTE Data1 )//·￠íù3??í·??ò￡¨Data1=1￡?￡? ?¨·￠íù·??±??￡¨Data1=2￡?
+{
+	MYAUTOLOCK( m_DevLck );
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	int iResult;
+	BYTE Wrong;
+	BYTE Data2[6];
+	
+    iResult=cticket.Ticket_WriteRead(0x01,Data1,Wrong,Data2); 
+	
+	if( iResult == 0 )
+	{
+		Rb8703.m_WrongCode = Wrong;
+
+		for( int i = 0;i < 6; i++ )
+			Rb8703.m_SensorStatus.a[i] = Data2[i];
+	}
+
+	return iResult;
+}
+
+int de_emitticket_t::eTicket_SendOut()
+{
+	MYAUTOLOCK( m_DevLck );
+	int iResult;
+	BYTE Data = 0x01;
+
+	iResult = eTicket_SendOutIn(1);
+	if(iResult != 0)
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Prepar Ticket fail");
+		return iResult;
+	}
+	
+	//WThrd::tr_sleepu( 5 );
+
+	/*iResult = eTicket_CleanEscrow(Data);
+	if(iResult != 0)
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Clean Escrow fail="<<iResult);
+		return iResult;
+	}
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Clean Escrow ="<<iResult);*/
+
+	return iResult;
+}
+
+//
+int de_emitticket_t::eTicket_ExchangeBox()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	int iResult;
+	BYTE Wrong;
+	BYTE Data2[6];
+	
+    iResult=cticket.Ticket_ExchangeBox(Wrong,Data2); 
+	
+	if( iResult == 0 )
+	{
+		Rb8703.m_WrongCode = Wrong;
+
+		for( int i = 0;i < 6; i++ )
+			Rb8703.m_SensorStatus.a[i] = Data2[i];
+	}
+
+	return iResult;
+}
+
+
+
+// 
+tbool de_emitticket_t::MkTicketReady()
+{
+	MYAUTOLOCK( m_DevLck );
+
+	BYTE SensorStatus[6];
+	int iResult;
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	int irc = 0;
+
+	if(1)
+	{
+		do
+		{
+			iResult=cticket.Ticket_Poll(SensorStatus);
+
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "iResult="<<iResult );
+
+			if( iResult == 0 )
+			{
+				for( int i = 0;i < 6; i++ )
+				{
+					if( Rb8703.m_SensorStatus.a[i] != SensorStatus[i] )
+						irc ++, Rb8703.m_SensorStatus.a[i] = SensorStatus[i];
+
+				}
+
+				break;
+			}
+			if( 80 != iResult )    // 80 - 设备忙
+			{
+				return 0;
+			}
+		
+			wl::WThrd::tr_sleepu(1);
+		}while(1);
+		
+	}
+
+	if( SStrf::readbit( SensorStatus[0], 0 ) == 1 ) // ò?óD?¨ 
+	{
+		//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "~~~~reader sensor covered, card prepared");
+		return 1;
+	}
+	else
+	{
+		//·￠???¨ 
+
+		WThrd::tr_sleepu( 0.5 );
+
+		iResult = this->eTicket_PrepareCard();
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "iResult="<<iResult );
+
+		if( iResult == 0 )
+		{
+			return 1;
+		}
+		else // ??óD·￠3??¨￡??ò???????ùê?ò??? 
+		{
+			WThrd::tr_sleepu( 0.5 );
+			eTicket_ExchangeBox();
+	
+			WThrd::tr_sleep(1);
+
+			iResult = this->eTicket_PrepareCard();
+
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "iResult="<<iResult );
+
+			if( iResult == 0 )
+			{
+				return 1;
+			}
+		}
+	}
+	//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "~~~~prepare card file~~~~~~~~~~~");
+
+	return 0;
+}
+
+int de_emitticket_t::eTicket_CleanEscrow(BYTE bTicketTowhere)
+{
+	MYAUTOLOCK( m_DevLck );
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	int iResult;
+	BYTE Wrong;
+	BYTE Data2[6];
+	
+	do
+	{
+		iResult=cticket.Ticket_CleanEscrow(bTicketTowhere,Wrong,Data2); 
+		
+		if( iResult == 0 )
+		{
+			Rb8703.m_WrongCode = Wrong;
+
+			for( int i = 0;i < 6; i++ )
+				Rb8703.m_SensorStatus.a[i] = Data2[i];
+
+			break;
+		}
+		if(iResult != 80)
+		{
+			break;
+		}
+		
+	}while(1);
+
+	return iResult;
+}
+
+
+int de_emitticket_t::RecoverErr()
+{
+	LOGSTREAM( LOGOBJECT, LOGPOSI << " " );
+	if( 0 == eTicket_Reset() )
+	{
+		MYAUTOLOCK( DBOBJECT.m_ut_tbl_lck );
+
+		DBOBJECT.GetRow(0).m_BigErr = 0;
+		this->EmttAdvice();
+		return 1;
+	}
+
+	this->EmttAdvice();
+	return 0;
+}

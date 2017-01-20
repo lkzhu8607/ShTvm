@@ -1,0 +1,189 @@
+
+class SerialPortClass : public d_com_agent2_t 
+{
+public:
+};
+
+static SerialPortClass  mySerialPort;
+
+
+//
+de_upsdev_t::de_upsdev_t()
+{
+	m_de_ShouldReset = 1;
+	m_de_state = 0;
+}
+
+
+//
+de_upsdev_t::~de_upsdev_t()
+{
+	this->UpsCommClose();
+}
+
+
+//
+void de_upsdev_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_upsdev_t::tr_on_user_run()
+{
+	b8708_t::ROWTYPE &Rb8708(gp_db->GetTheRowb8708());
+
+	gp_db->LasyRiseSaveFlag_b8708(Rb8708);
+	
+	if( this->m_de_ShouldReset )
+	{
+		Rb8708.m_RtnVal = this->UpsReset();
+		WThrd::tr_sleepu( 2 );
+		return 1;
+	}
+	
+	if( this->m_de_state == 0 ) 
+	{
+		WThrd::tr_sleepu( 2 );
+		return 1;
+	}
+
+	if( this->m_de_state == 1 ) 
+	{
+		MYAUTOLOCK( m_DevLck );
+
+		this->Query();
+
+		if( Rb8708.m_RtnVal == -1 )
+		{
+			this->m_de_ShouldReset = 1;
+		}
+	}
+
+	WThrd::tr_sleepu( 8.91 );
+	return 1;
+}
+
+
+// 
+void de_upsdev_t::UpsAdvice()
+{
+	gp_frontinput->input_KIN_UPS();
+}
+
+
+// 
+void de_upsdev_t::UpsInit()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8708_t::ROWTYPE &Rb8708(gp_db->GetTheRowb8708());
+
+	while( !this->UpsCommOpen() )
+	{
+		Rb8708.m_ConnState = 0;
+		Rb8708.m_BigErr = 1;
+		this->UpsAdvice();
+		WThrd::tr_sleepu( 3.5 );
+	}
+
+	Rb8708.m_ConnState = 1;
+	Rb8708.m_BigErr = 0;
+
+	Rb8708.m_RtnVal = this->UpsReset();
+
+	this->m_de_state = 1;
+
+	this->tr_open();
+}
+
+
+//
+int de_upsdev_t::UpsReset()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8708_t::ROWTYPE &Rb8708(gp_db->GetTheRowb8708());
+	std::string s1;
+	SCake ck;
+
+	this->Query();
+
+	this->m_de_ShouldReset = 0;
+
+	return 0;
+}
+
+
+// 
+bool de_upsdev_t::UpsCommOpen()
+{
+	if (mySerialPort.Conn(gp_conf->Get_ups_com_port()))
+	{
+		LOGSTREAM( gp_log[LOGUPS], LOGPOSI << "com open ok:" << gp_conf->Get_ups_com_port() );
+		return true; 
+	}
+	else
+	{
+		LOGSTREAM( gp_log[LOGUPS], LOGPOSI << "com open fail:" << gp_conf->Get_ups_com_port() );
+		return false;
+	}
+}
+
+
+//关闭端口
+void de_upsdev_t::UpsCommClose()
+{
+	LOGSTREAM( gp_log[LOGUPS], LOGPOSI << "com close:" << gp_conf->Get_ups_com_port() );
+	mySerialPort.DisConn();
+	return;
+}
+
+
+//串口：2400,n,8,1
+//命令：51 31 0D
+//应答：28 XX XX …… XX XX 0D
+//应答的第39个字节=49时，UPS断电
+void de_upsdev_t::Query()
+{
+	//MYAUTOLOCK( m_DevLck );
+	b8708_t::ROWTYPE &Rb8708(gp_db->GetTheRowb8708());
+	std::string s1;
+	SCake ck;
+	tuint8  ui1;
+
+	s1 = "51 31 0D ";	 	
+		 
+	ck.UnSeri_S( s1 );
+	
+	mySerialPort.send_bin( ck );
+
+	//	应答	
+	mySerialPort.recv_all( ck );
+
+	if( ck.len() >= 39 )
+	{
+		ui1 = *(tuint8*)(ck.buf()+38);
+
+		int	IsUpsNoPower_Old = Rb8708.m_IsUpsNoPower;
+
+		if( ui1 == 0x49 )
+			Rb8708.m_IsUpsNoPower = 1;
+		else
+			Rb8708.m_IsUpsNoPower = 0;
+
+		if( IsUpsNoPower_Old != Rb8708.m_IsUpsNoPower )
+			this->UpsAdvice();
+	}
+	else
+	{
+		Rb8708.m_RtnVal = -1;
+		this->UpsAdvice();
+	}
+}
+
+
+

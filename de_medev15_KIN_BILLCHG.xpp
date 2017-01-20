@@ -1,0 +1,71 @@
+
+	if( c == KIN_BILLCHG )
+	{
+		//*******************所有事件码： 
+		
+	 	
+		// 128 纸币找零模块故障	
+		if( Rb8705.m_BigErr || Rb8705.m_ConnState == 0 )
+			EVT_CHG(128,1);
+		else
+			EVT_CHG(128,0);
+
+
+		// 149 纸币找零箱1不在位 
+		if( Rb8705.m_boxExist.a[0] == 0 && Rb8705.m_BoxState.a[0] == 3 )	// 0： 钱箱存在		0x03=已经安装正在运营	
+			EVT_CHG(149,0);
+		else
+			EVT_CHG(149,1);
+
+
+		// 150 纸币找零箱1将空 
+		if( Rb8705.m_boxNearEmpty.a[0] == 1 )	// 0: 第一个钱箱目前不空  1:第一个钱箱即将空	
+			EVT_CHG(150,1);
+		else
+			EVT_CHG(150,0);
+
+
+		// 151 纸币找零箱1空 
+		if( Rb8705.m_boxIsEmpty.a[0] == 1 )	// 	0=不空  1=空 
+			EVT_CHG(151,1);
+		else
+			EVT_CHG(151,0);
+
+
+		// 152 纸币找零箱2不在位 
+		if( Rb8705.m_boxExist.a[1] == 0 && Rb8705.m_BoxState.a[1] == 3 )	// 0： 钱箱存在		0x03=已经安装正在运营	
+			EVT_CHG(152,0);
+		else
+			EVT_CHG(152,1);
+
+
+		// 153 纸币找零箱2将空 
+		if( Rb8705.m_boxNearEmpty.a[1] == 1 )	// 
+			EVT_CHG(153,1);
+		else
+			EVT_CHG(153,0);
+
+
+		// 154 纸币找零箱2空 
+		if( Rb8705.m_boxIsEmpty.a[1] == 1 )	// 	0=不空  1=空 
+			EVT_CHG(154,1);
+		else
+			EVT_CHG(154,0);
+
+
+		// 155 纸币找零箱废币箱不在位 
+		if( Rb8705.m_boxExist.a[2] == 0 )	// 0：回收箱存在	1：回收箱不存在	
+			EVT_CHG(155,0);
+		else
+			EVT_CHG(155,1);
+
+
+		// 156 纸币找零废币箱满 
+		if( Rb8705.m_boxFull.a[2] == 1 )	//	0:回收箱空	1:回收箱满	
+			EVT_CHG(156,1);
+		else
+			EVT_CHG(156,0);
+
+	}
+
+

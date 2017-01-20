@@ -1,0 +1,19 @@
+
+
+if(1)
+{
+	// s1.a[0]		门开(1)
+	tuint8 ui1;
+
+	ui1 = Rb8701.m_SensorStatus.a[1];	//	[out] SensorStatus[1]	Bit0:=1/0  门到位：		0=到位；	1=未到 
+	SStrf::writebit( &ui1, 0 , 0 );
+	Rb8701.m_SensorStatus.a[1] = ui1;
+
+
+	Rb8705.m_BoxState.a[0] = 3;	//  0x03=已经安装正在运营	
+	Rb8705.m_BoxState.a[1] = 3;	//  0x03=已经安装正在运营	
+}
+
+
+
+

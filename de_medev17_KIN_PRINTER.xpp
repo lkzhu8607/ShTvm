@@ -1,0 +1,22 @@
+
+	if( c == KIN_PRINTER )
+	{
+		//*******************所有事件码： 
+		
+	 	
+		//  132 打印机故障 
+		if( Rb8707.m_BigErr || Rb8707.m_ConnState == 0 || Rb8707.m_RtnVal != 0 )
+			EVT_CHG(132,1);
+		else
+			EVT_CHG(132,0);
+
+
+		// 42	打印机缺纸				√		2 
+		if( Rb8707.m_NearEmpty || Rb8707.m_IsEmpty )	 
+			EVT_CHG(42,0);
+		else
+			EVT_CHG(42,1);
+
+	}
+
+

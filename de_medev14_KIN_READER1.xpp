@@ -1,0 +1,17 @@
+
+	if( c == KIN_READER1 )
+	{
+		//*******************所有事件码： 
+	
+		// 120 TVM读卡器1故障 
+		if( Rb8704.m_BigErr ||	Rb8704.m_ConnState == 0 )
+			EVT_CHG(120,1);
+		else
+			EVT_CHG(120,0);
+
+
+
+	}
+
+
+

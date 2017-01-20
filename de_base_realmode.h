@@ -1,0 +1,35 @@
+
+#ifndef K1_DE_BASE_REALMODE_H
+#define K1_DE_BASE_REALMODE_H
+
+
+//
+#define DE_COIN_REAL_XPP
+#define DE_BILL_REAL_XPP
+#define DE_EMITTICKET_REAL_XPP
+#define DE_READER1_REAL_XPP 
+//#define DE_BILCHG_REAL_XPP 
+#define DE_TOPSCR_REAL_XPP
+#define DE_PRINTER_REAL_XPP
+//#define DE_UPSDEV_REAL_XPP
+
+
+
+//#define DE_GOOD_FLAG
+
+
+//#define DE_COIN_GOOD_FLAG
+//#define DE_BILL_GOOD_FLAG
+//#define DE_EMITTICKET_GOOD_FLAG
+//#define DE_READER1_GOOD_FLAG
+//#define DE_BILCHG_GOOD_FLAG
+//#define DE_TOPSCR_GOOD_FLAG
+//#define DE_PRINTER_GOOD_FLAG
+//#define DE_UPSDEV_GOOD_FLAG
+
+
+
+
+#endif
+
+

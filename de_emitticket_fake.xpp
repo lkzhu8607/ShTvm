@@ -1,0 +1,155 @@
+
+//
+de_emitticket_t::de_emitticket_t()
+{
+	m_de_ShouldReset = 0;  
+}
+
+
+//
+de_emitticket_t::~de_emitticket_t()
+{
+}
+
+
+
+
+
+
+//
+void de_emitticket_t::OnRunTask( std::string t ) 
+{
+	
+		goto L_TASKEND;
+	
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_emitticket_t::tr_on_user_run()
+{
+	do{
+
+	}while(0);
+
+	WThrd::tr_sleepu( 3 );
+
+	return 1;
+}
+
+
+// 
+void de_emitticket_t::EmttAdvice()
+{
+	gp_frontinput->input_KIN_EMTICKET();
+}
+
+
+// 
+void de_emitticket_t::EmttInit()
+{
+	//´ò¿ª´®¿Ú
+	this->CommOpen();
+
+	this->tr_open();
+
+	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
+	Rb8703.m_ConnState = 1;
+	Rb8703.m_BigErr = 0;
+	Rb8703.m_RtnVal =0;
+}
+
+
+
+// 
+bool de_emitticket_t::CommOpen()
+{
+	return true;
+}
+
+
+// 
+void de_emitticket_t::CommClose()
+{
+}
+
+
+// 
+int de_emitticket_t::eTicket_Poll()
+{
+	return 0;
+}
+
+
+
+
+//
+int de_emitticket_t::eTicket_PowerTest(BYTE Index)
+{
+	return 0;
+}
+
+//
+int de_emitticket_t::eTicket_Reset()
+{
+	return 0;
+}
+
+
+// 
+int de_emitticket_t::eTicket_GetVersion()
+{
+	return 0;
+}
+
+
+//
+int de_emitticket_t::eTicket_PrepareCard()
+{
+	return 0;
+}
+
+
+//
+int de_emitticket_t::eTicket_SendOutIn( BYTE Data1 )
+{
+	return 0;
+}
+
+int de_emitticket_t::eTicket_SendOut()
+{
+	return 0;
+	
+}
+//
+int de_emitticket_t::eTicket_ExchangeBox()
+{
+	return 0;
+}
+
+
+
+
+// 
+tbool de_emitticket_t::MkTicketReady()
+{
+
+		return 1;
+}
+
+
+int de_emitticket_t::eTicket_CleanEscrow(BYTE bTicketTowhere)
+{
+	return 0;
+}
+
+int de_emitticket_t::RecoverErr()
+{
+
+}
+
+
+

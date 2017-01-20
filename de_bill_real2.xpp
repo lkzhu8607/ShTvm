@@ -1,0 +1,328 @@
+
+#include "GDnote_MEI.h"
+
+
+namespace BillMEI {
+	GDCashModle Mei_banknote;
+	int ret=0;
+}
+
+
+
+//
+de_bill_t::de_bill_t()
+{
+	this->SetShouldReset();
+}
+
+
+//
+de_bill_t::~de_bill_t()
+{
+	using namespace BillMEI;
+	ret=Mei_banknote.CloseCom();
+}
+
+
+
+//
+void de_bill_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+	
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_bill_t::tr_on_user_run()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	gp_db->LasyRiseSaveFlag_b8702(Rb8702);
+
+	if( m_de_state == 0 ) //0= idle ;
+	{
+		while( m_de_state == 0 )  
+			WThrd::tr_sleepu( 0.21 ); //do nothing
+		WThrd::tr_sleepu( 0.21 );
+		return 1;
+	}
+
+
+	if( m_de_state == 1 ) //1= reset & idle ;
+	{
+		while(1)
+		{
+			Rb8702.m_RtnVal = this->Reset();
+		
+			if( Rb8702.m_RtnVal == -1 )	//-1	´®¿ÚÎ´´ò¿ª
+			{
+				ret=Mei_banknote.OpenCom();
+
+				Rb8702.m_ConnState = 0;
+				this->billAdvice();
+				WThrd::tr_sleepu( 5 );
+				continue;
+			}
+
+			if( Rb8702.m_RtnVal != 0 )
+			{
+				Rb8702.m_ConnState = 1;
+				this->billAdvice();
+				WThrd::tr_sleepu( 3 );
+				continue;
+			}
+
+			break;
+		}
+
+		Rb8702.m_ConnState = 1;
+		this->billAdvice();
+	
+		while( m_de_state == 1 )  
+			WThrd::tr_sleepu( 0.21 );
+
+		return 1;
+	} //1= reset & idle ;
+
+	if( m_de_state == 2 ) // 2= loop query 
+	{
+		while(1)
+		{
+			if( Rb8702.m_RtnVal > 0 )
+			{
+				Rb8702.m_RtnVal = this->Reset();
+			}
+
+			if( m_de_state == 2 ) 
+			{
+				WThrd::tr_sleep( 9 );
+				continue;
+			}
+		}
+	}
+
+	WThrd::tr_sleepu( 0.21 );
+
+	return 1;
+}
+
+
+// 
+void de_bill_t::billAdvice()
+{
+	gp_frontinput->input_KIN_BILL();
+}
+
+
+// 
+void de_bill_t::billInit()
+{
+	using namespace std;
+	using namespace BillMEI;
+	MYAUTOLOCK( m_DevLck );
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	ret=Mei_banknote.OpenCom();
+	
+	while( ret != 0 )
+	{
+		Rb8702.m_RtnVal = ret;
+		Rb8702.m_ConnState = 0;
+		Rb8702.m_BigErr = 1;
+		this->billAdvice();
+		WThrd::tr_sleepu( 5.3 );
+	}
+	
+	Rb8702.m_RtnVal = ret;
+	Rb8702.m_ConnState = 1;
+	Rb8702.m_BigErr = 0;
+
+	Rb8702.m_RtnVal = this->Reset();
+	//Rb8702.//GetVersion();
+
+	this->billAdvice();
+
+	m_de_state = 2;
+
+	this->tr_open();
+}
+
+
+//// 
+//int de_bill_t::Reset()
+//{
+//	using namespace BillMEI;
+//	MYAUTOLOCK( m_DevLck );
+//	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+//
+//	ret=Mei_banknote.cmReset();
+//	Rb8702.m_RtnVal = ret;
+//
+//	ret=Mei_banknote.cmInit( );
+//
+//	ret=Mei_banknote.cmState( );
+//	Rb8702.m_RtnVal = ret;
+//
+//	return ret;
+//}
+
+// 
+int de_bill_t::Reset()
+{
+	using namespace BillMEI;
+	MYAUTOLOCK( m_DevLck );
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	return Rb8702.m_RtnVal = Mei_banknote.c3Reset();
+
+}
+
+
+
+// 
+int de_bill_t::Work()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	ret=Mei_banknote.cmWork();
+	Rb8702.m_RtnVal = ret;
+
+	if( ret == 0 )
+	{
+		return State();
+	}
+	else
+	{
+		return ret;
+	}
+}
+
+
+// 
+int de_bill_t::State()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+	int rc = 0;
+
+	ret=Mei_banknote.cmState( );				
+	Rb8702.m_RtnVal = ret;
+	
+	if(ret==0)
+	{
+		rc ++, Rb8702.m_cNoteValue = Mei_banknote.cNoteValue;
+		rc ++, Rb8702.m_cNoteNum = 1;
+	}
+	
+	if( rc )
+		this->billAdvice();
+
+	return ret;
+}
+
+
+// 
+int de_bill_t::Stop()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	Rb8702.m_RtnVal = ret=Mei_banknote.cmStopWork( );
+
+	return ret;
+}
+
+
+// 
+int de_bill_t::Return1()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	return Rb8702.m_RtnVal = ret=Mei_banknote.cmRefund( );
+}
+
+
+// 
+int de_bill_t::Return2()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	return Rb8702.m_RtnVal = ret=Mei_banknote.cmRefund( );
+}
+
+
+// 
+int de_bill_t::Return3()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	return Rb8702.m_RtnVal = ret=Mei_banknote.cmRefund( );
+}
+
+
+// 
+int de_bill_t::Escrow()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	return 0;
+}
+
+
+// 
+int de_bill_t::Deposit()
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	return Rb8702.m_RtnVal = ret=Mei_banknote.cmEncash( );
+}
+
+int de_bill_t::dBill_GetRecycleDenomination(UINT32 REDeno[4],UINT32 REcount[4])
+{
+	
+}
+
+
+// 
+int de_bill_t::Mei_Inhibit(int value)
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	Rb8702.m_RtnVal = ret=Mei_banknote.cmInhibit( value );
+
+	return ret;
+}
+
+
+// 
+int de_bill_t::Mei_Active(int value)
+{
+	using namespace BillMEI;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	Rb8702.m_RtnVal = ret=Mei_banknote.cmActive( value );
+
+	return ret;
+}

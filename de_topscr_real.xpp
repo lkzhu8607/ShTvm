@@ -1,0 +1,280 @@
+
+//
+de_topscr_t::de_topscr_t()
+{
+	m_de_ShouldReset = 1;
+	m_de_state = 0;
+}
+
+
+//
+de_topscr_t::~de_topscr_t()
+{
+	this->TopscrCommClose();
+}
+
+
+
+//
+void de_topscr_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+class SerialPortClass : public d_com_agent2_t 
+{
+public:
+};
+
+static SerialPortClass  mySerialPort;
+
+
+
+static std::vector<char> all_content;
+
+
+
+void AddString( const char * Content )
+{   
+	char temp=0x00;
+	int count=0;     //用于计算content的字符数
+	int page=1;
+	int index=0;
+	int byte_count=0;   
+	int page_count=0;  
+
+	all_content.clear();
+	 
+	temp=0x01;
+	all_content.push_back(temp);
+	temp=(char)0xD6;
+	all_content.push_back(temp);
+	temp=0x04;
+	all_content.push_back(temp);
+	temp=0x00;
+	all_content.push_back(temp);
+	//位置设置
+	temp=0x00;
+	all_content.push_back(temp);
+	temp=0x00;
+	all_content.push_back(temp);
+	temp=0x00;
+	all_content.push_back(temp);
+	temp=0x00;
+	all_content.push_back(temp);
+	temp=(char)0x9F;
+	all_content.push_back(temp);
+	temp=0x00;
+	all_content.push_back(temp);
+	temp=0x0F;
+	all_content.push_back(temp);
+	temp=0x00;
+	all_content.push_back(temp);
+	//计算字符数
+	index=0;
+	count=0;
+	while(Content[index]!=0)
+	{
+		count++;
+		index++;
+	}
+	byte_count=count;
+	//页数  all_content[12]
+	if(byte_count%20==0 && byte_count!=0)
+	{
+		page_count=byte_count/20;
+	}
+	else
+	{
+		page_count=byte_count/20;
+		page_count++;
+	}
+	temp=(char)page_count;
+	all_content.push_back(temp);
+	// 显示方式
+	for(int i=1;i<=page_count;i++)
+	{  
+		//特效效果
+		temp=(char)26;
+		all_content.push_back(temp);
+		//退出方式
+		temp=0x00;
+		all_content.push_back(temp);
+		//运行速度
+		temp=(char)3;
+		all_content.push_back(temp);
+		//显示时间
+		temp=(char)3;
+		all_content.push_back(temp);
+
+	}
+	index=0;
+	while(Content[index]!=0)
+	{   
+		temp=Content[index];
+		all_content.push_back(temp);
+		temp=0x03;
+		all_content.push_back(temp);
+		index++;
+	}
+	//不足一页，进行补充
+	if(byte_count<page_count*20)
+	{
+			for(int i=1;i<=(page_count*20-byte_count);i++)
+			{  
+				temp=0x00;
+				all_content.push_back(temp);
+				temp=0x03;
+				all_content.push_back(temp);
+			}
+	}
+	//帧尾
+	temp=(char)0xAA;
+	all_content.push_back(temp);
+}
+
+
+
+
+
+// 
+int de_topscr_t::tr_on_user_run()
+{
+	b8706_t::ROWTYPE &Rb8706(gp_db->GetTheRowb8706());
+
+	gp_db->LasyRiseSaveFlag_b8706(Rb8706);
+	
+	if( this->m_de_ShouldReset )
+	{
+		Rb8706.m_RtnVal = this->TopscrReset();
+		WThrd::tr_sleepu( 2 );
+		return 1;
+	}
+	
+	if( this->m_de_state == 1 && Rb8706.m_Counter2 != Rb8706.m_Counter1 ) //写屏  标记2是跟着1的		
+	{
+		SCake ck;
+
+		Rb8706.m_Counter2 = Rb8706.m_Counter1;
+
+		//	1.上位机发送	
+		ck.redim(0);
+
+		if(1)
+		{
+			MYAUTOLOCK( m_DevLck );	//锁上 为了对m_DispStr进行操作。	
+
+			if( Rb8706.m_DispStr.size() )
+			{
+				AddString( Rb8706.m_DispStr.c_str() );
+				ck.append( (char)1 );
+				ck.append( (char)1 );	// 此屏要初始化动作紧跟着数据动作才能工作。	
+				ck.append( &(all_content[0]), (int)all_content.size() );
+			}
+		}
+
+		if( ck.len() )
+			mySerialPort.send_bin( ck );
+
+		//	4.下位机应答	
+		mySerialPort.recv_len( ck , 1 );	//	接收初始化工作的返回值	
+		if( ck.len() == 0 ) Rb8706.m_Counter1 ++;
+		mySerialPort.recv_len( ck , 1 );	//	接收数据工作的返回值	
+		if( ck.len() == 0 ) Rb8706.m_Counter1 ++;
+	}
+
+	WThrd::tr_sleepu( 3.91 );
+	return 1;
+}
+
+
+// 
+void de_topscr_t::TopscrAdvice()
+{
+	gp_frontinput->input_KIN_TOPSCR();
+}
+
+
+// 
+void de_topscr_t::TopscrInit()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8706_t::ROWTYPE &Rb8706(gp_db->GetTheRowb8706());
+
+	if( !this->TopscrCommOpen() )
+	{
+		Rb8706.m_ConnState = 0;
+		Rb8706.m_BigErr = 1;
+		this->TopscrAdvice();
+		WThrd::tr_sleepu( 5.5 );
+	}
+	else
+	{
+		Rb8706.m_ConnState = 1;
+		Rb8706.m_BigErr = 0;
+
+		Rb8706.m_RtnVal = this->TopscrReset();
+	}
+
+
+	this->m_de_state = 1;
+
+	this->tr_open();
+}
+
+
+//
+int de_topscr_t::TopscrReset()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8706_t::ROWTYPE &Rb8706(gp_db->GetTheRowb8706());
+
+	this->m_de_ShouldReset = 0;
+
+	return 0;
+}
+
+
+// 
+bool de_topscr_t::TopscrCommOpen()
+{
+	if (mySerialPort.Conn(gp_conf->Get_topscr_com_port()))
+	{
+		LOGSTREAM( gp_log[LOGTOPSCR], LOGPOSI << "com open ok:" << gp_conf->Get_topscr_com_port() );
+		return true; 
+	}
+	else
+	{
+		LOGSTREAM( gp_log[LOGTOPSCR], LOGPOSI << "com open fail:" << gp_conf->Get_topscr_com_port() );
+		return false;
+	}
+}
+
+
+//关闭端口
+void de_topscr_t::TopscrCommClose()
+{
+	LOGSTREAM( gp_log[LOGTOPSCR], LOGPOSI << "com close:" << gp_conf->Get_topscr_com_port() );
+	mySerialPort.DisConn();
+	return;
+}
+
+
+//
+void de_topscr_t::DispStr( std::string str )
+{
+	MYAUTOLOCK( m_DevLck );
+	b8706_t::ROWTYPE &Rb8706(gp_db->GetTheRowb8706());
+
+	Rb8706.m_DispStr = str;
+	Rb8706.m_Counter1 ++;
+}
+
+
+
+

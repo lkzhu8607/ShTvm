@@ -1,0 +1,135 @@
+
+//
+de_printer_t::de_printer_t()
+{
+	m_de_ShouldReset = 0;  
+}
+
+
+//
+de_printer_t::~de_printer_t()
+{
+}
+
+
+
+//
+void de_printer_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_printer_t::tr_on_user_run()
+{
+	WThrd::tr_sleepu( 10.91 );
+
+	return 1;
+}
+
+
+// 
+void de_printer_t::PrinterAdvice()
+{
+	gp_frontinput->input_KIN_PRINTER();
+}
+
+
+// 
+void de_printer_t::PrinterInit()
+{
+	this->tr_open();
+
+	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+
+	Rb8707.m_ConnState = 1;
+	Rb8707.m_BigErr = 0;
+
+	Rb8707.m_RtnVal = 0;
+}
+
+//
+int de_printer_t::PrinterReset()
+{
+	this->m_de_ShouldReset = 0;
+	return 0;
+}
+
+// 
+bool de_printer_t::PrinterCommOpen()
+{
+	return true;
+}
+
+
+// 
+void de_printer_t::PrinterCommClose()
+{
+}
+
+
+//
+void de_printer_t::HalfCut()
+{
+	return ;
+}
+
+
+//
+void de_printer_t::PrintPic( SCake ckPic )
+{
+	return ;
+}
+
+
+//
+void de_printer_t::PrintLine( std::string str )
+{
+	return ;
+}
+
+
+//
+void de_printer_t::Query()
+{
+	return ;
+}
+
+
+//
+void de_printer_t::HalfCutAsync()
+{
+	return ;
+}
+
+
+//
+void de_printer_t::PrintLineAsync( std::string str )
+{
+	return ;
+}
+
+void de_printer_t::PrintStrAsync( std::string str )
+{
+	return ;
+}
+
+void de_printer_t::PrintStr(std::string str)
+{
+	return ;
+}
+
+void de_printer_t::PrintStr(SCake ckStr)
+{
+	return ;
+}
+
+void de_printer_t::PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata )
+{
+	return ;
+}

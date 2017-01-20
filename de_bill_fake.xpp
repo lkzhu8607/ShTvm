@@ -1,0 +1,361 @@
+
+//
+de_bill_t::de_bill_t()
+{
+	m_de_ShouldReset = 0;  
+}
+
+
+//
+de_bill_t::~de_bill_t()
+{
+}
+
+
+
+//
+void de_bill_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+	
+L_TASKEND:
+ 
+	return;
+}
+
+
+
+// 
+int de_bill_t::tr_on_user_run()
+{
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	gp_db->LasyRiseSaveFlag_b8702(Rb8702);
+
+	if( m_de_state == 0 ) //0= idle ;
+	{
+		while( m_de_state == 0 )  
+			WThrd::tr_sleepu( 0.21 ); //do nothing
+		WThrd::tr_sleepu( 0.21 );
+		return 1;
+	}
+
+	if( m_de_state == 1 ) //1= reset & idle ;
+	{
+		while(1)
+		{
+			Rb8702.m_RtnVal = this->dBill_Reset(true);
+		
+			if( Rb8702.m_RtnVal == -1 )	//-1	串口未打开
+			{
+				Rb8702.m_ConnState = 0;
+				this->billAdvice();
+				WThrd::tr_sleepu( 5 );
+				continue;
+			}
+
+			if( Rb8702.m_RtnVal != 0 )
+			{
+				Rb8702.m_ConnState = 1;
+				this->billAdvice();
+				WThrd::tr_sleepu( 3 );
+				continue;
+			}
+
+			break;
+		}
+
+		Rb8702.m_ConnState = 1;
+		this->billAdvice();
+	
+		while( m_de_state == 1 )  
+			WThrd::tr_sleepu( 0.21 );
+
+		return 1;
+	} //1= reset & idle ;
+
+	if( m_de_state == 2 ) // 2= loop query 
+	{
+		while(1)
+		{
+			int rc = this->State();
+
+			if( Rb8702.m_RtnVal != rc )
+			{
+				Rb8702.m_RtnVal = rc;
+				this->billAdvice();
+			}
+			
+			if( m_de_state == 2 ) 
+			{
+				WThrd::tr_sleepu( 0.32 );
+				continue;
+			}
+			else
+				return 1;
+		}
+	}
+
+
+	WThrd::tr_sleepu( 0.21 );
+
+	return 1;
+}
+
+
+// 
+void de_bill_t::billAdvice()
+{
+	gp_frontinput->input_KIN_BILL();
+}
+
+
+
+// 
+void de_bill_t::billInit()
+{
+	this->tr_open();
+
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	Rb8702.m_RtnVal = 0;
+	Rb8702.m_ConnState = 1;
+	Rb8702.m_BigErr = 0;
+}
+
+
+// 
+int de_bill_t::Work()
+{
+	return 0;
+}
+
+
+// 
+int de_bill_t::State()
+{
+	WFile fl;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	fl.bind( gp_conf->Get_datapath4() + "bill_add.txt" );
+	if( fl.exists() )
+	{
+		fl.erase();
+
+		Rb8702.m_cNoteValue = 10;
+		Rb8702.m_cNoteNum = 1;
+
+		this->billAdvice();
+	}
+
+	return 0;
+	
+}
+
+
+// 
+int de_bill_t::Stop()
+{
+	return 0;
+}
+
+
+// 
+int de_bill_t::Return1()
+{
+	return 0;
+}
+
+
+// 
+int de_bill_t::Return2()
+{
+	return 0;
+}
+
+
+// 
+int de_bill_t::Return3()
+{
+	return 0;
+}
+
+
+// 
+int de_bill_t::Escrow()
+{
+	return 0;
+}
+
+
+// 
+int de_bill_t::Deposit()
+{
+	return 0;
+}
+
+
+
+// 
+int de_bill_t::Mei_Inhibit(int value)
+{
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	return Rb8702.m_RtnVal = 0;
+}
+
+
+// 
+int de_bill_t::Mei_Active(int value)
+{
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	return Rb8702.m_RtnVal = 0;
+}
+
+//add by jfren @20161118
+//打开设备连接
+int de_bill_t::dBill_Open()
+{
+	return 0;		
+}
+ //关闭设备连接
+void de_bill_t::dBill_Close()
+{
+
+}
+
+//查询状态 返回0 状态无变化，返回1 状态有变化
+int de_bill_t::dBill_State()
+{
+	return 0;
+}
+
+//复位  true:只机械复位  false:复位且做一些基础设置
+int de_bill_t::dBill_Reset(bool OnlyReset)
+{
+	return 0;
+}
+
+//纸币系统重启
+int de_bill_t::dBill_Reboot()
+{
+	return 0;
+}
+
+//获取版本信息
+int de_bill_t::dBill_GetVersion()
+{
+	return 0;
+}
+//找零
+int de_bill_t::dBill_Change(int method,UINT32* CBone,UINT32* CBtwo,UINT32* CBthree,UINT32 *CBfour)
+{
+	return 0;
+}
+
+//清币(循环箱和补币箱清空到回收箱)RE:0-3  LO: 4 数组下标
+int de_bill_t::dBill_Clean( int boxclear[5] ,unsigned int LOClear_Num[8],unsigned int REClear_Num[8], unsigned int CB_TotalNum[8])
+{
+	return 0;	
+}
+
+//补币
+int de_bill_t::dBill_Add(unsigned int LOAdd_Num[8] )
+{
+	return 0;
+}
+
+//打开投币口
+int de_bill_t::dBill_Work()
+{
+	return 0;
+}
+ //关闭投币口
+int de_bill_t::dBill_Stop()
+{
+	return 0;
+} 
+//压箱
+int de_bill_t::dBill_Encash()
+{
+	return 0;
+}
+ //结束交易
+int de_bill_t::dBill_End()
+{
+	return 0;
+}
+//退币
+int de_bill_t::dBill_Refund()
+{
+	return 0;
+}
+
+//喷出纸币
+int de_bill_t::dBill_JetBanknotes()
+{
+	return 0;
+}
+//缩回纸币
+int de_bill_t::dBill_BackBanknotes()
+{
+	return 0;
+}
+//查询钱
+int de_bill_t::dBill_Query()
+{	
+	return 0;
+}
+
+int de_bill_t::dBill_GetRecycleDenomination(UINT32 REDeno[4],UINT32 REcount[4])
+{
+	return 0;
+}
+
+int de_bill_t::dBill_QueryCashUint() //查询模块单元信息
+{
+	int iResult =0;
+	return iResult;
+}
+//设定循环箱满、高、低、空位置值设置信息(设置完不需要Reset)
+int de_bill_t::dBill_SetReCBPositionNum(int full[5],int high[5],int low[5],int empty[5])
+{
+	return 0;
+}
+//设置循环箱(RE3 RE4 RE5 RE6 LO1即 0-4，的接收最大纸币面额元和数量)yuan_amount[i]=0 是lock该设备。yuan_maxcount[4]无效
+int de_bill_t::dBill_SetCashUnit(int yuan_amount[5] ,int yuan_maxcount[5] )
+{
+	return 0;
+}
+
+//锁定某个单元模块如:(RE3 RE4 RE5 RE6 LO1 CB),  value值 true: 锁上 false:解锁  //执行该命令需要Reset 
+int de_bill_t::dBill_LockBox(char name[8],bool value)
+{
+	return 0;
+}
+//end add by jfren @20161118
+
+bool de_bill_t::IsVaultFull()
+{
+	return false;
+}
+
+int de_bill_t::RecoverErr()
+{
+	return 1;
+	
+}
+
+int de_bill_t::dBill_GetSerialNums(char ModuleSerialNums[6][10])  //获取各模块序列号0-3:RE3-RE6 4:LO1 5:CB 
+{
+	return 0;
+}
+
+int de_bill_t::dBill_ClearLoaderRecovery()
+{
+	return 0;
+}
+
+
+
+

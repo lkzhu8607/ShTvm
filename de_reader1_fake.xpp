@@ -1,0 +1,122 @@
+
+//
+de_reader1_t::de_reader1_t()
+{
+	m_de_ShouldReset = 0;  
+}
+
+
+//
+de_reader1_t::~de_reader1_t()
+{
+}
+
+
+
+//
+void de_reader1_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_reader1_t::tr_on_user_run()
+{
+
+	WThrd::tr_sleepu( 10.91 );
+
+	return 1;
+}
+
+
+// 
+void de_reader1_t::Reader1Advice()
+{
+}
+
+// 
+void de_reader1_t::Reader1Init()
+{
+	this->tr_open();
+
+	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+	Rb8704.m_ConnState = 1;
+	Rb8704.m_BigErr = 0;
+
+	Rb8704.m_RtnVal = 0;
+}
+
+
+// 
+bool de_reader1_t::rCommOpen()
+{
+	return true;
+}
+
+
+// 
+void de_reader1_t::rCommClose()
+{
+}
+
+//
+int de_reader1_t::rReset()
+{
+	return 0;
+}
+
+
+//
+int de_reader1_t::rInit2()
+{
+	int int_ret=0;
+
+	return int_ret;
+}
+
+
+
+//
+int de_reader1_t::rAbort()
+{
+	int int_ret=0;
+
+	return int_ret;
+}
+
+
+//
+int de_reader1_t::rInit( BYTE InitIn[11] )
+{
+	return 0;
+}
+
+
+//
+int de_reader1_t::rReadCard()
+{
+	return 0;
+}
+
+
+//
+int de_reader1_t::rSaleCard( BYTE SaleIn[14] )
+{
+	return 0;
+}
+
+
+//
+int de_reader1_t::rSaleCard2( int iPrice )
+{
+	return 0;
+}
+
+
+
+

@@ -1,0 +1,1071 @@
+
+#include "CoinCommand.h"
+
+
+#define LOGOBJECT	 (gp_log[LOGCOIN])	 
+#define MYDBOBJECT	 (gp_db->m_b8701)	 
+
+static tbool IsCoinStopUse()
+{
+	MYAUTOLOCK( gp_db->m_b8701.m_ut_tbl_lck );
+	if( gp_db->m_b8701.GetRow(0).m_CoinStopUseFlag ) return 1;
+	return 0;
+}
+
+//
+de_coin_t::de_coin_t()
+{
+	m_iIsRepCoinOk = 1;
+	this->SetShouldReset();
+}
+
+
+//
+de_coin_t::~de_coin_t()
+{
+}
+
+
+//
+void de_coin_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_coin_t::tr_on_user_run()
+{
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+
+	//硬币模块停用 
+	//while( IsCoinStopUse() ) WThrd::tr_sleepu( 88 );
+	
+	gp_db->LasyRiseSaveFlag_b8701(R8701);
+
+	if( m_de_state == 0 ) //0= idle ;
+	{
+		while( m_de_state == 0 )  
+			WThrd::tr_sleepu( 0.21 ); //do nothing
+		WThrd::tr_sleepu( 0.21 );
+		return 1;
+	}
+
+	if( m_de_state == 1 ) //1= reset & idle ;
+	{
+		int &rc(R8701.m_RtnVal);
+
+		while(1)
+		{
+			rc = this->dCoin_Reset();
+
+			if( rc == -2 )	//	-2	端口未打开	
+			{
+				R8701.m_ConnState = 0;
+				this->CoinAdvice();
+				WThrd::tr_sleepu( 5 );
+				continue;
+			}
+		
+			if( rc != 0 )
+			{
+				R8701.m_ConnState = 1;
+				this->CoinAdvice();
+				WThrd::tr_sleepu( 3 );
+				continue;
+			}
+
+			break;
+		}
+
+		R8701.m_ConnState = 1;
+		this->CoinAdvice();
+
+		while( m_de_state == 1 )  
+			WThrd::tr_sleepu( 0.21 );
+
+		return 1;
+	} //1= reset & idle ;
+
+
+	if( m_de_state == 2 ) // 2= loop query 
+	{
+		while(1)
+		{
+			int rc = this->dCoin_Query();
+
+			if( R8701.m_RtnVal != rc )
+			{
+				R8701.m_RtnVal = rc;
+				this->CoinAdvice();
+			}
+			
+			if( m_de_state == 2 ) 
+			{
+				WThrd::tr_sleepu( 1.62 );
+				continue;
+			}
+			else
+			{
+				return 1;
+			}
+		}
+	}
+
+
+	if( m_de_state == 3 ) // 
+	{
+		int rc = this->dCoin_Query();
+		WThrd::tr_sleepu( 0.152 );
+	}
+
+
+	WThrd::tr_sleepu( 0.21 );
+
+	return 1;
+}
+
+
+// 
+void de_coin_t::CoinAdvice()
+{
+	//if ( IsCoinStopUse() ) return ;
+	gp_frontinput->input_KIN_COIN();
+}
+
+
+// 
+void de_coin_t::CoinInit()
+{
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+
+	//if ( IsCoinStopUse() ) return ;
+
+	if( !dCommOpen() )
+	{
+		R8701.m_ConnState = 0;
+		R8701.m_BigErr = 0;
+		this->CoinAdvice();
+		WThrd::tr_sleepu( 5.1 );
+	}
+	else
+	{
+		R8701.m_ConnState = 1;
+		R8701.m_BigErr = 0;
+		
+		R8701.m_RtnVal = this->dCoin_Reset();
+		R8701.m_RtnVal = this->dCoin_GetVersion();
+
+		this->CoinAdvice();
+		//WThrd::tr_sleepu( 3 );
+
+
+		if( R8701.m_RtnVal == 0 )
+		{
+			//dCoinHold(); dCoin2CircleChg(); dCoin2StoreBox();  WThrd::tr_sleepu( 1 );
+			//dCoinHold(); dCoin2CircleChg(); dCoin2StoreBox();  WThrd::tr_sleepu( 1 );
+			dCoinHold(); dCoin2CircleChg(); dCoin2StoreBox(); dCoinHold();	
+		}
+
+	}
+
+	
+	m_de_state = 2;
+
+	this->tr_open();
+}
+
+
+//打开硬币模块的串口com=2;start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.61; 
+bool de_coin_t::dCommOpen()
+{
+	//if ( IsCoinStopUse() ) return true;
+	bool isOpen;
+	isOpen=m_coinmodule.Coin_CommOpen(); 
+	return isOpen;
+}
+
+
+//关闭硬币模块的串口 
+void de_coin_t::dCommClose()
+{
+	//if ( IsCoinStopUse() ) return ;
+	m_coinmodule.Coin_CommClose();
+}
+
+//查询硬币模块的状态 
+int de_coin_t::dCoin_State()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+
+	//if ( IsCoinStopUse() ) return 0;
+
+	BYTE SensorStatus[8];
+	int iResult;
+	int irc = 0;
+	
+	iResult=m_coinmodule.Coin_State(SensorStatus);
+
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 8; i++ )
+		{
+			if( R8701.m_SensorStatus.a[i] != SensorStatus[i] )
+				irc ++, R8701.m_SensorStatus.a[i] = SensorStatus[i];
+		}
+	}
+	
+	if( irc ) this->CoinAdvice();
+
+	return iResult;
+}
+
+//
+int de_coin_t::dCoin_Test(BYTE Data[2])
+{
+	MYAUTOLOCK( m_DevLck );
+	//if ( IsCoinStopUse() ) return 0;
+	//b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	
+	iResult=m_coinmodule.Coin_Test(Data);
+
+	return iResult;
+}
+
+//复位硬币模块
+int de_coin_t::dCoin_Reset()
+{
+	MYAUTOLOCK( m_DevLck );
+	//if ( IsCoinStopUse() ) return 0;
+	//b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	
+	iResult = m_coinmodule.Coin_Reset();
+
+	return iResult;
+}
+
+
+//获取硬币模块程序版本 
+int de_coin_t::dCoin_GetVersion()
+{
+	MYAUTOLOCK( m_DevLck );
+
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	BYTE Major,Minor;
+	//if ( IsCoinStopUse() ) return 0;
+	
+	iResult=m_coinmodule.Coin_GetVersion(Major,Minor);
+	
+	if( iResult == 0 )
+	{
+		R8701.m_Major = Major;
+		R8701.m_Minor = Minor;
+	}
+
+	return iResult;
+}
+
+//硬币找零
+int de_coin_t::dCoin_Change( BYTE Box[2] )
+{
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	BYTE Data[3];
+	
+	//if ( IsCoinStopUse() ) return 0;
+
+	iResult=m_coinmodule.Coin_Change(Box,Data);
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 3; i++ )
+			R8701.m_CoinChangeData.a[i] = Data[i];
+		if(Box[0] == 0x01)//找零后循环箱1元硬币个数更新
+			R8701.m_A1YuanCycleChg -= Data[1];
+		else if(Box[0] == 0x02)//找零后循环箱5角硬币个数更新
+			R8701.m_A5MaoCycleChg -= Data[1];
+	}
+
+	return iResult;
+}
+
+
+////循环找零箱、专用找零箱找零结束命令0x01
+int de_coin_t::dCoin_End_Change( BYTE Data )
+{
+	MYAUTOLOCK( m_DevLck );
+	//b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+
+	//if ( IsCoinStopUse() ) return 0;
+
+	iResult=m_coinmodule.Coin_End_Change(Data);
+
+	return iResult;
+}
+
+
+//硬币模块清币命令0x02
+int de_coin_t::dCoin_Clean( BYTE Box )
+{
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	BYTE Clean2[2];
+	int count=0;
+
+	//if ( IsCoinStopUse() ) return 0;
+	iResult=m_coinmodule.Coin_Clean(Box,Clean2,count);
+
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 2; i++ )
+			R8701.m_CoinCleanData.a[i] = Clean2[i];
+
+		R8701.m_CoinCleanCount = count;
+	}
+	else 
+		R8701.m_CoinCleanCount = 0;
+
+	return iResult;
+}
+
+
+
+//循环找零箱、专用找零箱清币结束命令0x03
+int de_coin_t::dCoin_End_Clean( BYTE Data )
+{
+	MYAUTOLOCK( m_DevLck );
+	//b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	//if ( IsCoinStopUse() ) return 0;
+
+	iResult=m_coinmodule.Coin_End_Clean(Data);
+
+	return iResult;
+}
+
+//
+int de_coin_t::dCoin_OpenClose( BYTE Data1[2] )
+{
+	BYTE Data2[2] = {0,0};
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	//if ( IsCoinStopUse() ) return 0;
+
+	iResult = m_coinmodule.Coin_OpenClose(Data1,Data2);
+	
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 2; i++ )
+			R8701.m_CoinOpenCloseData.a[i] = Data2[i];
+	}
+	
+	return iResult;
+}
+
+
+//
+int de_coin_t::dCoin_Poll( BYTE Data1 )
+{
+	BYTE Data2[3];
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	int irc = 0;
+	//if ( IsCoinStopUse() ) return 0;
+
+	iResult = m_coinmodule.Coin_Poll(Data1,Data2);
+	
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 3; i++ )
+		{
+			if( R8701.m_CoinPollData.a[i] != Data2[i] )
+			{
+				irc ++;
+				R8701.m_CoinPollData.a[i] = Data2[i];
+			}
+		}
+	}
+
+	if( irc ) this->CoinAdvice();
+	
+	return iResult;
+}
+
+
+
+//
+int de_coin_t::dCoin_Add( BYTE Box )
+{
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	BYTE Add2[2];
+	int count=0;
+	//if ( IsCoinStopUse() ) return 0;
+
+	iResult = m_coinmodule.Coin_Add(Box,Add2,count);
+
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 2; i++ )
+			R8701.m_CoinAddData.a[i] = Add2[i];
+
+		R8701.m_CoinAddCount = count;
+	}
+
+	return iResult;
+}
+
+
+
+//Bit7~bit6:未使用 
+//Bit3: =1/0  1 投币口闸门打开， 0闸门关闭 
+//Bit2:=1/0  1 清除硬币计数寄存器，0不清除 
+//Bit1:=1/0  1 禁止5角， 0接受5角 
+//Bit0:=1/0  1 禁止1元， 0接受1元 
+//
+static BYTE v_Data1 = 0;
+
+
+//
+int de_coin_t::dCoin_Work( tbool enable_mao5, tbool enable_yuan1 )
+{
+	//if ( IsCoinStopUse() ) return 0;
+
+	if( gp_medev->IsOnlyBill() ) return 0;
+
+	m_de_state = 3 ;
+
+	SStrf::writebit( &v_Data1, 3, 1 );
+	SStrf::writebit( &v_Data1, 2, 1 );
+	SStrf::writebit( &v_Data1, 1, enable_mao5 ? 0 : 1 );
+	SStrf::writebit( &v_Data1, 0, enable_yuan1 ? 0 : 1 );
+
+	b8701_t::ROWTYPE &Rb8701(gp_db->GetTheRowb8701());
+	Rb8701.m_CoinPollData.a[0] = Rb8701.m_CoinPollData.a[1] = Rb8701.m_CoinPollData.a[2] = 0;
+
+	return this->dCoin_Poll( v_Data1 );
+}
+
+
+//
+int de_coin_t::dCoin_Work()
+{
+	//后续work钱数不要清0
+	//if ( IsCoinStopUse() ) return 0;
+
+	if( gp_medev->IsOnlyBill() ) return 0;
+
+	m_de_state = 3 ;
+	
+	return this->dCoin_Poll( v_Data1 );
+}
+
+
+//
+int de_coin_t::dCoin_Stop()
+{
+
+	//if ( IsCoinStopUse() ) return 0;
+	//if( gp_medev->IsOnlyBill() ) return 0;
+	m_de_state = 2 ;
+
+	BYTE  Data1 = v_Data1;
+
+	//Bit7~bit6:未使用 
+	//Bit3: =1/0  1 投币口闸门打开， 0闸门关闭 
+	//Bit2:=1/0  1 清除硬币计数寄存器，0不清除 
+	//Bit1:=1/0  1 禁止5角， 0接受5角 
+	//Bit0:=1/0  1 禁止1元， 0接受1元 
+
+	SStrf::writebit( &Data1, 3, 0 );
+	SStrf::writebit( &Data1, 2, 1 );
+
+	v_Data1 = Data1;
+
+	return this->dCoin_Poll( Data1 );
+}
+
+
+//
+int de_coin_t::dCoin_Query()
+{
+	BYTE Data2[3];
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	int irc = 0;
+	BYTE SensorStatus[8];
+	//if ( IsCoinStopUse() ) return 0;
+
+	SStrf::writebit( &v_Data1, 2, 0 );//Bit2:=1/0  1 清除硬币计数寄存器，0不清除 
+
+	iResult = m_coinmodule.Coin_Poll(v_Data1,Data2);
+
+	if( 1 == R8701.m_ConnState && 0 != iResult )
+	{
+		int i = 0;
+		for( i=0 ;i<2 ;i++ )
+		{
+			wl::WThrd::tr_sleepu( 5 );
+			iResult = m_coinmodule.Coin_Poll(v_Data1,Data2);
+			if( 0 == iResult )
+			{
+				break;
+			}
+		}
+
+		if( 2 == i )
+		{
+			R8701.m_ConnState = 0;   //三次错误，设定错误标志，
+			this->CoinAdvice();
+		}
+	}
+
+	
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 3; i++ )
+		{
+			if( R8701.m_CoinPollData.a[i] != Data2[i] )
+			{
+				irc ++;
+				R8701.m_CoinPollData.a[i] = Data2[i];
+			}
+		}
+		R8701.m_ConnState = 1;   //清除错误标记
+		this->CoinAdvice();
+	}
+
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_Poll Result="<<iResult<<"m_CoinPollData="<< R8701.m_CoinPollData.a[2] );
+
+	iResult=m_coinmodule.Coin_State(SensorStatus);
+
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_State Result="<<iResult<<"SensorStatus="
+		                               <<wl::SStrf::sltoa(SensorStatus[0])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[1])<<" " 
+									   <<wl::SStrf::sltoa(SensorStatus[2])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[3])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[4])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[5])<<" " 
+									   <<wl::SStrf::sltoa(SensorStatus[6])<<" "
+									   <<wl::SStrf::sltoa(SensorStatus[7]) );
+
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 8; i++ )
+		{
+			if( R8701.m_SensorStatus.a[i] != SensorStatus[i] )
+				irc ++, R8701.m_SensorStatus.a[i] = SensorStatus[i];
+		}
+	}
+	
+	if( irc ) this->CoinAdvice();
+
+	return iResult;
+}
+
+
+
+//
+static BYTE v_inData1_0 = 0;
+
+int de_coin_t::dCoinBletRoll()
+{
+	MYAUTOLOCK( m_DevLck );
+	int iResult;
+
+	//if ( IsCoinStopUse() ) return 0;
+
+	BYTE Data[6] = {0,0,0,0,0,0};
+	Data[0] = 0x05;
+	SStrf::writebit( &(Data[0]), 7, 0 );
+	Data[1] = 0x0A;
+	SStrf::writebit( &(Data[1]), 7, 1 );
+
+	Data[2] = 0x05;
+	SStrf::writebit( &(Data[2]), 7, 0 );
+	Data[3] = 0x0A;
+	SStrf::writebit( &(Data[3]), 7, 1 );
+
+	Data[4] = 0x05;
+	SStrf::writebit( &(Data[4]), 7, 0 );
+	Data[5] = 0x23;
+	SStrf::writebit( &(Data[5]), 7, 1 );
+
+
+	iResult = m_coinmodule.Coin_Belt_Roll(Data);
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_Belt_Roll Result="<<iResult );
+	return iResult;
+}
+
+
+//
+int de_coin_t::dCoinHold()
+{
+	BYTE Data1[2] = {0,0};
+
+	//if ( IsCoinStopUse() ) return 0;
+
+	//[in] Data1[0]	BYTE	Bit7-6:未使用
+	//Bit5: =1/0  1电源箱开关开（保留）
+	//Bit4: =1/0  预留
+	//Bit3: =1/0  1卡币解除马达启动，0停
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	//Bit0:=1/0   1 暂存循环回收闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 0 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+
+//暂存循环回收闸门开，准备收钱
+int de_coin_t::dCoin2CircleChg()
+{
+	BYTE Data1[2] = {0,0};
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	//Bit0:=1/0   1 暂存循环回收闸门开，0关 
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 0 );
+	SStrf::writebit( &(Data1[0]), 0, 1 );
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+
+	return irc;
+}
+
+
+//循环箱满的情况下，通过打开退币口再将暂存循环回收闸门打开后直接将硬币放入回收箱
+int de_coin_t::dCoin2StoreBox()
+{
+	BYTE Data1[2] = {0,0};
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 1 );
+	SStrf::writebit( &(Data1[0]), 1, 1 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+
+	return irc;
+}
+
+
+//硬币存入循环箱
+int de_coin_t::dCoin2CircleChg( long coin1, long coin5 /*= 0*/ )
+{
+	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Data1[2] = {0,0};
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	//Bit0:=1/0   1 暂存循环回收闸门开，0关 
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 0 );
+	SStrf::writebit( &(Data1[0]), 0, 1 );//暂存循环回收闸门开，硬币从暂存器进入循环箱
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+
+	if( irc == 0 )
+	{
+		Rb8701.m_A1YuanCycleChg += coin1;
+		Rb8701.m_A5MaoCycleChg += coin5;
+	}
+
+	return irc;
+}
+
+
+//硬币直接进回收箱，不经过循环箱
+int de_coin_t::dCoin2StoreBox( long coin1, long coin5 /*= 0*/ )
+{
+	BYTE Data1[2] = {0,0};
+	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 1 );
+	SStrf::writebit( &(Data1[0]), 1, 1 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	irc = this->dCoin_OpenClose( Data1 );
+	if( irc == 0 )
+	{
+		Rb8701.m_A1YuanStoreBox += coin1;
+		Rb8701.m_A5MaoStoreBox += coin5;
+	}
+
+	return irc;
+}
+
+
+//暂存退币闸门,准备退币操作
+int de_coin_t::dCoin2Return()
+{
+	BYTE Data1[2] = {0,0};
+	//if ( IsCoinStopUse() ) return 0;
+
+	//Bit2:=1/0   1暂存翻板进回收 0退币
+	//Bit1:=1/0   1暂存器退币闸门开，0关
+	SStrf::writebit( &(Data1[0]), 2, 0 );
+	SStrf::writebit( &(Data1[0]), 1, 1 );
+	SStrf::writebit( &(Data1[0]), 0, 0 );
+
+	v_inData1_0 = Data1[0];
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//开乘客显示器照明
+int de_coin_t::dCoinOpenUplight()
+{
+	BYTE Data1[2] = {0,0};
+	//if ( IsCoinStopUse() ) return 0;
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 5, 1 );
+	SStrf::writebit( &(Data1[1]), 4, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//关乘客显示器照明
+int de_coin_t::dCoinCloseUplight()
+{
+	BYTE Data1[2] = {0,0};
+	//if ( IsCoinStopUse() ) return 0;
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 5, 0 );
+	SStrf::writebit( &(Data1[1]), 4, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//开取票口照明
+int de_coin_t::dCoinOpenDownlight()
+{
+	BYTE Data1[2] = {0,0};
+	//if ( IsCoinStopUse() ) return 0;
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 3, 1 );
+	SStrf::writebit( &(Data1[1]), 2, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//关取票口照明
+int de_coin_t::dCoinCloseDownlight()
+{
+	BYTE Data1[2] = {0,0};
+	//if ( IsCoinStopUse() ) return 0;
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 3, 0 );
+	SStrf::writebit( &(Data1[1]), 2, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//开报警器
+int de_coin_t::dCoinOpenAlert()
+{
+	BYTE Data1[2] = {0,0};
+	//if ( IsCoinStopUse() ) return 0;
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 1, 1 );
+	SStrf::writebit( &(Data1[1]), 0, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+
+//关报警器
+int de_coin_t::dCoinCloseAlert()
+{
+	BYTE Data1[2] = {0,0};
+	//if ( IsCoinStopUse() ) return 0;
+
+	Data1[0] = v_inData1_0;
+	SStrf::writebit( &(Data1[1]), 1, 0 );
+	SStrf::writebit( &(Data1[1]), 0, 1 );
+
+	return this->dCoin_OpenClose( Data1 );
+}
+
+//
+int de_coin_t::CircleChgOut( long PlanYuan1 )
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	Box[0] = 0x01; // [in] Box[0]	  BYTE  1元循环找零
+	Box[1] = (BYTE)PlanYuan1; //[in] Box[1]	BYTE	找零数1~48
+
+	if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Change( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x01);	// 0x01：1元循环找零
+
+	return irc;
+}
+
+//硬币找零最多出19个1元硬币
+int de_coin_t::CyrcleYuan1ChgOut( long PlanYuan1 )
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	Box[0] = 0x01; // [in] Box[0]	  BYTE  1元循环找零
+	Box[1] = (BYTE)PlanYuan1; //[in] Box[1]	BYTE	找零数1~48
+
+	if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Change( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x01);	// 0x01：1元循环找零结束
+
+	return irc;
+}
+
+//硬币找零最多出19个5角硬币
+int de_coin_t::CyrcleJiao5ChgOut( long PlanJiao5 )
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	Box[0] = 0x02; // [in] Box[0]	  BYTE  5角循环找零
+	Box[1] = (BYTE)PlanJiao5; //[in] Box[1]	BYTE	找零数1~48
+
+	if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Change( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x02);	// 0x02：5角循环找零结束
+
+	return irc;
+}
+
+
+
+//老版硬件的专用找零，最新的硬件没有专用找零的动作，以前专用找零箱变成了补币箱，但是协议命令与以前专用找零保持一致
+int de_coin_t::SpecialChgOut( long PlanYuan1 )
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	Box[0] = 0x04; // [in] Box[0]	  BYTE  0x04：1元专用找零；
+	Box[1] = (BYTE)PlanYuan1; //[in] Box[1]	BYTE	找零数1~48
+
+	if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Change( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x04);	// 0x04：1元专用找零
+
+	return irc;
+}
+
+//补币
+int de_coin_t::dCoin_Supplementary(BYTE Box[2])
+{
+	MYAUTOLOCK( m_DevLck );
+	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
+	int iResult;
+	BYTE Data[3];
+	//if ( IsCoinStopUse() ) return 0;
+	
+	iResult=m_coinmodule.Coin_Change(Box,Data);
+	if( iResult == 0 )
+	{
+		for( int i = 0;i < 3; i++ )
+			R8701.m_CoinSupplementaryData.a[i] = Data[i];
+			
+		if(Box[0] == 0x04)//1元补币箱向循环箱补币
+		{
+			R8701.m_A1YuanCycleChg += Data[1];
+			R8701.m_A1YuanSpecialChg = Data[1];
+		}
+		else if(Box[0] == 0x08)//5角补币箱向循环箱补币
+		{
+			R8701.m_A5MaoCycleChg += Data[1];
+			R8701.m_A5MaoSpecialChg = Data[1];
+		}
+	}
+	LOGSTREAM( LOGOBJECT, LOGPOSI << "dCoin_Supplementary iResult=" << iResult );
+	return iResult;	
+}
+
+//补币，最新的硬件没有专用找零的动作，以前专用找零箱变成了补币箱，但是协议命令与以前专用找零保持一致
+//1元补币
+int de_coin_t::SupplementaryYuan1Coins(long Yuan1Count)
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	Box[0] = 0x04; // [in] Box[0]	  BYTE  0x04：1元补币；
+	Box[1] = (BYTE)Yuan1Count; //[in] Box[1]	BYTE	找零数1~48
+
+	//if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Supplementary( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x04);	// 0x04：1元补币结束命令
+	return irc;
+}
+
+//5角补币
+int de_coin_t::SupplementaryJiao5Coins(long Jiao5Count)
+{
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	BYTE Box[2];
+	int irc;
+	//if ( IsCoinStopUse() ) return 0;
+
+	Box[0] = 0x08; // [in] Box[0]	  BYTE  0x08：5角补币；
+	Box[1] = (BYTE)Jiao5Count; //[in] Box[1]	BYTE	找零数1~48
+
+	//if( Box[1] > 20 ) Box[1] = 19; //控制找出最大量
+
+	irc = dCoin_Supplementary( Box );	//2.7硬币模块找零命令0x00
+	dCoin_End_Change(0x08);	// 0x08：1元补币结束命令
+
+	return irc;
+}
+
+
+//上海新的TVM硬件模块已经没有专用找零箱了，找零都从循环找零箱出来，以前的专用找零箱现在用作给循环箱补币
+//通过循环找零箱找零，硬币只找1元
+int de_coin_t::CycleBoxChg(long Yuan1Count)
+{
+	//if ( IsCoinStopUse() ) return 0;
+
+	int irc = 0;
+	irc = this->CyrcleYuan1ChgOut(Yuan1Count);//指定找零的1元硬币个数
+	if( irc != 0 )
+	{
+		LOGSTREAM( LOGOBJECT, LOGPOSI << "CyrcleYuan1ChgOut Err=" << irc );
+		return -1;
+	}
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoinBletRoll();//通过转动皮带将找零的硬币提升到退币口
+}
+
+void de_coin_t::returnCoin()//出票不成功退币
+{
+	//if ( IsCoinStopUse() ) return ;
+
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin2Return();//非找零性退币
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoinBletRoll();
+}
+
+
+bool de_coin_t::IsVaultFull()
+{
+	bool irc = false;
+
+	if( SStrf::readbit( gp_db->m_b8701.GetRow(0).m_SensorStatus.a[2], 7 ) == 1 )
+	{
+		irc = true;
+	}
+	return irc;
+}
+
+int de_coin_t::RecoverErr()
+{
+	LOGSTREAM( LOGOBJECT, LOGPOSI );
+	if( IsCoinStopUse() ) 
+	{
+		MYAUTOLOCK( MYDBOBJECT.m_ut_tbl_lck );
+		gp_db->m_b8701.GetRow(0).m_BigErr = 0;
+		this->CoinAdvice();
+		return 1;
+	}
+	
+	LOGSTREAM( LOGOBJECT, LOGPOSI << "BigErr=" << MYDBOBJECT.GetRow(0).m_BigErr );
+
+	if( 0 == dCoin_Reset() )
+	{
+		MYAUTOLOCK( MYDBOBJECT.m_ut_tbl_lck );
+
+		MYDBOBJECT.GetRow(0).m_BigErr = 0;
+	
+		LOGSTREAM( LOGOBJECT, LOGPOSI << "BigErrFlag=" << MYDBOBJECT.GetRow(0).m_BigErr );
+
+		this->CoinAdvice();
+		return 1;
+	}
+
+	this->CoinAdvice();
+	return 0;
+}
+
+//界面触发"返回"
+void de_coin_t::padTriggerReturnKey()
+{
+	//if ( IsCoinStopUse() ) return ;
+	//WThrd::tr_sleepu( 0.2 );
+	this->dCoin_Stop();//关投币口
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin2Return();//非找零性退币
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoinBletRoll();//提升皮带将退币退回到找币口
+	//return 0;
+}
+
+//界面触发"取消"
+void de_coin_t::padTriggerCancelKey()
+{
+	//if ( IsCoinStopUse() ) return ;
+
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin_Stop();
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin2Return();//非找零性退币
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoinBletRoll();
+}
+
+

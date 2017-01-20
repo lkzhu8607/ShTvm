@@ -1,0 +1,934 @@
+
+#include "bnr_operation.h"
+namespace BillBNR {
+	int re,i;
+	string sre;
+	string vBoxID;
+	CBNROperation bnr_demo;
+}
+
+
+#define LOGOBJECT	 (gp_log[LOGBILL])	 
+#define MYDBOBJECT	 (gp_db->m_b8702)
+
+
+static tbool IsBillStopUse()
+{
+	MYAUTOLOCK( gp_db->m_b8702.m_ut_tbl_lck );
+	if( gp_db->m_b8702.GetRow(0).m_BillStopUseFlag ) return 1;
+	return 0;
+}
+
+//
+de_bill_t::de_bill_t()
+{
+	using namespace BillBNR;
+	this->SetShouldReset();
+
+	m_iIsNotBillChange = 0;
+}
+
+
+//
+de_bill_t::~de_bill_t()
+{
+	using namespace BillBNR;
+	re=bnr_demo.CBNR_Close();
+}
+
+
+
+//
+void de_bill_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+	
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_bill_t::tr_on_user_run()
+{
+	using namespace BillBNR;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	gp_db->LasyRiseSaveFlag_b8702(Rb8702);
+
+	if(1==this->dBill_State())
+	{
+		this->billAdvice();
+	}
+	if( m_de_state == 0 ) //0= idle ;
+	{		
+		while( m_de_state == 0 )  
+		{
+			WThrd::tr_sleepu( 0.21 ); //do nothing
+			if(1==this->dBill_State())  //0:状态无改变 1:状态有改变
+			{
+				this->billAdvice();
+			}
+		}
+		WThrd::tr_sleepu( 0.21 );
+		return 1;
+	}
+
+	if( m_de_state == 1 ) //1= reset & idle ;
+	{
+		while(1)
+		{
+			Rb8702.m_RtnVal = this->dBill_Reset(true);
+		
+			if( Rb8702.m_RtnVal == -1 )	//-1	串口未打开
+			{
+				Rb8702.m_ConnState = 0;
+				this->billAdvice();
+				WThrd::tr_sleepu( 5 );
+				continue;
+			}
+
+			if( Rb8702.m_RtnVal != 0 )
+			{
+				Rb8702.m_ConnState = 1;
+				this->billAdvice();
+				WThrd::tr_sleepu( 3 );
+				continue;
+			}
+
+			break;
+		}
+
+		Rb8702.m_ConnState = 1;
+		this->billAdvice();
+	
+		while( m_de_state == 1 )  
+			WThrd::tr_sleepu( 0.21 );
+
+		return 1;
+	} //1= reset & idle ;
+
+	if( m_de_state == 2 ) // 2= loop query 
+	{
+		while(1)
+		{
+			int rc = this->dBill_Query();
+
+			if( Rb8702.m_RtnVal != rc )
+			{
+				Rb8702.m_RtnVal = rc;
+				this->billAdvice();
+			}
+			
+			if( m_de_state == 2 ) 
+			{
+				WThrd::tr_sleepu( 0.32 );
+				continue;
+			}
+			else
+				return 1;
+		}
+	}
+
+
+	WThrd::tr_sleepu( 0.21 );
+
+	return 1;
+}
+
+
+// 
+void de_bill_t::billAdvice()
+{
+	using namespace BillBNR;
+	gp_frontinput->input_KIN_BILL();
+}
+
+
+// 
+void de_bill_t::billInit()
+{
+	using namespace std;
+	using namespace BillBNR;
+	MYAUTOLOCK( m_DevLck );
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	
+	if( dBill_Open() )
+	{
+		//串口打开失败
+		Rb8702.m_RtnVal = re;
+		Rb8702.m_ConnState = 0;
+		Rb8702.m_BigErr = 1;
+		this->billAdvice();
+		WThrd::tr_sleepu( 5.3 );
+	}
+	else
+	{
+		Rb8702.m_RtnVal = re;
+		Rb8702.m_ConnState = 1;
+		Rb8702.m_BigErr = 0;
+
+		
+		Rb8702.m_RtnVal = this->dBill_Reset(true);
+		Rb8702.m_RtnVal = dBill_QueryCashUint();
+
+		int yuan_amount[5]={0,};
+		int yuan_countmax[5]={0,};
+		int i=0;
+		for (i=0;i<4;i++)
+		{
+				yuan_amount[i]=g_ibilldeno[i]/100;
+				yuan_countmax[i]=g_ConfigInfo.ReBoxFulls[i];
+		}
+		yuan_amount[4]=10;  //设定LO面额是10元
+		dBill_SetCashUnit(yuan_amount,yuan_countmax);
+		Rb8702.m_RtnVal = dBill_QueryCashUint();
+		//Rb8702.//GetVersion();
+
+		this->billAdvice();
+
+	}
+	
+	m_de_state = 0;
+
+	this->tr_open();
+}
+
+
+// 
+int de_bill_t::Reset()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::Work()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::State()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::Stop()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::Return1()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::Return2()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::Return3()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::Escrow()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+
+// 
+int de_bill_t::Deposit()
+{
+	using namespace BillBNR;
+	re = 0;
+	return re;
+}
+
+int de_bill_t::Mei_Inhibit(int value)
+{
+	return 0;
+}
+
+int de_bill_t::Mei_Active(int value)
+{
+	return 0;
+}
+//add by jfren @20161118
+// 元素值为1 ，对应币种不接收
+//0-6 : 1 2 5 10 20 50 100
+int de_bill_t::dBill_Inhibit(int bcashdisable[7])
+{
+	using namespace BillBNR;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	int bcashenable[7]= {1,1,1,1,1,1,1};
+	int ret = 0,i=0;
+	MYAUTOLOCK( m_DevLck );
+	for(i=0;i<7;i++)
+	{
+		if(bcashdisable[i]==1)
+		{	
+			bcashenable[i]=0;
+		}
+	}
+	
+	ret=bnr_demo.CBNR_UpdateDenominations( bcashenable );
+	Rb8702.m_RtnVal =ret;
+	return ret;
+}
+
+
+// // 元素值为1 ，对应币种接收
+//0-6 : 1 2 5 10 20 50 100
+int de_bill_t::dBill_Active(int bcashenable[7])
+{
+	using namespace BillBNR;
+	
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+	int ret=0;
+	
+	ret=bnr_demo.CBNR_UpdateDenominations(bcashenable);
+	
+	Rb8702.m_RtnVal = ret;
+
+	return ret;
+}
+
+
+//打开设备连接  0 成功 非0失败
+int de_bill_t::dBill_Open()
+{
+	using namespace BillBNR;
+
+	return bnr_demo.CBNR_Open();		
+}
+ //关闭设备连接
+void de_bill_t::dBill_Close()
+{
+	using namespace BillBNR;
+	bnr_demo.CBNR_Close();
+}
+
+//查询状态 返回0 状态无变化，返回1 状态有变化
+int de_bill_t::dBill_State()
+{
+	int ret = 0;
+	int tmp_int = 0;
+	using namespace BillBNR;
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+	//extern BNRStatus_t g_BNRStatus;
+	//extern T_XfsCashUnit g_CashUnit;
+	int i=0;
+	//0:代表锁住 箱子到位  1:代表没锁住 没到位
+	if(g_BNRStatus.cCBSafedoor==1 || g_BNRStatus.cCBBOX==1 )
+	{	
+		
+		//前一刻到位，现在不到位，即卸载
+		tmp_int = 0;
+		if(tmp_int != R8702.m_boxExist.a[4] )
+		{
+			ret  = 1;
+			m_uninstall_boxflag=1;
+		}
+		R8702.m_boxExist.a[4]=0;
+		if(g_BNRStatus.cCBSafedoor==0 && g_BNRStatus.cCBBOX==1)
+		{
+			ret = bnr_demo.CBNR_ResetInit(true);
+		}
+	}
+	else
+	{
+		if(R8702.m_boxExist.a[4]==0)
+		{
+			//前一刻不到位，现在到位，即安装
+			m_install_boxflag=1;
+		}
+		tmp_int = 1;
+		if(tmp_int != R8702.m_boxExist.a[4] )
+			ret  = 1;
+		R8702.m_boxExist.a[4]=1;
+	}
+	if(g_BNRStatus.cLOSafedoor==1 || g_BNRStatus.cLOBOX==1 )
+	{	
+		tmp_int = 0;
+		if(tmp_int != R8702.m_boxExist.a[5] )
+			ret  = 1;
+		R8702.m_boxExist.a[5]=0;
+	}
+	else
+	{	
+		tmp_int = 1;
+		if(tmp_int != R8702.m_boxExist.a[5] )
+			ret  = 1;
+		R8702.m_boxExist.a[5]=1;
+	}
+
+	if(g_BNRStatus.wInShutter!= R8702.m_wInShutter || \
+		R8702.m_wReturnShutter != g_BNRStatus.wReturnShutter
+	)
+	{
+		R8702.m_wInShutter = g_BNRStatus.wInShutter; //入钞口状态 0:无纸币  1:有纸币
+		R8702.m_wReturnShutter = g_BNRStatus.wReturnShutter;
+		ret = 1;
+	}
+	
+
+	char cu_name[16]={0,};
+
+	int tmp_full[5]={0,};
+	int tmp_nearfull[5]={0,};
+	for(i=0;i<5;i++)
+	{
+		//记录上一次 位置值
+		tmp_full[i]=R8702.m_boxFull.a[i];
+		tmp_nearfull[i]=R8702.m_boxNearFull.a[i];
+	}
+	for (i=0; i<g_CashUnit.physicalCashUnitList.size; i++)
+	{
+		strncpy(cu_name,g_CashUnit.physicalCashUnitList.items[i].name,sizeof(cu_name)-1);
+		if(strncmp(cu_name,"CB",sizeof(cu_name))==0)
+		{
+			if(g_CashUnit.physicalCashUnitList.items[i].count>=g_CashUnit.physicalCashUnitList.items[i].threshold.full)
+			{
+				R8702.m_boxFull.a[4]=1;
+				R8702.m_boxNearFull.a[4]=0;
+				R8702.m_boxIsEmpty.a[4]=0;
+				R8702.m_boxNearEmpty.a[4] = 0;
+				continue;
+			}
+			else if(g_CashUnit.physicalCashUnitList.items[i].count>=g_CashUnit.physicalCashUnitList.items[i].threshold.high)
+			{
+				R8702.m_boxFull.a[4]=0;
+				R8702.m_boxNearFull.a[4]=1;
+				R8702.m_boxIsEmpty.a[4]=0;
+				R8702.m_boxNearEmpty.a[4] = 0;
+				continue;
+			}
+			else
+			{
+				R8702.m_boxFull.a[4]=0;
+				R8702.m_boxNearFull.a[4]=0;
+				R8702.m_boxIsEmpty.a[4]=0;
+				R8702.m_boxNearEmpty.a[4] = 0;
+				continue;
+			}
+		}			
+		switch (g_CashUnit.physicalCashUnitList.items[i].thresholdStatus)
+		{
+			case XFS_S_BIN_EMPTY:
+				{
+					if(strncmp(cu_name,"RE3",sizeof(cu_name))==0)
+					{
+						R8702.m_boxIsEmpty.a[0]=1;
+						R8702.m_boxFull.a[0] = 0;
+						R8702.m_boxNearFull.a[0]=0;
+						R8702.m_boxNearEmpty.a[0] = 0;
+					}
+					if(strncmp(cu_name,"RE4",sizeof(cu_name))==0)
+					{
+						R8702.m_boxIsEmpty.a[1]=1;
+						R8702.m_boxFull.a[1] = 0;
+						R8702.m_boxNearFull.a[1]=0;
+						R8702.m_boxNearEmpty.a[1] = 0;
+					}
+					if(strncmp(cu_name,"RE5",sizeof(cu_name))==0)
+					{
+						R8702.m_boxIsEmpty.a[2]=1;
+						R8702.m_boxFull.a[2] = 0;
+						R8702.m_boxNearFull.a[2]=0;
+						R8702.m_boxNearEmpty.a[2] = 0;
+					}
+					if(strncmp(cu_name,"RE6",sizeof(cu_name))==0)
+					{
+						R8702.m_boxIsEmpty.a[3]=1;
+						R8702.m_boxFull.a[3] = 0;
+						R8702.m_boxNearFull.a[3]=0;
+						R8702.m_boxNearEmpty.a[3] = 0;
+					}
+					break;
+				}
+			case XFS_S_BIN_HIGH:
+				{
+					if(strncmp(cu_name,"RE3",sizeof(cu_name))==0)
+					{
+						R8702.m_boxFull.a[0]=1;
+						R8702.m_boxNearFull.a[0]=0;
+						R8702.m_boxIsEmpty.a[0]=0;
+						R8702.m_boxNearEmpty.a[0] = 0;
+					}
+					if(strncmp(cu_name,"RE4",sizeof(cu_name))==0)
+					{
+						R8702.m_boxFull.a[1]=1;
+						R8702.m_boxNearFull.a[1]=0;
+						R8702.m_boxIsEmpty.a[1]=0;
+						R8702.m_boxNearEmpty.a[1] = 0;
+					}
+					if(strncmp(cu_name,"RE5",sizeof(cu_name))==0)
+					{
+						R8702.m_boxFull.a[2]=1;
+						R8702.m_boxNearFull.a[2]=0;
+						R8702.m_boxIsEmpty.a[2]=0;
+						R8702.m_boxNearEmpty.a[2] = 0;
+					}
+					if(strncmp(cu_name,"RE6",sizeof(cu_name))==0)
+					{
+						R8702.m_boxFull.a[3]=1;
+						R8702.m_boxNearFull.a[3]=0;
+						R8702.m_boxIsEmpty.a[3]=0;
+						R8702.m_boxNearEmpty.a[3] = 0;
+					}
+					if(strncmp(cu_name,"CB",sizeof(cu_name))==0)
+					{
+						R8702.m_boxNearFull.a[4]=1;
+						R8702.m_boxFull.a[4]=0;
+						R8702.m_boxIsEmpty.a[4]=0;
+						R8702.m_boxNearEmpty.a[4] = 0;
+					}
+					break;
+				}
+			case XFS_S_BIN_LOW:
+				{
+					if(strncmp(cu_name,"RE3",sizeof(cu_name))==0)
+					{
+						R8702.m_boxNearEmpty.a[0]=1;
+						R8702.m_boxNearFull.a[0]=0;
+						R8702.m_boxFull.a[0]=0;
+						R8702.m_boxIsEmpty.a[0]=0;
+					}
+					if(strncmp(cu_name,"RE4",sizeof(cu_name))==0)
+					{
+						R8702.m_boxNearEmpty.a[1]=1;
+						R8702.m_boxNearFull.a[1]=0;
+						R8702.m_boxFull.a[1]=0;
+						R8702.m_boxIsEmpty.a[1]=0;
+					}
+					if(strncmp(cu_name,"RE5",sizeof(cu_name))==0)
+					{
+						R8702.m_boxNearEmpty.a[2]=1;
+						R8702.m_boxNearFull.a[2]=0;
+						R8702.m_boxFull.a[2]=0;
+						R8702.m_boxIsEmpty.a[2]=0;
+					}
+					if(strncmp(cu_name,"RE6",sizeof(cu_name))==0)
+					{
+						R8702.m_boxNearEmpty.a[3]=1;
+						R8702.m_boxNearFull.a[3]=0;
+						R8702.m_boxFull.a[3]=0;
+						R8702.m_boxIsEmpty.a[3]=0;
+					}
+					break;
+				}	
+			case XFS_S_BIN_FULL:
+				{
+					if(strncmp(cu_name,"CB",sizeof(cu_name))==0)
+					{
+						R8702.m_boxNearFull.a[4]=0;
+						R8702.m_boxFull.a[4]=1;
+						R8702.m_boxIsEmpty.a[4]=0;
+						R8702.m_boxNearEmpty.a[4] = 0;
+					}
+					break;
+				}
+		}
+		
+	}
+	for(i=0;i<5;i++)
+	{
+		//与这一次的位置值比较
+		if(tmp_full[i]!=R8702.m_boxFull.a[i] || \
+		tmp_nearfull[i]!=R8702.m_boxNearFull.a[i] )	
+		{
+			ret = 1;
+			break;
+		}
+	}
+	
+	return ret;
+}
+
+//复位  true:只机械复位  false:复位且做一些基础设置
+int de_bill_t::dBill_Reset(bool OnlyReset)
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_ResetInit(OnlyReset);
+	return 0;
+}
+
+//纸币系统重启
+int de_bill_t::dBill_Reboot()
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_Reboot();
+	return 0;
+}
+
+//获取版本信息
+int de_bill_t::dBill_GetVersion()
+{	
+	using namespace BillBNR;
+	return 0;
+}
+//找零
+int de_bill_t::dBill_Change(int method,UINT32* CBone,UINT32* CBtwo,UINT32* CBthree,UINT32 *CBfour)
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_OddChange(method,CBone,CBtwo,CBthree,CBfour);
+	return ret;
+}
+
+//清币(循环箱和补币箱清空到回收箱)RE:0-3  LO: 4 数组下标
+int de_bill_t::dBill_Clean( int boxclear[5],unsigned int LOClear_Num[8],unsigned int REClear_Num[8],unsigned int CB_TotalNum[8] )
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_EmptytoRecycle(boxclear);
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+	int i=0;
+	for (i=0;i<8;i++)
+	{
+		LOClear_Num[i]=g_LOClear_Num[i];
+		REClear_Num[i]=g_REClear_Num[i];
+		CB_TotalNum[i]=g_CashBox_Num[i];
+		switch (i)
+		{
+			case 0:
+				R8702.m_Pieces.a[1]=g_CashBox_Num[i];
+				break;
+			case 1:
+				R8702.m_Pieces.a[2]=g_CashBox_Num[i];
+				break;
+			case 2:
+				R8702.m_Pieces.a[5]=g_CashBox_Num[i];
+			    break;
+			case 3:
+				R8702.m_Pieces.a[10]=g_CashBox_Num[i];
+				break;
+			case 4:
+				R8702.m_Pieces.a[20]=g_CashBox_Num[i];
+				break;
+			case 5:
+				R8702.m_Pieces.a[50]=g_CashBox_Num[i];
+				break;
+			case 6:
+				R8702.m_Pieces.a[100]=g_CashBox_Num[i];
+				break;
+				
+		};
+	}
+	return 0;	
+}
+
+//补币
+int de_bill_t::dBill_Add(unsigned int LOAdd_Num[8] )
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_LoadBanknotes();
+	int i=0;
+	for (i=0;i<8;i++)
+	{
+		LOAdd_Num[i]=g_LOAdd_Num[i];
+	}
+	return 0;
+}
+
+//打开投币口
+int de_bill_t::dBill_Work()
+{
+	if( gp_medev->IsOnlyCoin() ) return 0;
+
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_Enable();
+	return ret;
+}
+ //关闭投币口
+int de_bill_t::dBill_Stop()
+{
+	if( gp_medev->IsOnlyCoin() ) return 0;
+
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_Disable();
+	//ret = bnr_demo.CBNR_Encash();
+	return ret;
+} 
+//压箱
+int de_bill_t::dBill_Encash()
+{
+	using namespace BillBNR;
+	int count_max=10;
+	int count = 0;
+	int ret = bnr_demo.CBNR_Encash();
+	T_XfsCashUnit cashunit;
+	if(abs(ret) == XFS_E_ILLEGAL)
+	{
+		while(1)
+		{
+			sleep(0.2);
+			ret = bnr_demo.CBNR_QueryCashUnit(&cashunit);
+			++count;
+			if (abs(ret) == XFS_E_BUSY)
+			{
+				continue;
+			}
+			else if (abs(ret) == BXR_NO_ERROR || count >=count_max)
+			{
+				break;
+			}		
+		}
+		ret = bnr_demo.CBNR_Encash();
+	}
+	LOGSTREAM( gp_log[LOGBILL], LOGPOSI << " bnr_demo.CBNR_Encash() ,ret="<<ret );
+	return ret>=0?0:-1;
+}
+
+int de_bill_t::dBill_End() //结束交易
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_CashInEnd();
+	return ret;
+}
+//退币
+int de_bill_t::dBill_Refund()
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_Refund();
+	//ret = bnr_demo.CBNR_Encash();
+	return ret;
+}
+
+//喷出纸币
+int de_bill_t::dBill_JetBanknotes()
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_JetBanknotes();
+	return 0;
+}
+//缩回纸币
+int de_bill_t::dBill_BackBanknotes()
+{
+	using namespace BillBNR;
+	int ret = bnr_demo.CBNR_Backnotes();
+	return 0;
+}
+//查询钱
+int de_bill_t::dBill_Query()
+{	
+	using namespace BillBNR;
+	BYTE Data2[3];
+	MYAUTOLOCK( m_DevLck );
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+	int iResult,note;
+	note = bnr_demo.CBNR_GetStoredBanknote();
+	if (note > 0)
+	{
+		R8702.m_cNoteValue =note;
+		R8702.m_cNoteNum = 1;
+		iResult = 0;
+		bnr_demo.CBNR_ClearStoredBanknote();
+	}
+	else
+	{
+		iResult = -1;
+	}
+	
+	if( note >0 ) this->billAdvice();
+
+	return iResult;
+	return 0;
+}
+int de_bill_t::dBill_GetRecycleDenomination(UINT32 REDeno[4],UINT32 REcount[4])
+{
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+	T_XfsCashUnit cashUnit;
+	using namespace BillBNR;
+	bnr_demo.CBNR_QueryCashUnit(&cashUnit);
+	int i=0;
+	for (i=0;i<4;i++)
+	{
+		REDeno[i]=g_ibilldeno[i];
+		REcount[i]=g_iREbillCount[i];
+		R8702.m_ReDenomination.a[i]=g_ibilldeno[i];
+		R8702.m_ReNumber.a[i]=g_iREbillCount[i];
+	
+	}
+	return 0;
+
+}
+
+//清空回收箱和补币箱的数据统计
+int de_bill_t::dBill_ClearLoaderRecovery()
+{
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+	using namespace BillBNR;
+	int iResult =0;
+	iResult = bnr_demo.CBNR_ClearCashUnit("CB");
+	iResult = bnr_demo.CBNR_ClearCashUnit("LO1");
+	int i=0;
+	for (i=0;i<111;i++)
+	{
+		R8702.m_Pieces.a[i]=0;
+	}
+	return iResult;
+}
+
+int de_bill_t::dBill_QueryCashUint() //查询模块单元信息
+{
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+	using namespace BillBNR;
+	int iResult =0;
+	T_XfsCashUnit cashUnit;
+	iResult = bnr_demo.CBNR_QueryCashUnit(&cashUnit);
+
+	int i=0;
+	for (i=0;i<4;i++)
+	{
+		R8702.m_ReDenomination.a[i]=g_ibilldeno[i];
+		R8702.m_ReNumber.a[i]=g_iREbillCount[i];
+	}
+	for(i=0;i<8;i++)
+	{
+		switch (i)
+		{
+			case 0:
+				R8702.m_Pieces.a[1]=g_CashBox_Num[i];
+				break;
+			case 1:
+				R8702.m_Pieces.a[2]=g_CashBox_Num[i];
+				break;
+			case 2:
+				R8702.m_Pieces.a[5]=g_CashBox_Num[i];
+			    break;
+			case 3:
+				R8702.m_Pieces.a[10]=g_CashBox_Num[i];
+				break;
+			case 4:
+				R8702.m_Pieces.a[20]=g_CashBox_Num[i];
+				break;
+			case 5:
+				R8702.m_Pieces.a[50]=g_CashBox_Num[i];
+				break;
+			case 6:
+				R8702.m_Pieces.a[100]=g_CashBox_Num[i];
+				break;
+				
+		};
+	}
+	return iResult;
+}
+//设定循环箱满、高、低、空位置值设置信息(设置完不需要Reset)
+int de_bill_t::dBill_SetReCBPositionNum(int full[5],int high[5],int low[5],int empty[5])
+{
+	using namespace BillBNR;
+	int iResult =0;
+	iResult = bnr_demo.CBNR_SetReCBPositionNum(full,high,low,empty);
+	return iResult;
+}
+
+//设置循环箱(RE3 RE4 RE5 RE6 LO1即 0-4，的接收最大纸币面额元和数量)yuan_amount[i]=0 是lock该设备。yuan_maxcount[4]无效
+int de_bill_t::dBill_SetCashUnit(int yuan_amount[5] ,int yuan_maxcount[5] )
+{
+	using namespace BillBNR;
+	int iResult =0;
+	iResult = bnr_demo.CBNR_SetCashUnit(yuan_amount,yuan_maxcount);
+	return iResult;
+}
+
+//锁定某个单元模块如:(RE3 RE4 RE5 RE6 LO1 CB),  value值 true: 锁上 false:解锁  //执行该命令需要Reset 
+int de_bill_t::dBill_LockBox(char name[8],bool value)
+{
+	using namespace BillBNR;
+	int iResult =0;
+	iResult = bnr_demo.CBNR_LockCashBox(name,value);
+	return iResult;
+}
+//end add by jfren @20161118
+
+bool de_bill_t::IsVaultFull()
+{
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+	int i =0;
+	for (i=0;i<5;i++)
+	{
+		if(R8702.m_boxFull.a[4]==1)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int de_bill_t::RecoverErr()
+{
+	LOGSTREAM( LOGOBJECT, LOGPOSI );
+	if( IsBillStopUse() ) 
+	{
+		MYDBOBJECT.GetRow(0).m_BigErr = 0;
+		this->billAdvice();
+		return 1;
+	}
+	
+	LOGSTREAM( LOGOBJECT, LOGPOSI << "BigErrFlag=" << MYDBOBJECT.GetRow(0).m_BigErr );
+
+	if( !dBill_Reset(true) )
+	{
+		MYAUTOLOCK( MYDBOBJECT.m_ut_tbl_lck );
+
+		MYDBOBJECT.GetRow(0).m_BigErr = 0;
+	
+		LOGSTREAM( LOGOBJECT, LOGPOSI << "BigErrFlag=" << MYDBOBJECT.GetRow(0).m_BigErr );
+
+		this->billAdvice();
+		return 1;
+	}
+
+	this->billAdvice();
+	return 0;
+}
+
+int de_bill_t::dBill_GetSerialNums(char ModuleSerialNums[6][10])  //获取各模块序列号0-3:RE3-RE6 4:LO1 5:CB 
+{
+	using namespace BillBNR;
+	int iResult =0;
+	T_ModuleIdList ModuleIdList;
+	iResult = bnr_demo.CBNR_GetMoudles(&ModuleIdList);
+	int i=0;
+	for(i=0;i<4;i++)
+	{
+		strncpy(ModuleSerialNums[i],g_ModuleList.RESerialNum[i],8);
+	}
+	strncpy(ModuleSerialNums[4],g_ModuleList.LOSerialNum,8);
+	strncpy(ModuleSerialNums[5],g_ModuleList.CBSerialNum,8);
+	return iResult;
+	
+}
+

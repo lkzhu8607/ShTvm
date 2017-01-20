@@ -1,0 +1,198 @@
+
+//
+
+
+ GtkWidget * m_frmMain;
+ GtkWidget * m_fixed;
+static int  m_scr_width[2];
+static int  m_scr_height[2]; 
+static int  m_scr_startx[2];
+static int  m_scr_starty[2];
+
+volatile int m_iUiInitReady = 0;
+//static std::map< std::string, SNavass >  v_maplabel;
+
+static  char cursor1_bits[32] = {0};
+static  char cursor1mask_bits[32] = {0}; 
+
+
+
+//
+static void add_fixed()
+{
+	m_fixed = gtk_fixed_new();
+
+	gdk_threads_enter();
+	gtk_widget_set_usize( m_fixed, gp_conf->Get_scrall_width(), gp_conf->Get_scrall_height() );
+	gdk_threads_leave();
+
+	gdk_threads_enter();
+	gtk_container_add( GTK_CONTAINER(m_frmMain), m_fixed );
+	gdk_threads_leave();
+
+	gdk_threads_enter();
+	gtk_widget_show(m_fixed);
+	gdk_threads_leave();
+}
+
+
+//
+static gboolean on_key_value(GtkWidget *widget, GdkEventKey *pevent, gpointer data)
+{
+	char sz[123];
+    guint keyvalue = pevent->keyval;
+	//printf( "`%s` value `0x%x`  %s\n", gdk_keyval_name(pevent->keyval), pevent->keyval, sz );
+
+	sprintf( sz, "%u", (int)keyvalue );
+	
+	gp_backinput->input_KIN_KEYPRESS( sz );
+
+	if( keyvalue == 96 )	// '`'	
+	{
+		gp_conf->m_biSysShouldExit = 1;
+	}
+    
+    return FALSE;
+}
+
+
+
+//
+static gboolean on_button_press(GtkWidget* widget, GdkEventButton * bevent, GdkWindowEdge edge)
+{
+	static int width = 0; 
+	static int height = 0; 
+
+	if( width == 0 )
+	{
+		width = gp_conf->Get_scrall_width();
+		height = gp_conf->Get_scrall_height();
+	}
+
+	char sz[123];
+
+	if (bevent->type == GDK_BUTTON_PRESS)
+	{
+		if (bevent->button == 1)
+		{
+			double x,y;
+			int scrnum;
+			
+			x = bevent->x;
+			y = bevent->y;
+
+			//换算成屏号和归一化坐标 
+			if( x < m_scr_startx[1] )
+			{
+				scrnum = 0;
+			}
+			else
+			{
+				scrnum = 1;
+				x -= m_scr_startx[1];
+			}
+
+			x = x / m_scr_width[scrnum];
+			y = y / m_scr_height[scrnum];
+
+			sprintf( sz, "%f,%f,%d", x, y, scrnum );
+			
+			//printf( "%s\n", sz );
+	
+			gp_frontinput->input_KIN_MOUSEBUTT1( sz );
+		}
+	}
+
+	return FALSE;
+}
+
+
+
+//
+class SimpForm : public WThrd
+{
+public:
+
+	//
+	virtual int tr_on_user_run()  
+	{
+		m_scr_width[0] = gp_conf->Get_scr_width(0);
+		m_scr_width[1] = gp_conf->Get_scr_width(1);
+		m_scr_height[0] = gp_conf->Get_scr_height(0) ;
+		m_scr_height[1] = gp_conf->Get_scr_height(1);
+		m_scr_startx[0] = gp_conf->Get_scr_startx(0) ;
+		m_scr_startx[1] = gp_conf->Get_scr_startx(1) ;
+		m_scr_starty[0] = gp_conf->Get_scr_starty(0) ;
+		m_scr_starty[1] = gp_conf->Get_scr_starty(1) ;
+
+		if ( !g_thread_supported() )
+		{
+			g_thread_init(NULL);
+		}
+			gdk_threads_init();
+		
+		gtk_init( NULL, NULL );
+
+		//m_frmMain = gtk_window_new(GTK_WINDOW_POPUP);   //没有标题栏
+		m_frmMain = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+		gtk_window_set_title( GTK_WINDOW(m_frmMain), "TVM_SH" );
+		gtk_window_set_default_size(GTK_WINDOW(m_frmMain), gp_conf->Get_scrall_width(), gp_conf->Get_scrall_height());
+		gtk_window_move(GTK_WINDOW(m_frmMain), 0, 0);
+
+		//gtk_window_set_opacity(GTK_WINDOW(m_frmMain), 0.3);       //  0.8); //设置窗口透明度为80%不透明
+		gtk_window_set_position(GTK_WINDOW(m_frmMain),GTK_WIN_POS_NONE);
+
+		//gtk_widget_set_usize( m_frmMain, gp_conf->Get_scrall_width(), gp_conf->Get_scrall_height() );
+		gtk_container_border_width( GTK_CONTAINER(m_frmMain), 0 );
+		
+		//gdk_window_move_resize (m_frmMain->window, 0, 0, 999, 888);
+		
+		//gtk_window_set_decorated( GTK_WINDOW(m_frmMain), FALSE ); // no head
+		//gtk_window_fullscreen( GTK_WINDOW(m_frmMain) ); // large 
+
+		g_signal_connect( GTK_OBJECT(m_frmMain), "destroy", GTK_SIGNAL_FUNC(gtk_main_quit), NULL );
+		g_signal_connect( GTK_OBJECT(m_frmMain), "key-press-event", G_CALLBACK(on_key_value), m_frmMain );
+
+		gtk_widget_add_events(m_frmMain, GDK_BUTTON_PRESS_MASK);
+		g_signal_connect(G_OBJECT(m_frmMain), "button-press-event", G_CALLBACK(on_button_press), NULL);
+
+		add_fixed();
+		gtk_widget_show(m_frmMain);
+
+
+		PangoFontDescription *desc = pango_font_description_from_string("sans");
+		gtk_widget_modify_font(m_frmMain, desc);
+		gtk_widget_modify_font(m_fixed, desc);
+		pango_font_description_free(desc);
+
+
+		//隐藏鼠标形状 
+		if( 0 && !gp_conf->IsOsWin() )
+		{
+			GdkCursor *cursor;
+			GdkPixmap *source, *mask;
+			GdkColor fg = { 0, 65535, 0, 0 }; /* Red. */
+			GdkColor bg = { 0, 0, 0, 65535 }; /* Blue. */
+
+			source = gdk_bitmap_create_from_data (NULL, cursor1_bits, 16, 16);
+			mask = gdk_bitmap_create_from_data (NULL, cursor1mask_bits, 16, 16);
+			cursor = gdk_cursor_new_from_pixmap (source, mask, &fg, &bg, 8, 8);
+
+			gdk_window_set_cursor(m_frmMain->window, cursor);
+		}
+
+		gdk_threads_enter();
+		m_iUiInitReady = 1;
+		gtk_main();
+		gdk_threads_leave();
+
+		return 0;
+	}
+
+
+
+};	// end class SimpForm
+
+
+

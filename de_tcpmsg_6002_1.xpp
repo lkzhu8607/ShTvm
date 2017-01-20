@@ -1,0 +1,355 @@
+
+// 
+tbool de_tcpmsg_t::SendTrade6002_1()
+{
+	static int ShouldSec = 99;
+	static int ShouldNum = 22;
+	static long LastUpTime = 0;
+	static tbool ZhengDirection = 0;
+		
+	if(1)
+	{
+		MYAUTOLOCK( gp_db->m_a3002.m_ut_tbl_lck );
+		a3002_t::RPSTYPE rps1, rps2;
+
+		gp_db->m_a3002.SelEc_biDelFlag( 0, rps1 ); // not del
+		//
+		gp_db->m_a3002.SelEc_biIsAffect( 1, rps2 ); // affect
+		gp_db->m_a3002.RpsAnd( rps1, rps2 );
+
+		if( gp_db->m_a3002.GetRowCount( rps1 ) != 0 ) 
+		{
+			ShouldSec = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeTimesecTrigger;
+			ShouldNum = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeItemNumTrigger;
+		}
+		if( ShouldSec < 10 ) ShouldSec = 99;
+		if( ShouldNum < 10 ) ShouldNum = 22;
+	}
+
+	WTcpCellc  tc;
+	SCake ck;
+	SCake ck2;
+	tuint8  ui1;
+	tuint16 ui2;
+	tuint32 ui4;
+	unitbl_t<a6002_t>	a6002tbl_1;
+	long iIdx1;
+	long iPrepareMAX = 22;
+
+	if( (long)time(0) - LastUpTime < ShouldSec && gp_conf->m_iSend6002ShouldNum < ShouldNum ) return 0;
+
+	LastUpTime = (long)time(0);
+
+
+	if( !ConnSc(tc) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
+
+	//取得快照
+	if(1)
+	{
+		MYAUTOLOCK( gp_db->m_a6002.m_ut_tbl_lck );
+
+		if( ZhengDirection || (long)time(0) % 99 == 0 )
+		{
+			// 小概率，正向查到一条  
+			for( iIdx1 = 0; iIdx1 < gp_db->m_a6002.ut_GetRowAmount(); iIdx1++ )
+			{
+				a6002_t::ROWTYPE & row(gp_db->m_a6002.GetRow(iIdx1));
+			
+				// find "hot" row
+				if( row.m_unUploadFlag == 0 )
+				{
+					break;
+				}
+			}
+			ZhengDirection = 0;
+		}
+		else
+		{
+			//倒着查到一条 
+			for( iIdx1 = gp_db->m_a6002.ut_GetRowAmount() - 1; iIdx1 >= 0; iIdx1-- )
+			{
+				a6002_t::ROWTYPE & row(gp_db->m_a6002.GetRow(iIdx1));
+			
+				// find "hot" row
+				if( row.m_unUploadFlag == 1 )
+				{
+					break;
+				}
+			}
+			iIdx1++;
+		}
+
+		if( iIdx1 >= gp_db->m_a6002.ut_GetRowAmount() ) // 没有未传的 
+		{
+			return 0;
+		}
+
+		//否则，准备上传n行  
+		for( long ii = 0; ii < iPrepareMAX; ii++ )
+		{
+			if( ( iIdx1 + ii ) >= gp_db->m_a6002.ut_GetRowAmount() ) // beyond the last row. 
+				break;
+
+			a6002_t::ROWTYPE & row( gp_db->m_a6002.GetRow( iIdx1 + ii ) );
+
+			if( row.m_unUploadFlag == 1 )
+				break;
+
+			a6002tbl_1.Add( row );
+		}
+	} //end of 取得快照
+
+
+	if( a6002tbl_1.GetRowCount() == 0 ) // 没有未传的  
+		return 1;
+
+
+	gp_conf->m_iSend6002RowCount = a6002tbl_1.GetRowCount();
+	gp_conf->m_iSend6002ShouldNum -= a6002tbl_1.GetRowCount(); if( gp_conf->m_iSend6002ShouldNum < 0 ) gp_conf->m_iSend6002ShouldNum = 0;
+
+
+	for( wl::tuint16 iPkgSeri = 1; ; iPkgSeri++ )
+	{
+		ck.redim(0);
+
+		// 形成尾消息. 
+
+		//消息分类/类型码 
+		ui2 = (wl::tuint16)0x6002;
+		wl::SStrf::chgendian(ui2) ;
+		ck.append( (wl::tchar*)&ui2, 2 );
+
+		// 发送方标识码 
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode1 );
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode2 );
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode3 );
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode4 );
+
+		// 会话流水号  
+		ui4 = gp_db->GetSendConversationFlow() ;
+		SStrf::chgendian(ui4);
+		ck.append( (tchar*)&ui4, 4 );
+
+		//包序列号	0 ~ 65535，按包序递增	Word	2 
+		if( gp_conf->Get_pkg_seri_style() == 0 )
+			ui2 = 0;
+		else
+			ui2 = 0;
+		SStrf::chgendian(ui2);
+		ck.append( (tchar*)&ui2, 2 );
+
+		// 标志		Bit1：0-请求消息1-应答消息		Bit0：0-还有更大的包序列号的包1-这是本消息的最后一包 
+		ui1 = 1;	 
+		ck.append( (tchar)ui1 );
+
+		// 记录数0~65535，对于没有长度可变部分的包,填0，否则，为长度可变部分中包含的记录数	 
+		ui2 = (wl::tuint16)a6002tbl_1.GetRowCount(); 
+		wl::SStrf::chgendian(ui2) ;
+		ck.append( (wl::tchar*)&ui2, 2 ); 
+
+		//压缩/加密算法  
+		ui1 = 0;
+		ck.append( (wl::tchar)ui1 );
+
+
+		//send the data
+
+		for( int i = 0; i < a6002tbl_1.GetRowCount(); i++ )
+		{
+			a6002_t::ROWTYPE & row(a6002tbl_1.GetRow(i));
+
+			// 交易事件码  
+			ui1 = (wl::tuint8)row.m_uTradeCode;
+			ck.append( (wl::tchar)ui1 );
+
+			//车票类型码 
+			ui1 = (wl::tuint8)row.m_uTicketTypeCode;
+			ck.append( (wl::tchar)ui1 );
+
+			//原始)票卡标识 
+			ui4 = (wl::tuint32)row.m_lTicketMark;
+			wl::SStrf::chgendian(ui4) ;
+			ck.append( (wl::tchar*)&ui4, 4 );
+
+			//新票卡标识	仅用于更换交易	Long	4 
+			ui4 = (wl::tuint32)row.m_lNewTicketMark;
+			wl::SStrf::chgendian(ui4);
+			ck.append( (wl::tchar*)&ui4, 4 );
+
+			//操作员编号	仅用于BOM	Long	4 
+			ui4 = (wl::tuint32)row.m_lOperatorNum;
+			wl::SStrf::chgendian(ui4);
+			ck.append( (wl::tchar*)&ui4, 4 );
+
+			//SAM卡号		Long	4 
+			ck.append( (wl::tchar*)row.m_SingleCardSam.a, 4 );
+			
+			//交易日期时间		GMT	4 
+			ui4 = (wl::tuint32)row.m_lTradeDateTime;
+			wl::SStrf::chgendian(ui4);
+			ck.append( (wl::tchar*)&ui4, 4 );
+			
+			//交易前票值	可为负值	Long	4 
+			ui4 = (wl::tuint32)row.m_lValBeforeTrade;
+			wl::SStrf::chgendian(ui4);
+			ck.append( (wl::tchar*)&ui4, 4 );
+
+			//交易金额		Word	2 
+			ui2 = (wl::tuint16)row.m_lTradeVal;
+			wl::SStrf::chgendian(ui2);
+			ck.append( (wl::tchar*)&ui2, 2 );
+
+			//当前车站	车站计算机的节点标识码	Block	4 
+			ui1 = (wl::tuint8)row.m_SCNodecode1;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_SCNodecode2;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_SCNodecode3;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_SCNodecode4;
+			ck.append( (wl::tchar)ui1 );
+
+			//上次使用车站	车站计算机的节点标识码	Block	4 
+			ui1 = (wl::tuint8)row.m_LastSCNodecode1;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_LastSCNodecode2;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_LastSCNodecode3;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_LastSCNodecode4;
+			ck.append( (wl::tchar)ui1 );
+
+			//剩余乘次	仅用于乘次票	Byte	1 
+			ui1 = (wl::tuint8)row.m_uRemainTakeTimes;
+			ck.append( (wl::tchar)ui1 );
+
+			//终端设备标识		Block	4 
+			ui1 = (wl::tuint8)row.m_EqpNodecode1;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_EqpNodecode2;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_EqpNodecode3;
+			ck.append( (wl::tchar)ui1 );
+
+
+			ui1 = (wl::tuint8)row.m_EqpNodecode4;
+			ck.append( (wl::tchar)ui1 );
+			if(0) //清分实测，不要这样，111的就上传6Fh ，只有初始化时才要用11h  
+			{
+				//取10进制的后2位做成0x??再使用  
+				int i = (int)ui1;
+				i = i % 100;
+				std::string s1 = "0x" + wl::SStrf::sltoa(i);
+				sscanf( s1.c_str(), "%x", &i );
+				ui1 = (wl::tuint8)i;
+				ck.append( (wl::tchar)ui1 );
+			}
+
+			//终端流水号		Long	4 
+			ui4 = (wl::tuint32)row.m_lTicketTradeTerminalFlow;
+			wl::SStrf::chgendian(ui4);
+			ck.append( (wl::tchar*)&ui4, 4 );
+
+			//票计数器		Word	2 
+			wl::SStrf::chgendian(row.m_lTicketCounter); /// 实测  
+			ui2 = (wl::tuint16)row.m_lTicketCounter;
+			//wl::SStrf::chgendian(ui2); 清分实测，不要这一条  
+			ck.append( (wl::tchar*)&ui2, 2 );
+			wl::SStrf::chgendian(row.m_lTicketCounter); /// 再恢复原状，待下次用。  
+
+			//售票设备标识	售票设备标识码（包含线路、车站、设备编码，取自车票数据结构中的售票设备标识码，设备端必须保证填写此信息）	Block	3 
+			ui1 = (wl::tuint8)row.m_SellEqpNodecode1;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_SellEqpNodecode2;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_SellEqpNodecode4;
+			ck.append( (wl::tchar)ui1 );
+
+			//优惠金额	全价票额与实际交易额的差值	Word	2 
+			ui2 = (wl::tuint16)row.m_lPromotionVal;
+			wl::SStrf::chgendian(ui2);
+			ck.append( (wl::tchar*)&ui2, 2 );
+
+			// [保留]		Byte	6 
+			ck.append( (wl::tchar)0 ); ck.append( (wl::tchar)0 );
+			ck.append( (wl::tchar)0 ); ck.append( (wl::tchar)0 ); ck.append( (wl::tchar)0 ); ck.append( (wl::tchar)0 );
+
+			//TAC		Block	4 
+			ui1 = (wl::tuint8)row.m_uTAC1;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_uTAC2;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_uTAC3;
+			ck.append( (wl::tchar)ui1 );
+			ui1 = (wl::tuint8)row.m_uTAC4;
+			ck.append( (wl::tchar)ui1 );
+
+		} // end for  
+	
+		//MAC
+		AppendMd5(ck);
+
+		//长度 
+		ui2 = (tuint16)ck.len();
+		SStrf::chgendian(ui2);
+
+		//组织全部数据为一个包  
+		ck2.append( (tchar*)&ui2, 2 );
+		ck2.append( ck );
+
+		///
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck2.Seri_S() );
+
+		if( !tc.send_bin( ck2 ) )
+			return 0;
+
+
+			//save ck?
+			wl::SDte dtnow2;
+			dtnow2.MakeNow();
+			if(0) ///tmp test code 
+			if( dtnow2.ReadString() < "2012-12-02 19:53:39" )
+			{
+				wl::WFile fl;
+				fl.bind( "aaa6002.txt" );
+				//fl.write_str( wl::SStrf::sltoa(lTicketTradeTerminalFlowLast), 1 );
+				fl.write_str( ck.GetReadableWithLen().c_str(), 1 );
+				fl.write_str( "\r\n\r\n", 1 );
+			}
+
+
+		//此循环其实只做一次。  
+		break;
+	} // end for 
+
+
+	if( !RecvMACK_2(&tc) )
+		return 0;
+
+
+	//发送消息成功则回填hot标记        应和db-purge串行运行     
+	if(1)
+	{
+		MYAUTOLOCK( gp_db->m_a6002.m_ut_tbl_lck );		
+
+		for( long ii = 0; ii < a6002tbl_1.GetRowCount(); ii++ )
+		{
+			a6002_t::ROWTYPE & row( gp_db->m_a6002.GetRow( iIdx1 + ii ) );
+			row.m_unUploadFlag = 1;
+		}
+
+		gp_db->RiseSaveFlag( gp_db->m_a6002 );
+	}
+
+	//
+
+	return 1;
+}
+
+
+
+

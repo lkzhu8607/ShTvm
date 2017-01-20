@@ -1,0 +1,363 @@
+
+
+//static ReadWrite rw;
+
+
+//
+de_reader1_t::de_reader1_t()
+{
+	this->SetShouldReset();
+}
+
+
+//
+de_reader1_t::~de_reader1_t()
+{
+}
+
+
+
+//
+void de_reader1_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_reader1_t::tr_on_user_run()
+{
+	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+
+	gp_db->LasyRiseSaveFlag_b8704(Rb8704);
+
+	if( this->m_de_ShouldReset )
+	{
+		Rb8704.m_RtnVal = this->rReset();
+		WThrd::tr_sleepu( 2 );
+	}
+
+	if( m_de_state == 0 ) //0= idle ;
+	{
+	}
+
+	if( m_de_state == 1 ) //1= reset & idle ; 不实现。用不上。 
+	{
+	}
+
+	if( m_de_state == 2 ) // 2= loop query	不实现。用不上。	
+	{
+	}
+
+
+	WThrd::tr_sleepu( 3 );
+
+	return 1;
+}
+
+
+
+// 
+void de_reader1_t::Reader1Advice()
+{
+	gp_frontinput->input_KIN_READER1();
+}
+
+
+
+// 
+void de_reader1_t::Reader1Init()
+{
+	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+
+	if(!rw.OpenComm())
+	{
+		Rb8704.m_ConnState = 0;
+		Rb8704.m_BigErr = 1;
+		this->Reader1Advice();
+		WThrd::tr_sleepu( 5.5 );
+	}
+	else
+	{
+		Rb8704.m_ConnState = 1;
+		Rb8704.m_BigErr = 0;
+
+		Rb8704.m_RtnVal = this->rReset();
+		Rb8704.m_RtnVal = this->rInit2();
+		Rb8704.m_RtnVal = this->rReset();
+		Rb8704.m_RtnVal = this->rInit2();
+
+		this->Reader1Advice();
+		
+	}
+
+	this->tr_open();
+}
+
+
+// 
+bool de_reader1_t::rCommOpen()
+{
+	return rw.OpenComm();
+}
+
+
+// 
+void de_reader1_t::rCommClose()
+{
+	rw.CloseComm();
+}
+
+//
+int de_reader1_t::rReset()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+	int int_ret=0;
+	BYTE ResetOut[3]={0};
+	BYTE DoubleCard[4];
+	BYTE SingleCard[4];
+
+	int_ret=rw.Reset(ResetOut,DoubleCard,SingleCard);
+	
+	this->m_de_ShouldReset = 0;
+	
+	if(int_ret==0) 
+	{
+		memcpy( Rb8704.m_ResetOut.a, ResetOut, 3 );
+		memcpy( Rb8704.m_DoubleCardSam.a, DoubleCard, 4 );
+		memcpy( Rb8704.m_SingleCardSam.a, SingleCard, 4 );
+
+		//版本号 
+		if(1)
+		{
+			wl::tuint32 i;
+			wl::tuint32 i1, i2;
+			i = ResetOut[1];
+			i1 = i >> 5;
+			i2 = i & 0x1F;
+			Rb8704.m_Major = (BYTE)i1;
+			Rb8704.m_Minor = (BYTE)i2;
+		}
+	}
+
+	//判断reset是否成功，SAM卡是否有	
+	if(int_ret!=0)
+	{
+		this->m_de_ShouldReset = 1;
+	}
+
+	if(int_ret==0) 
+	{
+		int i = 0;
+		for( int j = 0 ; j < 4; j++ )
+			i += SingleCard[j];
+		if( i == 0 )
+			this->m_de_ShouldReset = 1;
+	}
+
+	return int_ret;
+}
+
+
+
+
+//
+int de_reader1_t::rInit2()
+{
+	SCake ck;
+	std::vector<wl::tuint8> v1;
+	int iretry=0;
+	wl::tuint32 ui4;
+
+	//nvQues.let( "命令代码" , "OT_INITREADER" );
+	v1.push_back( (wl::tuint8)0x20 );	//	OT_INITREADER	0x20
+
+	//iretry
+	v1.push_back( iretry++ );
+
+	//nvQues.let( "参数_1" , (int)g_env.m_db.m_a3014tbl.GetRow(0).m_EqpNodecode1 );
+	v1.push_back( (tuint8)gp_db->GetTheRowa3014().m_EqpNodecode1 );
+	 
+	//nvQues.let( "参数_2" , (int)g_env.m_db.m_a3014tbl.GetRow(0).m_EqpNodecode2 );
+	v1.push_back( (tuint8)gp_db->GetTheRowa3014().m_EqpNodecode2 );
+
+	//nvQues.let( "参数_3" , (int)g_env.m_db.m_a3014tbl.GetRow(0).m_EqpNodecode4 );
+	if(1)
+	{
+		//取10进制的后2位做成0x??再使用 
+		int i = (int)(tuint8)gp_db->GetTheRowa3014().m_EqpNodecode4;
+		i = i % 100;
+		std::string s1 = "0x" + wl::SStrf::sltoa(i);
+		sscanf( s1.c_str(), "%x", &i );
+		v1.push_back( (tuint8)i );
+	}
+	
+	//nvQues.let( "参数_4" , (int)1 );
+	v1.push_back( (tuint8)1 );
+
+	//nvQues.let( "参数_5" , (int)0 );
+	v1.push_back( (tuint8)0 );
+
+	//nvQues.let( "参数_6_1" , (int)0 );
+	v1.push_back( (tuint8)0 );
+
+	ui4 = (wl::tuint32)wl::SDte("").DiffSec(wl::SDte("1970-1-1"));
+	wl::SStrf::chgendian(ui4);
+	wl::tuint8 *p = (wl::tuint8 *)&ui4;
+	
+	//nvQues.let( "参数_6_2" , (int)p[0] );
+	v1.push_back( (tuint8)p[0] );
+	//nvQues.let( "参数_6_3" , (int)p[1] );
+	v1.push_back( (tuint8)p[1] );
+	//nvQues.let( "参数_6_4" , (int)p[2] );
+	v1.push_back( (tuint8)p[2] );
+	//nvQues.let( "参数_6_5" , (int)p[3] );
+	v1.push_back( (tuint8)p[3] );
+	
+	//nvQues.let( "参数_7" , (int)0 );
+	v1.push_back( (tuint8)0 );
+
+	//nvQues.let( "参数_8" , (int)0x40 );	//
+	v1.push_back( (tuint8)0x40 );
+
+	v1.insert( v1.begin(), (tuint8)v1.size() );
+
+	int int_ret=0;
+
+    int_ret=rw.Init2( (BYTE*)&(v1[0]), (int)v1.size() , 0x20 );
+
+	return int_ret;
+}
+
+
+
+
+
+//
+int de_reader1_t::rAbort()
+{
+	SCake ck;
+	std::vector<wl::tuint8> v1;
+	int iretry=0;
+	//wl::tuint32 ui4;
+
+	v1.push_back( (wl::tuint8)0x3F );	//	命令代码	BYTE	1	值=OT_ABORT	OT_ABORT	0x3F
+	v1.push_back( (wl::tuint8)(iretry) );
+	v1.push_back( (wl::tuint8)0 );
+
+
+	v1.insert( v1.begin(), (tuint8)v1.size() );
+
+	int int_ret=0;
+
+    int_ret=rw.Init2( (BYTE*)&(v1[0]), (int)v1.size() , 0x3F );
+
+	return int_ret;
+}
+
+
+
+//
+int de_reader1_t::rInit( BYTE InitIn[11] )
+{
+	MYAUTOLOCK( m_DevLck );
+	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+	BYTE InitOut=0;
+	int int_ret=0;
+
+    int_ret=rw.Init(InitIn,InitOut);
+	
+	if(int_ret!=0) return int_ret;
+	
+	Rb8704.m_InitOut = InitOut;
+
+	return int_ret;
+}
+
+
+//
+int de_reader1_t::rReadCard()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+	BYTE ReadOut[28]={0};
+	int int_ret=0;
+
+	int_ret = this->rInit2();
+	if(int_ret!=0) 
+	{
+		LOGSTREAM( gp_log[LOGREADER1], LOGPOSI << "rInit2 int_ret="<<int_ret);
+		return int_ret;
+	}
+
+	int_ret=rw.ReadCard(0x02,ReadOut);
+	if(int_ret!=0)
+	{
+		LOGSTREAM( gp_log[LOGREADER1], LOGPOSI << "ReadCard int_ret="<<int_ret);
+		return int_ret;
+	}
+
+	memcpy( Rb8704.m_ReadOut.a, ReadOut, 28 );
+
+	return int_ret;
+}
+
+
+//
+int de_reader1_t::rSaleCard( BYTE SaleIn[14] )
+{
+	MYAUTOLOCK( m_DevLck );
+	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+	BYTE SaleOut[8]={0};
+	int int_ret=0;
+
+	int_ret=rw.SaleCard(SaleIn,SaleOut);
+	
+	if(int_ret!=0) return int_ret;
+
+	memcpy( Rb8704.m_SaleOut.a, SaleOut, 8 );
+	
+	return int_ret;
+}
+
+
+static tuint32 v_flow = 0;
+
+//
+int de_reader1_t::rSaleCard2( int iPrice )
+{
+	BYTE SaleIn[14];
+	tuint32 ui4;
+	tuint8 *pui4 = (tuint8 *)&ui4;
+	
+	ui4 = (tuint32)SDte::GetNow().DiffSec(SDte("1970-1-1"));
+	SaleIn[0] = pui4[0];
+	SaleIn[1] = pui4[1];
+	SaleIn[2] = pui4[2];
+	SaleIn[3] = pui4[3];
+	
+	ui4 = v_flow ++;
+	SaleIn[4] = pui4[0];
+	SaleIn[5] = pui4[1];
+	SaleIn[6] = pui4[2];
+	SaleIn[7] = pui4[3];
+
+	SaleIn[8] = 0;
+	SaleIn[9] = 0;
+
+	SaleIn[10] = 3;
+
+	SaleIn[11] = 0x64;
+
+	ui4 = iPrice;
+	SaleIn[12] = pui4[0];
+	SaleIn[13] = pui4[1];
+
+	return rSaleCard( SaleIn );
+}
+

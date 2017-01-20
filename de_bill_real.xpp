@@ -1,0 +1,313 @@
+
+#include "GDnote.h"
+
+
+namespace BillGD {
+	int re,i;
+	string sre;
+	string vBoxID;
+	GDCashModle GDCash;
+}
+
+
+
+//
+de_bill_t::de_bill_t()
+{
+	this->SetShouldReset();
+}
+
+
+//
+de_bill_t::~de_bill_t()
+{
+	using namespace BillGD;
+	re=GDCash.CloseCom();
+}
+
+
+
+//
+void de_bill_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+	
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_bill_t::tr_on_user_run()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	gp_db->LasyRiseSaveFlag_b8702(Rb8702);
+
+	if( m_de_state == 0 ) //0= idle ;
+	{
+		while( m_de_state == 0 )  
+			WThrd::tr_sleepu( 0.21 ); //do nothing
+		WThrd::tr_sleepu( 0.21 );
+		return 1;
+	}
+
+	if( m_de_state == 1 ) //1= reset & idle ;
+	{
+		while(1)
+		{
+			Rb8702.m_RtnVal = this->Reset();
+		
+			if( Rb8702.m_RtnVal == -1 )	//-1	´®¿ÚÎ´´ò¿ª
+			{
+				Rb8702.m_ConnState = 0;
+				this->billAdvice();
+				WThrd::tr_sleepu( 5 );
+				continue;
+			}
+
+			if( Rb8702.m_RtnVal != 0 )
+			{
+				Rb8702.m_ConnState = 1;
+				this->billAdvice();
+				WThrd::tr_sleepu( 3 );
+				continue;
+			}
+
+			break;
+		}
+
+		Rb8702.m_ConnState = 1;
+		this->billAdvice();
+	
+		while( m_de_state == 1 )  
+			WThrd::tr_sleepu( 0.21 );
+
+		return 1;
+	} //1= reset & idle ;
+
+	if( m_de_state == 2 ) // 2= loop query 
+	{
+		while(1)
+		{
+			int rc = this->State();
+
+			if( Rb8702.m_RtnVal != rc )
+			{
+				Rb8702.m_RtnVal = rc;
+				this->billAdvice();
+			}
+			
+			if( m_de_state == 2 ) 
+			{
+				WThrd::tr_sleepu( 0.32 );
+				continue;
+			}
+			else
+				return 1;
+		}
+	}
+
+
+	WThrd::tr_sleepu( 0.21 );
+
+	return 1;
+}
+
+
+// 
+void de_bill_t::billAdvice()
+{
+	gp_frontinput->input_KIN_BILL();
+}
+
+
+// 
+void de_bill_t::billInit()
+{
+	using namespace std;
+	using namespace BillGD;
+	MYAUTOLOCK( m_DevLck );
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	re = GDCash.OpenCom();
+	
+	while( re != 0 )
+	{
+		Rb8702.m_RtnVal = re;
+		Rb8702.m_ConnState = 0;
+		Rb8702.m_BigErr = 1;
+		this->billAdvice();
+		WThrd::tr_sleepu( 5.3 );
+	}
+	
+	Rb8702.m_RtnVal = re;
+	Rb8702.m_ConnState = 1;
+	Rb8702.m_BigErr = 0;
+
+	Rb8702.m_RtnVal = this->Reset();
+	//Rb8702.//GetVersion();
+
+	this->billAdvice();
+
+	m_de_state = 0;
+
+	this->tr_open();
+}
+
+
+// 
+int de_bill_t::Reset()
+{
+	using namespace BillGD;
+	MYAUTOLOCK( m_DevLck );
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+
+	re=GDCash.cmReset();
+	Rb8702.m_RtnVal = re;
+
+	re=GDCash.cmState();
+	Rb8702.m_RtnVal = re;
+
+	return re;
+}
+
+
+// 
+int de_bill_t::Work()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	re=GDCash.cmWork();
+	Rb8702.m_RtnVal = re;
+
+	return re;
+}
+
+
+// 
+int de_bill_t::State()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+	int rc = 0;
+
+	re=GDCash.cmState();
+	Rb8702.m_RtnVal = re;
+	
+	if(re==0)
+	{
+		if( GDCash.cErrorNum )
+			rc ++, Rb8702.m_cErrorNum = GDCash.cErrorNum;
+
+		//RB.m_cErrorCode.a = GDCash.cErrorCode;
+		for( i=0;i<GDCash.cErrorNum;i++)
+			Rb8702.m_cErrorCode.a[i] = GDCash.cErrorCode[i];
+
+		if( Rb8702.m_cNoteValue != GDCash.cNoteValue )
+			rc ++, Rb8702.m_cNoteValue = GDCash.cNoteValue;
+
+		if( Rb8702.m_cNoteNum != GDCash.cNoteNum )
+			rc ++, Rb8702.m_cNoteNum = GDCash.cNoteNum;
+	}
+	
+	if( rc ) this->billAdvice();
+
+	return re;
+}
+
+
+// 
+int de_bill_t::Stop()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	re=GDCash.cmStop();
+	Rb8702.m_RtnVal = re;
+
+	return re;
+}
+
+
+// 
+int de_bill_t::Return1()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	re=GDCash.cmReturn();
+	return Rb8702.m_RtnVal = re;
+}
+
+
+// 
+int de_bill_t::Return2()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	re=GDCash.cmReject();
+	return Rb8702.m_RtnVal = re;
+}
+
+
+// 
+int de_bill_t::Return3()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	re=GDCash.cmClear();
+	return Rb8702.m_RtnVal = re;
+}
+
+
+// 
+int de_bill_t::Escrow()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	re=GDCash.cmEscrow();
+	return Rb8702.m_RtnVal = re;
+}
+
+
+// 
+int de_bill_t::Deposit()
+{
+	using namespace BillGD;
+	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
+	MYAUTOLOCK( m_DevLck );
+
+	re=GDCash.cmDeposit();
+	return Rb8702.m_RtnVal = re;
+}
+
+int de_bill_t::Mei_Inhibit(int value)
+{
+
+}
+
+int de_bill_t::Mei_Active(int value)
+{
+	
+}
+
+int de_bill_t::dBill_GetRecycleDenomination(UINT32 REDeno[4],UINT32 REcount[4])
+{
+	
+}
+
+

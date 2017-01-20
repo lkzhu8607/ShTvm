@@ -1,0 +1,483 @@
+
+
+static tuint16 X, Y;
+static SCake v_ckbuf; // Y??,X???
+static	wl::SBmp v_sb;
+
+#include "w_SBmp.xpp"
+
+
+//
+de_printer_t::de_printer_t()
+{
+	m_de_ShouldReset = 1;
+	m_de_state = 0;
+
+	X = 64;
+	Y = 16;
+
+	v_ckbuf.redim( X * 8 * Y * 3 );
+	SStrf::smemset( v_ckbuf.buf(), 0x0, v_ckbuf.len() );
+	v_sb.m_DefaultColor = SBmp::MKRGB( 0xff, 0xff, 0xff );
+
+	v_sb.InitZK( SBmp_HZ16("ASC16"), SBmp_HZ16("HZK16"), &v_ckbuf , X * 8 );
+}
+
+
+//
+de_printer_t::~de_printer_t()
+{
+	this->PrinterCommClose();
+}
+
+
+//
+void de_printer_t::OnRunTask( std::string t ) 
+{
+	WNava nv;
+
+	nv.unserialize( t );
+
+	if( nv.get("Cmd") == "HalfCut" )
+	{
+		HalfCut();
+		goto L_TASKEND;
+	}
+	 
+	if( nv.get("Cmd") == "PrintLine" )
+	{
+		PrintLine( nv.get("Data") );
+		goto L_TASKEND;
+	}
+
+	if( nv.get("Cmd") == "PrintStr" )
+	{
+		PrintStr( nv.get("Data") );
+		goto L_TASKEND;
+	}
+
+	goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_printer_t::tr_on_user_run()
+{
+	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+
+	gp_db->LasyRiseSaveFlag_b8707(Rb8707);
+	
+	if( this->m_de_ShouldReset )
+	{
+		Rb8707.m_RtnVal = this->PrinterReset();
+		WThrd::tr_sleepu( 2 );
+		return 1;
+	}
+	
+	if( this->m_de_state == 0 ) 
+	{
+		WThrd::tr_sleepu( 2 );
+		return 1;
+	}
+
+	if( this->m_de_state == 1 ) 
+	{
+		MYAUTOLOCK( m_DevLck );
+
+		this->Query();
+
+		if( Rb8707.m_RtnVal == -1 )
+		{
+			this->m_de_ShouldReset = 1;
+		}
+	}
+
+	WThrd::tr_sleepu( 3.91 );
+	return 1;
+}
+
+
+// 
+void de_printer_t::PrinterAdvice()
+{
+	gp_frontinput->input_KIN_PRINTER();
+}
+
+
+// 
+void de_printer_t::PrinterInit()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+
+	if( !this->PrinterCommOpen() )
+	{
+		Rb8707.m_ConnState = 0;
+		Rb8707.m_BigErr = 1;
+		this->PrinterAdvice();
+		WThrd::tr_sleepu( 3.5 );
+	}
+	else
+	{
+		Rb8707.m_ConnState = 1;
+		Rb8707.m_BigErr = 0;
+
+		Rb8707.m_RtnVal = this->PrinterReset();
+
+	}
+	
+	this->m_de_state = 1;
+
+	this->tr_open();
+}
+
+
+//
+int de_printer_t::PrinterReset()
+{
+	MYAUTOLOCK( m_DevLck );
+	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+	std::string s1;
+	SCake ck;
+
+	//s1 = "0A "
+	//	 "1B 40 "		// ???
+	//	 "1D 61 00 "	// ?????? ??? GS a n
+	//	 ;
+	s1 = "1B 40 ";		// ??? 
+	ck.UnSeri_S( s1 );
+	
+	printercomm.m_aCom.send_bin( ck );
+
+	this->Query();
+
+	this->m_de_ShouldReset = 0;
+
+	return 0;
+}
+
+
+// 
+bool de_printer_t::PrinterCommOpen()
+{
+	if (printercomm.m_aCom.Conn(gp_conf->Get_printer_com_port()))
+	{
+		LOGSTREAM( gp_log[LOGPRINTER], LOGPOSI << "com open ok:" << gp_conf->Get_printer_com_port() );
+		return true; 
+	}
+	else
+	{
+		LOGSTREAM( gp_log[LOGPRINTER], LOGPOSI << "com open fail:" << gp_conf->Get_printer_com_port() );
+		return false;
+	}
+}
+
+
+//????
+void de_printer_t::PrinterCommClose()
+{
+	LOGSTREAM( gp_log[LOGPRINTER], LOGPOSI << "com close:" << gp_conf->Get_printer_com_port() );
+	printercomm.m_aCom.DisConn();
+	return;
+}
+
+
+
+//
+void de_printer_t::HalfCut()
+{
+	//PrinterReset();	PrinterReset();	PrinterReset();
+	//PrinterReset();	PrinterReset();	PrinterReset();	PrinterReset();
+
+	MYAUTOLOCK( m_DevLck );
+	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+	std::string s1;
+	SCake ck;
+
+	s1 = "0A 0A 0A 1B 69 "		// ?? 
+		 ;
+	ck.UnSeri_S( s1 );
+	
+	printercomm.m_aCom.send_bin( ck );
+	
+	//PrinterReset();	PrinterReset(); PrinterReset();
+	//PrinterReset();	PrinterReset();	PrinterReset();	PrinterReset();
+}
+
+void de_printer_t::PrintStr(SCake ckStr)
+{
+	MYAUTOLOCK( m_DevLck );
+	std::string s1;
+	SCake ck;
+
+	//s1 = "0A "; 	
+	//s1 = "0A "; 	
+	//s1 = "";
+		 
+	//ck.UnSeri_S( s1 );
+
+	ck.append( ckStr );
+
+	s1 = "0A "; 
+	wl::SCake ck2;
+	ck2.UnSeri_S( s1 );
+
+	ck.append( ck2 );
+
+	LOGSTREAM( gp_log[LOGPRINTER], LOGPOSI << "PrintStr ckStr:"<<ck.Seri_S() );
+
+	printercomm.m_aCom.send_bin( ck );
+
+	return ;
+}
+
+void de_printer_t::PrintStr(std::string str)
+{
+	std::vector< std::string > vecStr;
+	std::string ssep = "\n";
+	
+	if( str.empty() ) return;
+
+	if( !gp_conf->IsOsWin() && !str.empty() )
+	{
+		WFile::Utf8toCh( str );
+	}
+
+	wl::SStrvs::vsa_imp(str,ssep,0,vecStr);
+	std::vector<std::string>::iterator itstr = vecStr.begin();
+
+	for( itstr;itstr != vecStr.end();itstr++ )
+	{
+		wl::SCake ckstr( *itstr );
+		ckstr.Seri_S();
+
+		this->PrintStr( ckstr );
+
+		this->Query();
+	}
+
+	this->HalfCut();
+
+
+}
+
+// This is old document
+void de_printer_t::PrintPic( SCake ckPic )
+{
+	// GS v 0 m xL xH yL yH d1....dk 
+
+	// 1D 76 30 00 X?? Y?? DATA
+
+	//MYAUTOLOCK( m_DevLck );
+	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+	std::string s1;
+	SCake ck;
+	SCake ck2;
+	tchar *p;
+
+	s1 = "1D 76 30 00 "; 	
+		 
+	ck.UnSeri_S( s1 );
+
+	p = (tchar*)&X;
+	ck.append( *p );
+	p++;
+	ck.append( *p );
+
+	p = (tchar*)&Y;
+	ck.append( *p );
+	p++;
+	ck.append( *p );
+
+	ck2.redim( X * Y );
+
+	for( int i = 0; i < X * 8 * Y ; i++ )
+	{
+		p = ckPic.buf() + i * 3;
+		SStrf::writebit_r( ck2.buf(), i, (*p ? 1 : 0) );
+	}
+
+	for( int i = 0; i < (int)ck2.len(); i++ )	//	????	
+	{
+		p = ck2.buf() + i;
+		if( *p == 0x1D ) *p = 0x2d;
+		if( *p == 0x1B ) *p = 0x2b;
+	}
+
+	ck.append( ck2 );
+
+	printercomm.m_aCom.send_bin( ck );
+
+	return ;
+}
+
+
+
+//
+void de_printer_t::PrintLine( std::string str )
+{
+	if( str.empty() ) return;
+
+	if( !gp_conf->IsOsWin() && !str.empty() )
+	{
+		WFile::Utf8toCh( str );
+	}
+
+	int pos;
+	const char *p;
+
+	pos = 0;
+	p = str.c_str();
+
+	for( ; ; )
+	{
+		MYAUTOLOCK( m_DevLck );
+
+		SStrf::smemset( v_ckbuf.buf(), 0x00, v_ckbuf.len() );
+
+		v_sb.OutTextWidth( p, 0, 0, X * 8, 1, &pos );
+
+		p += pos;
+
+		PrintPic( v_ckbuf );
+		
+		this->Query();
+	
+		if( pos == 0 ) break;
+
+		b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+
+		if( Rb8707.m_RtnVal == -1 ) break;
+	}
+
+	return ;
+}
+
+
+//
+void de_printer_t::Query()
+{
+	//MYAUTOLOCK( m_DevLck );
+	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
+	std::string s1;
+	SCake ck;
+	tuint8  ui1;
+
+	s1 = "1D 72 01 ";	// GS r n	????
+		 
+	ck.UnSeri_S( s1 );
+	
+	printercomm.m_aCom.send_bin( ck );
+
+	//	??	
+	printercomm.m_aCom.recv_len( ck , 1 );
+
+	if( ck.len() )
+	{
+		ui1 = *(tuint8*)ck.buf();
+
+		if( SStrf::readbit( ui1, 0 ) == 1 || SStrf::readbit( ui1, 1 ) == 1 )
+			Rb8707.m_NearEmpty = 1;
+		else
+			Rb8707.m_NearEmpty = 0;
+
+		if( SStrf::readbit( ui1, 2 ) == 1 || SStrf::readbit( ui1, 3 ) == 1 )
+			Rb8707.m_IsEmpty = 1;
+		else
+			Rb8707.m_IsEmpty = 0;
+	}
+	else
+	{
+		Rb8707.m_RtnVal = -1;
+		this->PrinterAdvice();
+	}
+}
+
+
+//
+void de_printer_t::HalfCutAsync()
+{
+	WNava nv;
+	
+	nv.let( "Cmd", "HalfCut" );
+
+	//HalfCut();
+	PostTask( nv.serialize() );
+}
+
+
+//
+void de_printer_t::PrintLineAsync( std::string str )
+{
+	WNava nv;
+
+	nv.let( "Cmd", "PrintLine" );
+	nv.let( "Data", str );
+
+	//PrintLine( str );
+	PostTask( nv.serialize() );
+}
+
+void de_printer_t::PrintStrAsync( std::string str )
+{
+	WNava nv;
+
+	nv.let( "Cmd", "PrintStr" );
+	nv.let( "Data", str );
+
+	//PrintLine( str );
+	PostTask( nv.serialize() );
+}
+
+void de_printer_t::PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata )
+{
+
+	long lActualChg = pwaiterdata.m_BilchgActual + pwaiterdata.m_CoinRecycleChgActual + pwaiterdata.m_CoinSpecialChgActual;
+	long lNotChg = pwaiterdata.m_TickePriceTotal - pwaiterdata.m_TicketoutActual * pwaiterdata.m_TickePrice1 - lActualChg;
+
+	char cc[1024] = {0};
+	sprintf(cc,"	????TVM?????????\n"
+               "??\n"	
+               "??	 ???? ??\n"
+               "???V001\n"
+			   "\n"
+				"????	%s\n"
+				"????	????\n"
+				"\n"
+				"????	%d?\n"
+				"??	    %d?\n"
+				"????	%d?\n"
+				"\n"
+				"????	%d?\n"
+				"????	%d?\n"
+				"????	%d?\n"
+				"????	%d?\n"
+				"????	%d?\n"
+				"???   %d?\n"
+				"???   %d?\n",
+				pwaiterdata.m_end_time.ReadStringPack().c_str() ,
+				pwaiterdata.m_TickePrice1 ,
+				pwaiterdata.m_TicketoutPlan ,
+				pwaiterdata.m_TickePriceTotal / 100 ,
+				pwaiterdata.m_ReceiveCoin / 100,
+				pwaiterdata.m_ReceiveBill / 100 ,
+				pwaiterdata.m_ShouldChgTotal ,
+				pwaiterdata.m_TicketoutActual ,
+				lActualChg / 100,
+				pwaiterdata.m_TicketoutPlan - pwaiterdata.m_TicketoutActual  ,
+				lNotChg / 100 );
+
+	std::string strtemp(cc);
+
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "start printer="<<strtemp);
+
+	this->PrintStrAsync( strtemp );
+
+}
+
+
+

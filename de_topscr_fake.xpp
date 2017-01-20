@@ -1,0 +1,85 @@
+
+//
+de_topscr_t::de_topscr_t()
+{
+	m_de_ShouldReset = 0;  
+}
+
+
+//
+de_topscr_t::~de_topscr_t()
+{
+}
+
+
+
+//
+void de_topscr_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_topscr_t::tr_on_user_run()
+{
+
+	WThrd::tr_sleepu( 10.91 );
+
+	return 1;
+}
+
+
+// 
+void de_topscr_t::TopscrAdvice()
+{
+	gp_frontinput->input_KIN_TOPSCR();
+}
+
+
+// 
+void de_topscr_t::TopscrInit()
+{
+	this->tr_open();
+
+	b8706_t::ROWTYPE &Rb8706(gp_db->GetTheRowb8706());
+
+	Rb8706.m_ConnState = 1;
+	Rb8706.m_BigErr = 0;
+
+	Rb8706.m_RtnVal = 0;
+}
+
+//
+int de_topscr_t::TopscrReset()
+{
+	this->m_de_ShouldReset = 0;
+	return 0;
+}
+
+// 
+bool de_topscr_t::TopscrCommOpen()
+{
+	return true;
+}
+
+
+// 
+void de_topscr_t::TopscrCommClose()
+{
+}
+
+
+//
+void de_topscr_t::DispStr( std::string str )
+{
+	return ;
+}
+
+
+
+

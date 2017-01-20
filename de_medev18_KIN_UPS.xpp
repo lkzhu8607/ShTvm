@@ -1,0 +1,22 @@
+
+	if( c == KIN_UPS )
+	{
+		//*******************所有事件码： 
+		
+	 	
+		////  133 ups通信故障
+		//if( Rb8708.m_BigErr || Rb8708.m_ConnState == 0 || Rb8708.m_RtnVal != 0 )
+		//	EVT_CHG(133,1);
+		//else
+		//	EVT_CHG(133,0);
+
+
+		//// 102	电源故障	√					5 
+		//if( Rb8708.m_IsUpsNoPower )	 
+		//	EVT_CHG(102,1);
+		//else
+		//	EVT_CHG(102,0);
+
+	}
+
+

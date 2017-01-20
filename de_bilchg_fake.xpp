@@ -1,0 +1,113 @@
+
+//
+de_bilchg_t::de_bilchg_t()
+{
+	m_de_ShouldReset = 0;  
+}
+
+
+//
+de_bilchg_t::~de_bilchg_t()
+{
+}
+
+
+
+//
+void de_bilchg_t::OnRunTask( std::string t ) 
+{
+		goto L_TASKEND;
+	
+L_TASKEND:
+ 
+	return;
+}
+
+
+// 
+int de_bilchg_t::tr_on_user_run()
+{
+	do{
+
+	}while(0);
+
+	WThrd::tr_sleepu( 3 );
+
+	return 1;
+}
+
+// 
+void de_bilchg_t::bilchgAdvice()
+{
+	gp_frontinput->input_KIN_BILLCHG();
+}
+
+// 
+void de_bilchg_t::bilchgInit()
+{
+	b8705_t::ROWTYPE &Rb8705(gp_db->GetTheRowb8705());
+
+	Rb8705.m_RtnVal = 0;
+	Rb8705.m_ConnState = 1;
+	Rb8705.m_BigErr = 0;
+}
+
+
+// 
+int de_bilchg_t::bilchgReset()
+{
+	return 0;
+}
+
+
+// 
+int de_bilchg_t::bilchgState()
+{
+	return 0;
+}
+
+
+// 
+int de_bilchg_t::bilchgBoxInstall( int iBoxNum, tuint32 Uid, tuint8 LineNum, tuint8 vStationNum )
+{
+	return 0;
+}
+
+
+// 
+int de_bilchg_t::bilchgChangeOut_internal( int iBoxNum, tuint32 Num )
+{
+	return 0;
+}
+
+
+//
+int de_bilchg_t::bilchgChangeOut( int iBoxNum, tuint32 Num )
+{
+	b8705_t::ROWTYPE &Rb8705(gp_db->GetTheRowb8705());
+	int iResult;
+
+	iResult = bilchgChangeOut_internal( iBoxNum, Num );
+				
+	if( iBoxNum == 0 )
+	{
+		if( iResult == 0 ) // µ⁄1∏ˆ∆±œ‰≤ªø’  
+			Rb8705.m_boxIsEmpty.a[iBoxNum] = 0;
+
+		if( iResult == 2 )  // 2	’“¡„œ‰1ø’ 
+			Rb8705.m_boxIsEmpty.a[iBoxNum] = 1;
+	}
+
+	if( iBoxNum == 1 ) 
+	{
+		if( iResult == 0 ) // µ⁄2∏ˆ∆±œ‰≤ªø’  
+			Rb8705.m_boxIsEmpty.a[iBoxNum] = 0;
+
+		if( iResult == 3 )  // 3	’“¡„œ‰2ø’ 
+			Rb8705.m_boxIsEmpty.a[iBoxNum] = 1;
+	}
+
+	return iResult;
+}
+
+
