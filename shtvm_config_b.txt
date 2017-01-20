@@ -1,0 +1,56 @@
+
+#屏幕-所有屏 
+scrall_width = 2720
+scrall_height = 1080
+
+#屏幕-0屏 
+scr0_width = 1920 
+scr0_height = 1080
+scr0_startx = 0
+scr0_starty = 0
+
+#屏幕-1屏 
+scr1_width = 800
+scr1_height = 600
+scr1_startx = 1920
+scr1_starty = 0
+
+# 各串口配置  
+coin_com_port       = com=mycom2; start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.61;
+#bill_com_port      = com=mycom1; start=1;stop=1;speed=9600 ;parity=O;datalen=8;timeoutsec=2.61;
+bill_com_port       = com=mycom1; start=1;stop=1;speed=4800 ;parity=E;datalen=7;timeoutsec=2.51;
+ticket_com_port     = com=mycom3; start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.99;
+reader1_com_port    = com=mycom5; start=1;stop=1;speed=28800;parity=N;datalen=8;timeoutsec=1.62;
+bilchgrfid_com_port = com=mycom13;start=1;stop=1;speed=38400;parity=N;datalen=8;timeoutsec=1.62;
+#bilchg_com_port     = com=mycom4; start=1;stop=1;speed=9600 ;parity=E;datalen=8;timeoutsec=1.62;
+topscr_com_port     = com=mycom6; start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.88;
+printer_com_port    = com=mycom8; start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.62;
+ups_com_port        = com=mycom9; start=1;stop=1;speed=2400 ;parity=N;datalen=8;timeoutsec=4.62;
+
+
+# 包序列号风格 
+# 0:技通式，包号从1开始也有的从0开始经实测没问题的就保留从0开始 
+# 1:华腾式，包号从0开始 
+pkg_seri_style = 0
+
+
+# 本机侦听的端口号，供SC连进来时候用  
+tvm_port = 6001
+
+#  SC地址
+sc_addr   = 127.0.0.1:6002
+
+
+
+# 本机IP地址
+this_ip = 192.168.0.251
+this_gateway = 172.25.82.251
+
+
+# 时间同步服务器地址
+time1_server = 172.25.100.5
+time2_server = 172.25.100.5
+
+
+
+

@@ -1,0 +1,254 @@
+#CC = arm-linux-gcc
+CC = gcc
+CC1 = $(CC) -c `pkg-config --cflags gtk+-2.0 gthread-2.0`
+CC3 = $(CC) -lpthread `pkg-config --cflags --libs gtk+-2.0 gthread-2.0`
+
+O_FILES = AFWEB01_AFlowEle_t.o AFWEB01_AFlowFolder_t.o AFWEB01_AFlowMgr_t.o bu_asynwork_t.o bu_backman_ele_t.o bu_backman_mgr_t.o bu_backupg_t.o bu_comeag_ele_t.o bu_comeag_mgr_t.o bu_frontman_ele_t.o bu_frontman_mgr_t.o bu_hot_thrd_t.o bu_me_ele_t.o bu_me_mgr_t.o bu_quickflow_t.o bu_timeshower_t.o CoinCommand.o de_backinput_t.o de_base_t.o de_bilchg_t.o de_bill_t.o de_coin_t.o de_emitticket_t.o de_frontinput_t.o de_log_t.o de_medev_t.o de_moneylog_t.o de_printer_t.o de_reader1_t.o de_tcpmsg_t.o de_topscr_t.o de_ui_t.o de_upsdev_t.o d_cg00s_t.o d_cg00_t.o d_cg01s_backpic_t.o d_cg01s_evtcodes_t.o d_cg01s_fastprice_t.o d_cg01s_jud5041_t.o d_cg01s_lang_t.o d_cg01s_linepic_t.o d_cg01s_machinestate_t.o d_cg01s_rightupmsg_t.o d_cg01s_seleline_t.o d_cg01_t.o d_cg02s_backpic_t.o d_cg02s_cancel_t.o d_cg02s_goback_t.o d_cg02s_pieceshow_t.o d_cg02s_waiter_t.o d_cg02_t.o d_cg03s_backpic_t.o d_cg03s_goback_t.o d_cg03s_lang_t.o d_cg03s_machinestate_t.o d_cg03s_oneline_t.o d_cg03s_rightsidemsg_t.o d_cg03_t.o d_cg04s_backpic_t.o d_cg04_t.o d_cg05s_backpic_t.o d_cg05_t.o d_comlogger_t.o d_comv_t.o d_com_agent2_t.o d_com_PR_0203.o d_com_PR_LEN_AT_3.o d_config_t.o d_db_t.o d_paratime_t.o d_recv_tcp.o d_str_res.o g06.o GDnote.o GDnote_MEI.o gfunc_md5.o NoteChange.o ReadWriteCommand.o RFIDchange.o shtvm.o TicketCommand.o 
+
+shtvm: $(O_FILES)
+	$(CC) -o shtvm $(O_FILES) -lpthread `pkg-config --cflags --libs gtk+-2.0 gthread-2.0` -lstdc++
+
+AFWEB01_AFlowEle_t.o :AFWEB01_AFlowEle_t.cpp
+	$(CC1) AFWEB01_AFlowEle_t.cpp
+
+AFWEB01_AFlowFolder_t.o :AFWEB01_AFlowFolder_t.cpp
+	$(CC1) AFWEB01_AFlowFolder_t.cpp
+
+AFWEB01_AFlowMgr_t.o :AFWEB01_AFlowMgr_t.cpp
+	$(CC1) AFWEB01_AFlowMgr_t.cpp
+
+bu_asynwork_t.o :bu_asynwork_t.cpp
+	$(CC1) bu_asynwork_t.cpp
+
+bu_backman_ele_t.o :bu_backman_ele_t.cpp
+	$(CC1) bu_backman_ele_t.cpp
+
+bu_backman_mgr_t.o :bu_backman_mgr_t.cpp
+	$(CC1) bu_backman_mgr_t.cpp
+
+bu_backupg_t.o :bu_backupg_t.cpp
+	$(CC1) bu_backupg_t.cpp
+
+bu_comeag_ele_t.o :bu_comeag_ele_t.cpp
+	$(CC1) bu_comeag_ele_t.cpp
+
+bu_comeag_mgr_t.o :bu_comeag_mgr_t.cpp
+	$(CC1) bu_comeag_mgr_t.cpp
+
+bu_frontman_ele_t.o :bu_frontman_ele_t.cpp
+	$(CC1) bu_frontman_ele_t.cpp
+
+bu_frontman_mgr_t.o :bu_frontman_mgr_t.cpp
+	$(CC1) bu_frontman_mgr_t.cpp
+
+bu_hot_thrd_t.o :bu_hot_thrd_t.cpp
+	$(CC1) bu_hot_thrd_t.cpp
+
+bu_me_ele_t.o :bu_me_ele_t.cpp
+	$(CC1) bu_me_ele_t.cpp
+
+bu_me_mgr_t.o :bu_me_mgr_t.cpp
+	$(CC1) bu_me_mgr_t.cpp
+
+bu_quickflow_t.o :bu_quickflow_t.cpp
+	$(CC1) bu_quickflow_t.cpp
+
+bu_timeshower_t.o :bu_timeshower_t.cpp
+	$(CC1) bu_timeshower_t.cpp
+
+CoinCommand.o :CoinCommand.cpp
+	$(CC1) CoinCommand.cpp
+
+de_backinput_t.o :de_backinput_t.cpp
+	$(CC1) de_backinput_t.cpp
+
+de_base_t.o :de_base_t.cpp
+	$(CC1) de_base_t.cpp
+
+de_bilchg_t.o :de_bilchg_t.cpp
+	$(CC1) de_bilchg_t.cpp
+
+de_bill_t.o :de_bill_t.cpp
+	$(CC1) de_bill_t.cpp
+
+de_coin_t.o :de_coin_t.cpp
+	$(CC1) de_coin_t.cpp
+
+de_emitticket_t.o :de_emitticket_t.cpp
+	$(CC1) de_emitticket_t.cpp
+
+de_frontinput_t.o :de_frontinput_t.cpp
+	$(CC1) de_frontinput_t.cpp
+
+de_log_t.o :de_log_t.cpp
+	$(CC1) de_log_t.cpp
+
+de_medev_t.o :de_medev_t.cpp
+	$(CC1) de_medev_t.cpp
+
+de_moneylog_t.o :de_moneylog_t.cpp
+	$(CC1) de_moneylog_t.cpp
+
+de_printer_t.o :de_printer_t.cpp
+	$(CC1) de_printer_t.cpp
+
+de_reader1_t.o :de_reader1_t.cpp
+	$(CC1) de_reader1_t.cpp
+
+de_tcpmsg_t.o :de_tcpmsg_t.cpp
+	$(CC1) de_tcpmsg_t.cpp
+
+de_topscr_t.o :de_topscr_t.cpp
+	$(CC1) de_topscr_t.cpp
+
+de_ui_t.o :de_ui_t.cpp
+	$(CC1) de_ui_t.cpp
+
+de_upsdev_t.o :de_upsdev_t.cpp
+	$(CC1) de_upsdev_t.cpp
+
+d_cg00s_t.o :d_cg00s_t.cpp
+	$(CC1) d_cg00s_t.cpp
+
+d_cg00_t.o :d_cg00_t.cpp
+	$(CC1) d_cg00_t.cpp
+
+d_cg01s_backpic_t.o :d_cg01s_backpic_t.cpp
+	$(CC1) d_cg01s_backpic_t.cpp
+
+d_cg01s_evtcodes_t.o :d_cg01s_evtcodes_t.cpp
+	$(CC1) d_cg01s_evtcodes_t.cpp
+
+d_cg01s_fastprice_t.o :d_cg01s_fastprice_t.cpp
+	$(CC1) d_cg01s_fastprice_t.cpp
+
+d_cg01s_jud5041_t.o :d_cg01s_jud5041_t.cpp
+	$(CC1) d_cg01s_jud5041_t.cpp
+
+d_cg01s_lang_t.o :d_cg01s_lang_t.cpp
+	$(CC1) d_cg01s_lang_t.cpp
+
+d_cg01s_linepic_t.o :d_cg01s_linepic_t.cpp
+	$(CC1) d_cg01s_linepic_t.cpp
+
+d_cg01s_machinestate_t.o :d_cg01s_machinestate_t.cpp
+	$(CC1) d_cg01s_machinestate_t.cpp
+
+d_cg01s_rightupmsg_t.o :d_cg01s_rightupmsg_t.cpp
+	$(CC1) d_cg01s_rightupmsg_t.cpp
+
+d_cg01s_seleline_t.o :d_cg01s_seleline_t.cpp
+	$(CC1) d_cg01s_seleline_t.cpp
+
+d_cg01_t.o :d_cg01_t.cpp
+	$(CC1) d_cg01_t.cpp
+
+d_cg02s_backpic_t.o :d_cg02s_backpic_t.cpp
+	$(CC1) d_cg02s_backpic_t.cpp
+
+d_cg02s_cancel_t.o :d_cg02s_cancel_t.cpp
+	$(CC1) d_cg02s_cancel_t.cpp
+
+d_cg02s_goback_t.o :d_cg02s_goback_t.cpp
+	$(CC1) d_cg02s_goback_t.cpp
+
+d_cg02s_pieceshow_t.o :d_cg02s_pieceshow_t.cpp
+	$(CC1) d_cg02s_pieceshow_t.cpp
+
+d_cg02s_waiter_t.o :d_cg02s_waiter_t.cpp
+	$(CC1) d_cg02s_waiter_t.cpp
+
+d_cg02_t.o :d_cg02_t.cpp
+	$(CC1) d_cg02_t.cpp
+
+d_cg03s_backpic_t.o :d_cg03s_backpic_t.cpp
+	$(CC1) d_cg03s_backpic_t.cpp
+
+d_cg03s_goback_t.o :d_cg03s_goback_t.cpp
+	$(CC1) d_cg03s_goback_t.cpp
+
+d_cg03s_lang_t.o :d_cg03s_lang_t.cpp
+	$(CC1) d_cg03s_lang_t.cpp
+
+d_cg03s_machinestate_t.o :d_cg03s_machinestate_t.cpp
+	$(CC1) d_cg03s_machinestate_t.cpp
+
+d_cg03s_oneline_t.o :d_cg03s_oneline_t.cpp
+	$(CC1) d_cg03s_oneline_t.cpp
+
+d_cg03s_rightsidemsg_t.o :d_cg03s_rightsidemsg_t.cpp
+	$(CC1) d_cg03s_rightsidemsg_t.cpp
+
+d_cg03_t.o :d_cg03_t.cpp
+	$(CC1) d_cg03_t.cpp
+
+d_cg04s_backpic_t.o :d_cg04s_backpic_t.cpp
+	$(CC1) d_cg04s_backpic_t.cpp
+
+d_cg04_t.o :d_cg04_t.cpp
+	$(CC1) d_cg04_t.cpp
+
+d_cg05s_backpic_t.o :d_cg05s_backpic_t.cpp
+	$(CC1) d_cg05s_backpic_t.cpp
+
+d_cg05_t.o :d_cg05_t.cpp
+	$(CC1) d_cg05_t.cpp
+
+d_comlogger_t.o :d_comlogger_t.cpp
+	$(CC1) d_comlogger_t.cpp
+
+d_comv_t.o :d_comv_t.cpp
+	$(CC1) d_comv_t.cpp
+
+d_com_agent2_t.o :d_com_agent2_t.cpp
+	$(CC1) d_com_agent2_t.cpp
+
+d_com_PR_0203.o :d_com_PR_0203.cpp
+	$(CC1) d_com_PR_0203.cpp
+
+d_com_PR_LEN_AT_3.o :d_com_PR_LEN_AT_3.cpp
+	$(CC1) d_com_PR_LEN_AT_3.cpp
+
+d_config_t.o :d_config_t.cpp
+	$(CC1) d_config_t.cpp
+
+d_db_t.o :d_db_t.cpp
+	$(CC1) d_db_t.cpp
+
+d_paratime_t.o :d_paratime_t.cpp
+	$(CC1) d_paratime_t.cpp
+
+d_recv_tcp.o :d_recv_tcp.cpp
+	$(CC1) d_recv_tcp.cpp
+
+d_str_res.o :d_str_res.cpp
+	$(CC1) d_str_res.cpp
+
+g06.o :g06.cpp
+	$(CC1) g06.cpp
+
+GDnote.o :GDnote.cpp
+	$(CC1) GDnote.cpp
+
+GDnote_MEI.o :GDnote_MEI.cpp
+	$(CC1) GDnote_MEI.cpp
+
+gfunc_md5.o :gfunc_md5.cpp
+	$(CC1) gfunc_md5.cpp
+
+NoteChange.o :NoteChange.cpp
+	$(CC1) NoteChange.cpp
+
+ReadWriteCommand.o :ReadWriteCommand.cpp
+	$(CC1) ReadWriteCommand.cpp
+
+RFIDchange.o :RFIDchange.cpp
+	$(CC1) RFIDchange.cpp
+
+shtvm.o :shtvm.cpp
+	$(CC1) shtvm.cpp
+
+TicketCommand.o :TicketCommand.cpp
+	$(CC1) TicketCommand.cpp
+
+
