@@ -1,0 +1,6 @@
+---- lineCount Matches (5 in 3 files) ----
+D_cg03s_oneline_t.cpp:	plocalcg03->lineCount = row3084.GetRowCount();
+D_cg03s_oneline_t.cpp:	for(int j=0;j<plocalcg03->lineCount;j++){
+D_cg03_t.cpp:	lineCount = 0;
+D_cg03_t.cpp:				for(int i = 0;i<plocalcg03->lineCount;i++){
+D_cg03_t.h:	int lineCount;

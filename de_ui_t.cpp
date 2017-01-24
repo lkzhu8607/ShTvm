@@ -554,7 +554,11 @@ void de_ui_t::str_task( a_label_t::ROWTYPE & row )
 		//gdk_threads_enter();
 		//gtk_widget_show(lblTest);// //先不显示 
 		//gdk_threads_leave();
-
+		if(row.m_gtkpointer != NULL){
+			gdk_threads_enter();
+			gtk_widget_destroy( (GtkWidget *)row.m_gtkpointer );
+			gdk_threads_leave();
+		}
 		row.m_gtkpointer = lblTest;
 	}
 }
@@ -636,8 +640,13 @@ void de_ui_t::pic_task( a_label_t::ROWTYPE & row )
 		gdk_threads_enter();
 		gtk_fixed_put( GTK_FIXED(m_fixed), lblTest, (int)( x * m_scr_width[row.m_scr] ) + m_scr_startx[row.m_scr] , (int)( y * m_scr_height[row.m_scr] ) + m_scr_starty[row.m_scr] );
 		gdk_threads_leave();
-
+		if(row.m_gtkpointer != NULL){
+			gdk_threads_enter();
+			gtk_widget_destroy( (GtkWidget *)row.m_gtkpointer );
+			gdk_threads_leave();
+		}
 		row.m_gtkpointer = lblTest;
+
 	}
 }
 
@@ -802,10 +811,23 @@ L_TASKEND:
 
 void de_ui_t::updateLabel( a_label_t::ROWTYPE & row, std::string value)
 {
-	/*gdk_threads_enter();
-	gtk_widget_show( (GtkWidget *)row.m_gtkpointer );
-	gdk_threads_leave();*/
+	std::string s3;
+	std::string  sSize;
 	row.m_value = value;
+	wl::SStrf::sreplstr( value, "<", "&lt;" );
+	wl::SStrf::sreplstr( value, ">", "&gt;" );
+	sSize = SStrf::sftoa( row.m_font_size * 260 * m_scr_width[0] / 800.01 );
+	
+	s3	= "<span" ;	
+	s3 += " font_family='黑体' foreground='" + row.m_font_color + "'";
+	s3 += " font_desc='黑体 bold " + sSize + "'";	
+	s3 += ">" + value + "</span>";
+
+	gdk_threads_enter();
+	gtk_label_set_markup( GTK_LABEL((GtkWidget *)row.m_gtkpointer), s3.c_str() );
+	gdk_threads_leave();	
+	//gtk_label_set_text(GTK_LABEL((GtkWidget *)row.m_gtkpointer),value.c_str());
+	//row.m_value = value;
 }
 
 
@@ -823,4 +845,10 @@ void de_ui_t::hideLabel( a_label_t::ROWTYPE & row )
 	gdk_threads_leave();
 }
 
+void de_ui_t::freeLabel(a_label_t::ROWTYPE & row )
+{
+	gdk_threads_enter();
+	gtk_widget_destroy( (GtkWidget *)row.m_gtkpointer );
+	gdk_threads_leave();
+}
 

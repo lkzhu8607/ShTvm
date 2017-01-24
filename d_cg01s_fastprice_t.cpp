@@ -9,6 +9,8 @@
 #include "d_str_res.h"
 #include "d_db_t.h"
 #include "bu_frontman_mgr_t.h"
+#include "bu_timeshower_t.h"
+
 
 
 //
@@ -174,12 +176,14 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 				/*Showfastprice1block( row.m_funcvalue, m_v, 1 );*/
 				for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
 					if(plocalcg01->graphFastButtonCN[i].m_funcname == "CN_FastPicDn" && plocalcg01->graphFastButtonCN[i].m_funcvalue == row[j].m_funcvalue){
-						gp_ui->pic_task(plocalcg01->graphFastButtonCN[i]);
-						gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);					
+						//gp_ui->pic_task(plocalcg01->graphFastButtonCN[i]);
+						gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);	
+						plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
 					}
 					if(plocalcg01->graphFastButtonCN[i].m_funcname == "ShowFastDigit" && plocalcg01->graphFastButtonCN[i].m_funcvalue == row[j].m_funcvalue){
-						gp_ui->str_task(plocalcg01->graphFastButtonCN[i]);
+						//gp_ui->str_task(plocalcg01->graphFastButtonCN[i]);
 						gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
 					}
 				}
 				
@@ -189,12 +193,14 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 			else if(row[j].m_funcname == "EN_FastPicUp" ){
 				for(int i=0;i<plocalcg01->graphFastButtonEN.size();i++){
 					if(plocalcg01->graphFastButtonEN[i].m_funcname == "EN_FastPicDn" && plocalcg01->graphFastButtonEN[i].m_funcvalue == row[j].m_funcvalue){
-							gp_ui->pic_task(plocalcg01->graphFastButtonEN[i]);
-							gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);					
+							//gp_ui->pic_task(plocalcg01->graphFastButtonEN[i]);
+							gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
+							plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
 					}
 					if(plocalcg01->graphFastButtonEN[i].m_funcname == "ShowFastDigit" && plocalcg01->graphFastButtonEN[i].m_funcvalue == row[j].m_funcvalue){
-						gp_ui->str_task(plocalcg01->graphFastButtonEN[i]);
+						//gp_ui->str_task(plocalcg01->graphFastButtonEN[i]);
 						gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
+						plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
 					}					
 				}
 				break;
@@ -211,6 +217,29 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 			}
 		}
 			//other process
+		if(GetLanguageState()==0){
+			for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
+				if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
+				}
+			}
+			for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
+				if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
+				}			
+			}
+			for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
+				if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+				}			
+			}			
+		}
+		for(int i=0;i<(gp_timeshower->graphElements.size());i++){
+			if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
+				gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+			}			
+		}
+
 		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 		//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
 		gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;

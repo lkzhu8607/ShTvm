@@ -94,43 +94,52 @@ void d_cg02_t::Proc()
 				for(int i = 0;i < plocalcg02->graphElementsCN.size();i++){
 					if(plocalcg02->graphElementsCN[i].m_name == "CN_page2BackPic"){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphElementsCN[i].m_name == "CN_page2Goback--hot"){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphElementsCN[i].m_name == "currentTicketPrice"){
 						gp_ui->updateLabel(plocalcg02->graphElementsCN[i],SStrf::sltoa( plocalcg02->m_iPrice ));
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}					
 					if(plocalcg02->graphElementsCN[i].m_name == "choicePieceNum"){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphElementsCN[i].m_name == "shouldPay"){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}		
 					if(plocalcg02->graphElementsCN[i].m_name == "shouldChange"){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						plocalcg02->shouldChangeIndex = i;
 						continue;
 					}				
 					if(plocalcg02->graphElementsCN[i].m_name == "dealPayed"){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						plocalcg02->payedIndex = i;
 						continue;
 					}
 					if(plocalcg02->graphElementsCN[i].m_name == "CN_page2Cancel--hot"){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}					
 					if(plocalcg02->graphElementsCN[i].m_name == "CN_exceptionNotesType"){
 						plocalcg02->exceptNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 && gp_bill->m_iIsNotBillChange == 1){
 							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 							continue;
 						}
 					}
@@ -138,12 +147,14 @@ void d_cg02_t::Proc()
 						plocalcg02->normalNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0){
 							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 							continue;
 						}
 					}					
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsCN[i].m_name == "CN_CoinType"){
 							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 							//plocalcg02->coinIndex = i;
 							continue;
 						}
@@ -152,18 +163,22 @@ void d_cg02_t::Proc()
 				for(int i=0;i < plocalcg02->graphPieceNumCN.size();i++){
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumUp"){
 						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 1;
 						continue;
 					}					
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDn" && plocalcg02->graphPieceNumCN[i].m_funcvalue == m_iPieceNum){
 						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDigitUp" && plocalcg02->graphPieceNumCN[i].m_funcvalue != m_iPieceNum){
 						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDigitDn" && plocalcg02->graphPieceNumCN[i].m_funcvalue == m_iPieceNum){
 						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 1;
 						continue;
 					}					
 				}
@@ -180,10 +195,14 @@ void d_cg02_t::Proc()
 			if(gp_bill->m_iIsNotBillChange == 1){
 				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
 				gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
+				plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 0;
+				plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 1;
 			}
 			else{
 				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
 				gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
+				plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 1;
+				plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 0;				
 			}
 		}
 
@@ -302,6 +321,16 @@ L_GETINPUT:
 
 		if( cg02s_cancel.Find_n_do_Showcancel( gp_frontinput->GetFrontCurrentKey() ) ) 
 		{
+			for(int i = 0;i < plocalcg02->graphElementsCN.size();i++){
+				if(plocalcg02->graphElementsCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+				}
+			}
+			for(int i = 0;i < plocalcg02->graphPieceNumCN.size();i++){
+				if(plocalcg02->graphPieceNumCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+				}
+			}			
 			//¹Ø±ÕÖ½±ÒÓ²±ÒÍ¶±Ò¿Ú
 			cg02s_pieceshow.StopCoinAndBill();
 
@@ -328,7 +357,7 @@ L_GETINPUT:
 			}
 			else if(plocalcg02->langFlag == 1){
 				plocalcg01->displayFlag = 0;
-				plocalcg01->langFlag = 0;
+				plocalcg01->langFlag = 1;
 			}
 			return;
 		}

@@ -36,20 +36,20 @@ void bu_timeshower_t::timeLabel()
 	{
 		a_label_t::ROWTYPE  row;
 		a_label_t::ROWTYPE  row1;
-		m_x = gp_ui->X2dR( 0, 1062 );
-		m_y = gp_ui->Y2dR( 0, 145 );
-		gp_ui->LabelMkStr(row, m_scr, "timeDisplay", SDte::GetNow().ReadString(), 0.798,0.0734, 0.040, "black" );
-		row.m_font_align = 0;
-		row.m_hot = 0;
+		//m_x = gp_ui->X2dR( 0, 1062 );
+		//m_y = gp_ui->Y2dR( 0, 145 );
+		gp_ui->LabelMkStr(row, 0, "timeDisplay", SDte::GetNow().ReadString(), 0.798,0.0734, 0.040, "black" );
+		//row.m_font_align = 0;
+		//row.m_hot = 0;
 		gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		gp_timeshower->graphElements.push_back(row);
 
-		m_x = gp_ui->X2dR( 0, 1103 );
-		m_y = gp_ui->Y2dR( 0, 144 );
-		gp_ui->LabelMkStr(row1, m_scr, "dateDisplay", SDte::GetNow().ReadStrDate(), 0.838857,0.14600, 0.040, "black" );
-		row1.m_font_align = 0;
-		row1.m_hot = 0;
+		//m_x = gp_ui->X2dR( 0, 1103 );
+		//m_y = gp_ui->Y2dR( 0, 144 );
+		gp_ui->LabelMkStr(row1, 0, "dateDisplay", SDte::GetNow().ReadStrDate(), 0.838857,0.14600, 0.040, "black" );
+		//row1.m_font_align = 0;
+		//row1.m_hot = 0;
 		gp_ui->LabelPrep(row1);
 		gp_ui->str_task(row1);
 		gp_timeshower->graphElements.push_back(row1);

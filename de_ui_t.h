@@ -69,6 +69,7 @@ public:
 	void updateLabel( a_label_t::ROWTYPE & row, std::string value);
 	void showLabel( a_label_t::ROWTYPE & row );
 	void hideLabel( a_label_t::ROWTYPE & row );
+	void freeLabel(a_label_t::ROWTYPE & row );
 
 };
 

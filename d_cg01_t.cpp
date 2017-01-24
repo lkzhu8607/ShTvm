@@ -95,25 +95,37 @@ void d_cg01_t::Proc()
 				for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_page1BackPic"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
 					}
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_StaName"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
 					}				
 					if(plocalcg01->graphElementsCN[i].m_funcname == "ShowDirButt"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
 					}	
 					if(plocalcg01->graphElementsCN[i].m_funcname == "CN_LinePic"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
 					}
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_MachineState"){
 		     			gp_ui->updateLabel(plocalcg01->graphElementsCN[i],GetStrRes(gp_medev->m_devstatus));
 						plocalcg01->MachineStateIndex = i;
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
 					}					
 					if(plocalcg01->graphElementsCN[i].m_name == "page1ErrCode"){
 		     			gp_ui->updateLabel(plocalcg01->graphElementsCN[i],gp_medev->GetEvtStr());
 						plocalcg01->ErrCodeIndex = i;
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
 					}
 					//else 
 						
@@ -122,24 +134,34 @@ void d_cg01_t::Proc()
 				for(int i=0;i < (plocalcg01->graphFastButtonCN.size());i++){
 					if(plocalcg01->graphFastButtonCN[i].m_funcname == "CN_FastPicUp"){
 						gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
+						continue;
 					}	
 					if(plocalcg01->graphFastButtonCN[i].m_funcname == "ShowFastDigit"){
 						gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
+						continue;
 					}	
 				}
 				for(int i=0;i < (plocalcg01->graphLineButtonCN.size());i++){
 					if(plocalcg01->pageTab == 1){
 						if(plocalcg01->graphLineButtonCN[i].m_funcname=="CN_SeleLine"){
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+							continue;
 						}
 					}
 					else if(plocalcg01->pageTab == 2){
 						if(plocalcg01->graphLineButtonCN[i].m_funcvalue <= 10){
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
 							plocalcg01->pageFlag = 1;
+							continue;
 						}
 						if(plocalcg01->graphLineButtonCN[i].m_funcname=="CN_NextButton"){
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+							continue;
 						}						
 					}
 					/*else{
@@ -161,18 +183,19 @@ void d_cg01_t::Proc()
 		     	gp_ui->updateLabel(gp_timeshower->graphElements[i],SDte::GetNow().ReadString());
 				gp_ui->str_task(gp_timeshower->graphElements[i]);
 				gp_ui->showLabel(gp_timeshower->graphElements[i]);
+				gp_timeshower->graphElements[i].m_iShouldShow = 1;
 			}			
 		}		
 
 		//refresh MachineState and ErrorCodes
 		if(plocalcg01->langFlag == 0){
-			gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex]);
+			//gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex]);
 		    gp_ui->updateLabel(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex],GetStrRes(gp_medev->m_devstatus));
-			gp_ui->showLabel(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex]);
+			//gp_ui->showLabel(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex]);
 
-			gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex]);
+			//gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex]);
 		    gp_ui->updateLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex],gp_medev->GetEvtStr());
-			gp_ui->showLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex]);			
+			//gp_ui->showLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex]);
 		}
 		else if(plocalcg01->langFlag == 1){
 			/*gp_ui->hideLabel(plocalcg01->graphElementsEN[MachineStateIndex]);

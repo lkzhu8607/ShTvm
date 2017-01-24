@@ -9,6 +9,7 @@
 #include "d_str_res.h"
 #include "d_db_t.h"
 #include "bu_frontman_mgr_t.h"
+#include "bu_timeshower_t.h"
 
 
 //
@@ -190,10 +191,33 @@ tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 	if( this->LocateHot( plocalcg01->graphLineButtonCN, strinput, row ) )
 	{
 		if(plocalcg01->langFlag == 0){
-			for(int i=0;i<row.size();i++){
-				if(row[i].m_funcname == "CN_SeleLine"){
+			for(int j=0;j<row.size();j++){
+				if(row[j].m_funcname == "CN_SeleLine"){
+					if(GetLanguageState()==0){
+						for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
+							if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
+								gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
+							}
+						}
+						for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
+							if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
+								gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
+							}			
+						}
+						for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
+							if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
+								gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+							}			
+						}			
+					}
+					for(int i=0;i<(gp_timeshower->graphElements.size());i++){
+						if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
+							gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+						}			
+					}		
+
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
-					gp_frontman_mgr->m_cg03.m_iLineCode = row[i].m_funcvalue;
+					gp_frontman_mgr->m_cg03.m_iLineCode = row[j].m_funcvalue;
 					
 					return 1;
 				}
@@ -208,6 +232,7 @@ tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 				}
 			}
 		}
+		
 	}
 	return 0;
 }
