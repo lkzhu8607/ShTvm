@@ -27,15 +27,86 @@ d_cg03s_oneline_t::~d_cg03s_oneline_t()
 //
 void d_cg03s_oneline_t::Showoneline()
 {
-	a3084_t::ROWTYPE  row3084;
+	a3084_t  row3084;
+	
+	gp_db->get3084tbl(row3084);
 
-	gp_db->get3084row( plocalcg03->m_iLineCode, row3084 );
+	//if( !row3084.m_biIsAffect )
+		//return;
+	plocalcg03->lineCount = row3084.GetRowCount();
+	for(int j=0;j<plocalcg03->lineCount;j++){
+		std::vector<a_label_t::ROWTYPE> CNtmp;
+		std::vector<a_label_t::ROWTYPE> ENtmp;
+		a3084_t::ROWTYPE & row3084tmp(row3084.GetRow(j));
+		a3084_t::ROWTYPE  row3084t;
+		a_label_t::ROWTYPE  row;
+		a_label_t::ROWTYPE  row1;
+		std::string strpic[2];
+		gp_db->get3084row( row3084tmp.m_LineCode, row3084t );
 
-	if( !row3084.m_biIsAffect )
-		return;
+		strpic[0] = row3084t.m_strPicFn;
+		strpic[1] = "e" + strpic[0];
 
+		gp_ui->LabelMkPic( row, 0, 
+							"CN_page3Line" + SStrf::sltoa((int)row3084tmp.m_LineCode) , 
+							gp_ui->PicPFn( strpic[0] ) , 
+							0 , 
+							0 , 
+							gp_ui->X2dR( 0, 993 ) , 
+							gp_ui->Y2dR( 0, 887 ));
+		gp_ui->CalcPicX2Y2(row);
+		row.m_hot = 0;
+		row.m_funcname = "CN_line"+SStrf::sltoa((int)row3084tmp.m_LineCode)+"Pic";
+		row.m_funcvalue = row3084tmp.m_LineCode;
+		this->AddLg( m_Lg, row );
+		gp_ui->LabelPrep(row);	
+		gp_ui->pic_task(row);
+		CNtmp.push_back(row);
+		
+		gp_ui->LabelMkPic( row1, 0, 
+							"EN_page3Line" + SStrf::sltoa((int)row3084tmp.m_LineCode) , 
+							gp_ui->PicPFn( strpic[1] ) , 
+							0 , 
+							0 , 
+							gp_ui->X2dR( 0, 993 ) , 
+							gp_ui->Y2dR( 0, 887 ));
+		gp_ui->CalcPicX2Y2(row1);
+		row1.m_hot = 0;
+		row1.m_funcname = "EN_line"+SStrf::sltoa((int)row3084tmp.m_LineCode)+"Pic";
+		row1.m_funcvalue = row3084tmp.m_LineCode;
+		this->AddLg( m_Lg, row1 );
+		gp_ui->LabelPrep(row1);
+		gp_ui->pic_task(row1);
+		ENtmp.push_back(row1);
+		
+		for( int i = 0; i < row3084t.m_StaNum; i++ )
+		{
+			a_label_t::ROWTYPE  row;
+
+			gp_ui->LabelMkPic( row, 0, 
+								"CN_l"+SStrf::sltoa((int)row3084tmp.m_LineCode)+"Sta"+SStrf::sltoa((int)i) , 
+								gp_ui->PicPFn("cashdown.jpg") ,
+								gp_ui->X2dR( 0, row3084t.m_StaButtX.a[i] ) , 
+								gp_ui->Y2dR( 0, row3084t.m_StaButtY.a[i] ) , 
+								gp_ui->X2dR( 0, row3084t.m_StaButtWidth.a[i] ) , 
+								gp_ui->Y2dR( 0, row3084t.m_StaButtHeight.a[i] )   );
+			gp_ui->CalcPicX2Y2(row);
+			row.m_hot = 1;
+			row.m_funcname = "CN_line"+SStrf::sltoa((int)row3084tmp.m_LineCode);
+			row.m_funcvalue = row3084t.m_StaCode.a[i];
+			this->AddLg( m_Lg, row );
+			gp_ui->LabelPrep(row);
+			gp_ui->pic_task(row);
+			CNtmp.push_back(row);
+			ENtmp.push_back(row);
+			//gp_ui->LabelPrep(row);
+		}	
+		plocalcg03->graphLineStationCN.push_back(CNtmp);
+		plocalcg03->graphLineStationEN.push_back(ENtmp);
+	}
+	
 	//?????? 
-	a_label_t::ROWTYPE  row;
+/*	a_label_t::ROWTYPE  row;
 	std::string strpic[2];
 
 	strpic[0] = row3084.m_strPicFn;
@@ -47,7 +118,7 @@ void d_cg03s_oneline_t::Showoneline()
 						0 , 
 						0 , 
 						gp_ui->X2dR( 0, 993 ) , 
-						gp_ui->Y2dR( 0, 887 )    );
+						gp_ui->Y2dR( 0, 887 ));
 	gp_ui->CalcPicX2Y2(row);
 	row.m_hot = 0;
 	row.m_funcname = "Showoneline";
@@ -76,8 +147,7 @@ void d_cg03s_oneline_t::Showoneline()
 		this->AddLg( m_Lg, row );
 	//gp_ui->LabelPrep(row);
 	}
-
-	gp_ui->LabelCommit();
+	gp_ui->LabelCommit();*/
 }
 
 

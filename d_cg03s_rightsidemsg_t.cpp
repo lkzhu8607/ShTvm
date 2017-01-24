@@ -34,7 +34,7 @@ void d_cg03s_rightsidemsg_t::Showrightsidemsg()
 	gp_ui->LabelMkStr( row, 0, "CN_page3UpRightMsg", gp_db->GetMyStaName(), 0.870000,0.18940, 0.041, "black" );
 	this->AddLg( m_Lg, row );
 	gp_ui->LabelPrep(row);
-	gp_ui->str_task(row1);
+	gp_ui->str_task(row);
 	plocalcg03->graphElementsCN.push_back(row);
 
 	gp_ui->LabelMkStr( row1, 0, "EN_page3UpRightMsg", gp_db->GetMyStaName(), 0.890000,0.200000, 0.022, "black" );

@@ -22,6 +22,7 @@ public:
 	int m_payed_bill;	// 已付。单位（分） 
 	int m_chg;		// 需找钱。单位（分） 
 	int m_LastPayed;   //相对m_payed，记录一笔交易中上一次的投入总钱，为了实现投钱后重新记超时
+	int disableDisplayFlag;
 
 public:
 	d_cg02s_pieceshow_t();

@@ -10,13 +10,15 @@
 
 
 //
-class d_cg03s_machinestate_t : public d_cg01s_machinestate_t
+class d_cg03s_machinestate_t 
 {
 public:
+	double m_x, m_y;
 
 public:
 	d_cg03s_machinestate_t();
 	virtual ~d_cg03s_machinestate_t();
+	void Showmachinestate();
 
 public:
 	 

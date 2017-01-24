@@ -43,6 +43,7 @@ d_cg02_t::d_cg02_t()
 	shouldChangeIndex = 0;
 	normalNoteIndex = 0;
 	exceptNoteIndex = 0;
+	pageGraphElementsFlags = 0;
 	//coinIndex = 0;
 
 }
@@ -231,7 +232,7 @@ L_GETINPUT:
 			gp_frontinput->GetFrontNextKey();
 
 			//Í¶Ç®³¬Ê±£¬
-			/*if( gp_qf->IsLongQf( iQf1_user_idle , iQf1_user_idleMAX ) )
+			if( gp_qf->IsLongQf( iQf1_user_idle , iQf1_user_idleMAX ) )
 			{
 
 				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << " Throw  timeout ");
@@ -261,7 +262,7 @@ L_GETINPUT:
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 				SetLanguageCh();
 				return;
-			}*/
+			}
 			
 		}while( gp_frontinput->GetFrontCurrentKey() == "" );
 

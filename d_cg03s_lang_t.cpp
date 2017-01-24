@@ -59,7 +59,7 @@ void d_cg03s_lang_t::ShowLangButt()
 	row1.m_funcvalue = 1;
 	this->AddLg( m_Lg, row1 );
 	gp_ui->pic_task(row1);
-	plocalcg03->graphElementsCN.push_back(row1);	
+	plocalcg03->graphElementsEN.push_back(row1);	
 }
 
 

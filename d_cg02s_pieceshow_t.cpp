@@ -304,14 +304,16 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 					}
 					for(int j = 0;j<plocalcg02->graphElementsCN.size();j++){
 						if(plocalcg02->graphElementsCN[j].m_name == "choicePieceNum"){
-							//gp_ui->hideLabel(plocalcg02->graphElementsCN[j]);
+							gp_ui->hideLabel(plocalcg02->graphElementsCN[j]);
 							gp_ui->updateLabel(plocalcg02->graphElementsCN[j],SStrf::sltoa( row[i].m_funcvalue ));
+							gp_ui->str_task(plocalcg02->graphElementsCN[j]);
 							gp_ui->showLabel(plocalcg02->graphElementsCN[j]);
 							continue;
 						}
 						if(plocalcg02->graphElementsCN[j].m_name == "shouldPay"){
-							//gp_ui->hideLabel(plocalcg02->graphElementsCN[j]);
+							gp_ui->hideLabel(plocalcg02->graphElementsCN[j]);
 							gp_ui->updateLabel(plocalcg02->graphElementsCN[j],SStrf::sltoa( row[i].m_funcvalue * plocalcg02->m_iPrice));
+							gp_ui->str_task(plocalcg02->graphElementsCN[j]);
 							gp_ui->showLabel(plocalcg02->graphElementsCN[j]);
 							continue;
 						}
@@ -319,6 +321,7 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 				}			
 			}
 			m_iPieceNum = choicePieceNum;
+			plocalcg02->m_iPieceNum = choicePieceNum;
 			return 1;
 		}
 	}
@@ -472,6 +475,23 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 	//如果有钱投入则 张数键盘 全禁止
 	if( Rb8701.m_CoinPollData.a[0] + Rb8701.m_CoinPollData.a[1] + Rb8702.m_cNoteNum != 0 && this->m_payed == 0 ) 
 	{
+		if(this->disableDisplayFlag == 0){
+			if(plocalcg02->langFlag == 0){
+				for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
+					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDis" && plocalcg02->graphPieceNumCN[i].m_funcvalue != plocalcg02->m_iPieceNum){
+						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						continue;
+					}
+					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDigitDis" && plocalcg02->graphPieceNumCN[i].m_funcvalue != plocalcg02->m_iPieceNum){
+						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						continue;
+					}					
+				}
+			}
+			else if(plocalcg02->langFlag == 1){
+
+			}
+		}
 		/*if( m_ButtType != DISABLE ) 
 		{
 			m_ButtType = DISABLE;

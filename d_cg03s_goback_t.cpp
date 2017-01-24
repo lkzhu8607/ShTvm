@@ -60,26 +60,37 @@ void d_cg03s_goback_t::ShowGoback()
 	row1.m_funcvalue = 0;
 	this->AddLg( m_Lg, row1 );
 	gp_ui->pic_task(row1);
-	plocalcg03->graphElementsCN.push_back(row1);	
+	plocalcg03->graphElementsEN.push_back(row1);	
 }
 
 
 //
 tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 {
-	a_label_t::ROWTYPE  row;
-
-	if( this->LgFindhot( m_Lg, strinput, row ) )
+	std::vector<a_label_t::ROWTYPE>  row;
+	if( this->LocateHot( plocalcg03->graphElementsCN, strinput, row ) )
 	{
-		if( row.m_funcname == "ShowGoback" )
-		{
-			//other process
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
-
-			return 1;
+		if(plocalcg03->langFlag == 0){
+			for(int i = 0;i<row.size();i++){
+				if( row[i].m_funcname == "CN_page3GoBack" )
+				{
+					//other process
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+					return 1;
+				}
+			}
+		}
+		else if(plocalcg03->langFlag == 1){
+			for(int i = 0;i<row.size();i++){
+				if( row[i].m_funcname == "CN_page3GoBack" )
+				{
+					//other process
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+					return 1;
+				}
+			}
 		}
 	}
-
 	return 0;
 }
 

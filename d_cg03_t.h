@@ -12,6 +12,11 @@ class d_cg03_t : public d_cg00_t
 {
 public:
 	int  m_iLineCode;
+	std::vector< std::vector<a_label_t::ROWTYPE> > graphLineStationCN;
+	std::vector< std::vector<a_label_t::ROWTYPE> > graphLineStationEN;
+	int lineCount;
+	int MachineStateIndex;
+
 
 public:
 	d_cg03_t();

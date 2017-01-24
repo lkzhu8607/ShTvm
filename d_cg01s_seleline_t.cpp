@@ -49,7 +49,7 @@ void d_cg01s_seleline_t::Showseleline()
 	int count = 0;
 	long i;
 	int &j(plocalcg01->m_cg01s_seleline_PageStartIdx);
-	gp_ui->LabelInvisible(m_Lg);
+	//gp_ui->LabelInvisible(m_Lg);
 	for( i = 0; i+j < m_a3084snapshot.GetRowCount() ; i++ )
 	{
 		count = i;
@@ -185,21 +185,30 @@ void d_cg01s_seleline_t::Showseleline()
 //
 tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 {
-	a_label_t::ROWTYPE  row;
+	std::vector<a_label_t::ROWTYPE>  row;
 
-	if( this->LgFindhot( m_Lg, strinput, row ) )
+	if( this->LocateHot( plocalcg01->graphLineButtonCN, strinput, row ) )
 	{
-		if( row.m_funcname == "Showseleline" )
-		{
-			//other process
-			//gp_ui->LabelInvisible(m_Lg);
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
-			gp_frontman_mgr->m_cg03.m_iLineCode = row.m_funcvalue;
-
-			return 1;
+		if(plocalcg01->langFlag == 0){
+			for(int i=0;i<row.size();i++){
+				if(row[i].m_funcname == "CN_SeleLine"){
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
+					gp_frontman_mgr->m_cg03.m_iLineCode = row[i].m_funcvalue;
+					
+					return 1;
+				}
+			}
+		}
+		if(plocalcg01->langFlag == 1){
+			for(int i=0;i<row.size();i++){
+				if(row[i].m_funcname == "EN_SeleLine"){
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
+					gp_frontman_mgr->m_cg03.m_iLineCode = row[i].m_funcvalue;
+					return 1;
+				}
+			}
 		}
 	}
-
 	return 0;
 }
 
@@ -256,7 +265,7 @@ tbool d_cg01s_seleline_t::Find_n_do_changepage( std::string strinput )
 			}
 		}
 		//plocalcg01->m_cg01s_seleline_PageStartIdx = row.m_funcvalue;
-		//return 1;		
+		//return 1;
 	}
 
 	return 0;
