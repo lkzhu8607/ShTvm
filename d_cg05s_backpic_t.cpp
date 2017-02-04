@@ -35,9 +35,9 @@ void d_cg05s_backpic_t::ShowBack1()
 							gp_ui->PicPFn( s[0] ), 0, 0, 1, 1 );
 		gp_ui->CalcPicX2Y2(row);
 		row.m_hot = 0;
-		row.m_funcname = "page5BackPic";
+		row.m_funcname = "CN_page5Back";
 		row.m_funcvalue = 0;
-		this->AddLg( m_Lg, row );
+		//this->AddLg( m_Lg, row );
 
 		//gp_ui->LabelMkDelPrep( ShowBack1NAME );
 
@@ -52,9 +52,9 @@ void d_cg05s_backpic_t::ShowBack1()
 							gp_ui->PicPFn( s[1] ), 0, 0, 1, 1 );
 		gp_ui->CalcPicX2Y2(row);
 		row.m_hot = 0;
-		row.m_funcname = "page5BackPic";
+		row.m_funcname = "EN_page5Back";
 		row.m_funcvalue = 0;
-		this->AddLg( m_Lg, row );
+		//this->AddLg( m_Lg, row );
 
 		//gp_ui->LabelMkDelPrep( ShowBack1NAME );
 

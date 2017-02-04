@@ -102,6 +102,11 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
+					if(plocalcg02->graphElementsCN[i].m_name == "CN_stationName"){
+						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
+					}					
 					if(plocalcg02->graphElementsCN[i].m_name == "currentTicketPrice"){
 						gp_ui->updateLabel(plocalcg02->graphElementsCN[i],SStrf::sltoa( plocalcg02->m_iPrice ));
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
@@ -324,11 +329,13 @@ L_GETINPUT:
 			for(int i = 0;i < plocalcg02->graphElementsCN.size();i++){
 				if(plocalcg02->graphElementsCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
 				}
 			}
 			for(int i = 0;i < plocalcg02->graphPieceNumCN.size();i++){
 				if(plocalcg02->graphPieceNumCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
 				}
 			}			
 			//╧ь╠уж╫╠рс╡╠рм╤╠р©з

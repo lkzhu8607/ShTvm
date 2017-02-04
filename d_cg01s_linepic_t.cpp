@@ -84,7 +84,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 	{
 		a_label_t::ROWTYPE  row;
 		gp_ui->LabelMkPic( row, 0, 
-							GETLABELNAME, 
+							"directionButton1", 
 							gp_ui->PicPFn( "" ), 
 							gp_ui->X2dR( 0, m_row3083.m_DirButt1X ), 
 							gp_ui->Y2dR( 0, m_row3083.m_DirButt1Y ), 
@@ -94,7 +94,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 		row.m_hot = 1;
 		row.m_funcname = "ShowDirButt";
 		row.m_funcvalue = m_row3083.m_DirButt1MainUiIdx;
-		this->AddLg( m_Lg, row );
+		//this->AddLg( m_Lg, row );
 		gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg01->graphElementsCN.push_back(row);
@@ -103,7 +103,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 	if( 1 )
 	{
 		a_label_t::ROWTYPE  row;
-		gp_ui->LabelMkPic( row, 0, GETLABELNAME, gp_ui->PicPFn( "" ), 
+		gp_ui->LabelMkPic( row, 0, "directionButton2", gp_ui->PicPFn( "" ), 
 							gp_ui->X2dR( 0, m_row3083.m_DirButt2X ), 
 							gp_ui->Y2dR( 0, m_row3083.m_DirButt2Y ), 
 							gp_ui->X2dR( 0, m_row3083.m_DirButt2Width ), 
@@ -112,7 +112,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 		row.m_hot = 1;
 		row.m_funcname = "ShowDirButt";
 		row.m_funcvalue = m_row3083.m_DirButt2MainUiIdx;
-		this->AddLg( m_Lg, row );
+		//this->AddLg( m_Lg, row );
 		gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg01->graphElementsCN.push_back(row);
@@ -121,7 +121,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 	if( 1 )
 	{
 		a_label_t::ROWTYPE  row;
-		gp_ui->LabelMkPic( row, 0, GETLABELNAME, gp_ui->PicPFn( "" ), 
+		gp_ui->LabelMkPic( row, 0, "directionButton3", gp_ui->PicPFn( "" ), 
 							gp_ui->X2dR( 0, m_row3083.m_DirButt3X ), 
 							gp_ui->Y2dR( 0, m_row3083.m_DirButt3Y ), 
 							gp_ui->X2dR( 0, m_row3083.m_DirButt3Width ), 
@@ -130,7 +130,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 		row.m_hot = 1;
 		row.m_funcname = "ShowDirButt";
 		row.m_funcvalue = m_row3083.m_DirButt3MainUiIdx;
-		this->AddLg( m_Lg, row );
+		//this->AddLg( m_Lg, row );
 		gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg01->graphElementsCN.push_back(row);
@@ -139,7 +139,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 	if( 1 )
 	{
 		a_label_t::ROWTYPE  row;
-		gp_ui->LabelMkPic( row, 0, GETLABELNAME, gp_ui->PicPFn( "" ), 
+		gp_ui->LabelMkPic( row, 0, "directionButton4", gp_ui->PicPFn( "" ), 
 							gp_ui->X2dR( 0, m_row3083.m_DirButt4X ), 
 							gp_ui->Y2dR( 0, m_row3083.m_DirButt4Y ), 
 							gp_ui->X2dR( 0, m_row3083.m_DirButt4Width ), 
@@ -148,7 +148,7 @@ void d_cg01s_linepic_t::ShowDirButt()
 		row.m_hot = 1;
 		row.m_funcname = "ShowDirButt";
 		row.m_funcvalue = m_row3083.m_DirButt4MainUiIdx;
-		this->AddLg( m_Lg, row );
+		//this->AddLg( m_Lg, row );
 		gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg01->graphElementsCN.push_back(row);

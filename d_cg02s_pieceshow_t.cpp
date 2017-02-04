@@ -279,26 +279,32 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 					for(int j = 0;j<plocalcg02->graphPieceNumCN.size();j++){
 					 	if(plocalcg02->graphPieceNumCN[j].m_funcname == "PieceNumDn" && plocalcg02->graphPieceNumCN[j].m_funcvalue == m_iPieceNum){
 							gp_ui->hideLabel(plocalcg02->graphPieceNumCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 0;
 							continue;
 						}	
 						if(plocalcg02->graphPieceNumCN[j].m_funcname == "PieceNumDigitDn" && plocalcg02->graphPieceNumCN[j].m_funcvalue == m_iPieceNum){
 							gp_ui->hideLabel(plocalcg02->graphPieceNumCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 0;
 							continue;
 						}							
 					 	if(plocalcg02->graphPieceNumCN[j].m_funcname == "PieceNumUp" && plocalcg02->graphPieceNumCN[j].m_funcvalue == m_iPieceNum){
 							gp_ui->showLabel(plocalcg02->graphPieceNumCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 1;
 							continue;
 						}
 						if(plocalcg02->graphPieceNumCN[j].m_funcname == "PieceNumDigitUp" && plocalcg02->graphPieceNumCN[j].m_funcvalue == m_iPieceNum){
 							gp_ui->showLabel(plocalcg02->graphPieceNumCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 1;
 							continue;
 						}						
 						if(row[i].m_funcname == plocalcg02->graphPieceNumCN[j].m_funcname && row[i].m_funcvalue == plocalcg02->graphPieceNumCN[j].m_funcvalue){
 							gp_ui->showLabel(plocalcg02->graphPieceNumCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 1;
 							continue;
 						}
 						if(plocalcg02->graphPieceNumCN[j].m_funcname == "PieceNumDigitDn" && row[i].m_funcvalue == plocalcg02->graphPieceNumCN[j].m_funcvalue){
 							gp_ui->showLabel(plocalcg02->graphPieceNumCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 1;
 							continue;
 						}
 					}
@@ -308,6 +314,7 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 							gp_ui->updateLabel(plocalcg02->graphElementsCN[j],SStrf::sltoa( row[i].m_funcvalue ));
 							gp_ui->str_task(plocalcg02->graphElementsCN[j]);
 							gp_ui->showLabel(plocalcg02->graphElementsCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 1;
 							continue;
 						}
 						if(plocalcg02->graphElementsCN[j].m_name == "shouldPay"){
@@ -315,6 +322,7 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 							gp_ui->updateLabel(plocalcg02->graphElementsCN[j],SStrf::sltoa( row[i].m_funcvalue * plocalcg02->m_iPrice));
 							gp_ui->str_task(plocalcg02->graphElementsCN[j]);
 							gp_ui->showLabel(plocalcg02->graphElementsCN[j]);
+							plocalcg02->graphPieceNumCN[j].m_iShouldShow = 1;
 							continue;
 						}
 					}						
@@ -328,34 +336,6 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 	else if(plocalcg02->langFlag==1){
 		return 1;
 	}
-	/*if( this->LocateHot( m_Lg, strinput, row ) )
-	{
-		
-		if( row.m_funcname == "PieceNum" )
-		{
-			if(row.m_funcvalue == m_iPieceNum)
-			{
-				return 1;
-			}
-			//显示按下效果	
-			m_ButtType = DOWN;
-			Show1PieceButt(row.m_funcvalue);
-			gp_ui->LabelCommit();
-			//WThrd::tr_sleepu( 0.23 );
-
-			//显示弹起效果	
-			m_ButtType = UP;
-			Show1PieceButt(m_iPieceNum);
-			gp_ui->LabelCommit();
-			
-			//张数和应付	
-			m_iPieceNum = row.m_funcvalue;
-			this->ShowPieceInfo();
-
-			return 1;
-		}
-	}*/
-
 	return 0;
 }
 

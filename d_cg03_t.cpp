@@ -30,6 +30,7 @@ d_cg03_t::d_cg03_t()
 {
 	plocalcg03 = this;
 	lineCount = 0;
+	lineIndex = 0;
 	MachineStateIndex = 0;
 	pageGraphElementsFlags = 0;
 
@@ -83,12 +84,12 @@ void d_cg03_t::Proc()
 						plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
-					if(plocalcg03->graphElementsCN[i].m_name == "CN_page3LangButton"){
+					/*if(plocalcg03->graphElementsCN[i].m_name == "CN_page3LangButton"){
 						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
 						plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
-					/*if(plocalcg03->graphElementsCN[i].m_name == "CN_page3GoBack"){
+					if(plocalcg03->graphElementsCN[i].m_name == "CN_page3GoBack"){
 						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
 						continue;
 					}*/		
@@ -105,41 +106,45 @@ void d_cg03_t::Proc()
 				
 				for(int i = 0;i<plocalcg03->lineCount;i++){
 					if(plocalcg03->graphLineStationCN[i][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
+						//gp_ui->pic_task(plocalcg03->graphLineStationCN[i][0]);
 						gp_ui->showLabel(plocalcg03->graphLineStationCN[i][0]);
 						plocalcg03->graphLineStationCN[i][0].m_iShouldShow = 1;
+						plocalcg03->lineIndex = i;
 						/*for(int j = 1;j <plocalcg03->graphLineStationCN[i].size(); j++){
 							;
 						}*/					
 					}
 				}
-				if(gp_frontman_mgr->m_cg03.m_iLineCode < 10){
+				if(gp_frontman_mgr->m_cg03.m_iLineCode <= 10){
 					for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
 						if(plocalcg01->graphLineButtonCN[i].m_funcvalue <= 10){
 							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							//gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
+							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
 							continue;
 						}
 						if(plocalcg01->graphLineButtonCN[i].m_funcname == "CN_NextButton"){
 							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							//gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
+							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
 							continue;	
 						}
 					}
 				}
-				else if(gp_frontman_mgr->m_cg03.m_iLineCode > 10 && gp_frontman_mgr->m_cg03.m_iLineCode <= plocalcg03->lineCount){
+				else if(gp_frontman_mgr->m_cg03.m_iLineCode > 10){
 					for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
-						if(plocalcg01->graphLineButtonCN[i].m_funcvalue <= 10){
+						if(plocalcg01->graphLineButtonCN[i].m_funcvalue > 10 && plocalcg01->graphLineButtonCN[i].m_funcname == "CN_SeleLine"){
 							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
 							continue;
 						}
 						if(plocalcg01->graphLineButtonCN[i].m_funcname == "CN_PrevButton"){
 							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
 							continue;	

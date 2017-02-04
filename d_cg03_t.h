@@ -15,6 +15,7 @@ public:
 	std::vector< std::vector<a_label_t::ROWTYPE> > graphLineStationCN;
 	std::vector< std::vector<a_label_t::ROWTYPE> > graphLineStationEN;
 	int lineCount;
+	int lineIndex;
 	int MachineStateIndex;
 
 

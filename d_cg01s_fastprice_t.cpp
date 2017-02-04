@@ -58,7 +58,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[0].m_hot = 1;
 	row[0].m_funcname = "CN_FastPicUp";
 	row[0].m_funcvalue = v[i];
-	this->AddLg( m_Lg, row[0] );
+	//this->AddLg( m_Lg, row[0] );
 	gp_ui->LabelPrep(row[0]);
 	gp_ui->pic_task(row[0]);
 	plocalcg01->graphFastButtonCN.push_back(row[0]);
@@ -75,7 +75,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[1].m_hot = 1;
 	row[1].m_funcname = "EN_FastPicUp";
 	row[1].m_funcvalue = v[i];
-	this->AddLg( m_Lg, row[1] );
+	//this->AddLg( m_Lg, row[1] );
 	gp_ui->LabelPrep(row[1]);	
 	gp_ui->pic_task(row[1]);
 	plocalcg01->graphFastButtonEN.push_back(row[1]);
@@ -92,7 +92,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[2].m_hot = 1;
 	row[2].m_funcname = "CN_FastPicDn";
 	row[2].m_funcvalue = v[i];
-	this->AddLg( m_Lg, row[2] );
+	//this->AddLg( m_Lg, row[2] );
 	gp_ui->LabelPrep(row[2]);
 	gp_ui->pic_task(row[2]);
 	plocalcg01->graphFastButtonCN.push_back(row[2]);
@@ -109,16 +109,16 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[3].m_hot = 1;
 	row[3].m_funcname = "EN_FastPicDn";
 	row[3].m_funcvalue = v[i];
-	this->AddLg( m_Lg, row[3] );
+	//this->AddLg( m_Lg, row[3] );
 	gp_ui->LabelPrep(row[3]);
 	gp_ui->pic_task(row[3]);
 	plocalcg01->graphFastButtonEN.push_back(row[3]);
 	//gp_ui->LabelCommit();
 
 	//热点注册	
-	row[3].m_name += "--hot";
-	row[3].m_hot = 1;
-	this->AddLg( m_Lg, row[3] );
+	//row[3].m_name += "--hot";
+	//row[3].m_hot = 1;
+	//this->AddLg( m_Lg, row[3] );
 
 	//std::string sVal = SCalc::dseal( "a", 22 * SStrf::rand1() );
 	//for( tsize j = 0; j < sVal.size(); j++ ) sVal[j] = ~sVal[j];
@@ -135,7 +135,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[4].m_funcname = "ShowFastDigit";
 	row[4].m_funcvalue = v[i];
 	row[4].m_pic_width += SStrf::rand1(x+i); //为了影响数字摘要而不影响内容 
-	this->AddLg( m_Lg, row[4] );
+	//this->AddLg( m_Lg, row[4] );
 	gp_ui->LabelPrep(row[4]);
 	gp_ui->str_task(row[4]);
 	plocalcg01->graphFastButtonCN.push_back(row[4]);
@@ -221,22 +221,26 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 			for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
 				if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
+					plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
 				}
 			}
 			for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
 				if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
+					plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
 				}			
 			}
 			for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
 				if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+					plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
 				}			
 			}			
 		}
 		for(int i=0;i<(gp_timeshower->graphElements.size());i++){
 			if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
 				gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+				gp_timeshower->graphElements[i].m_iShouldShow = 0;
 			}			
 		}
 

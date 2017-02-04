@@ -93,7 +93,8 @@ void d_cg01_t::Proc()
 		if(plocalcg01->displayFlag == 0){
 			if(plocalcg01->langFlag == 0){//
 				for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
-					if(plocalcg01->graphElementsCN[i].m_name == "CN_page1BackPic"){
+					//if(plocalcg01->graphElementsCN[i].m_name == "CN_page1BackPic"){CN_page1BackPic
+					if(plocalcg01->graphElementsCN[i].m_funcname == "CN_ShowBack1"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
@@ -102,12 +103,7 @@ void d_cg01_t::Proc()
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
-					}				
-					if(plocalcg01->graphElementsCN[i].m_funcname == "ShowDirButt"){
-						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
-						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
-						continue;
-					}	
+					}
 					if(plocalcg01->graphElementsCN[i].m_funcname == "CN_LinePic"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
@@ -164,24 +160,20 @@ void d_cg01_t::Proc()
 							continue;
 						}						
 					}
-					/*else{
-						continue;
-					}*/
 				}
 			}
 			else if(plocalcg01->langFlag == 1){
-
+				;
 			}
 			plocalcg01->displayFlag = 1;//
-		
 		}
 
 		//refresh timedisplay
 		for(int i=0;i<(gp_timeshower->graphElements.size());i++){
 			if(gp_timeshower->graphElements[i].m_name == "timeDisplay"){
-				gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+				//gp_ui->hideLabel(gp_timeshower->graphElements[i]);
 		     	gp_ui->updateLabel(gp_timeshower->graphElements[i],SDte::GetNow().ReadString());
-				gp_ui->str_task(gp_timeshower->graphElements[i]);
+				//gp_ui->str_task(gp_timeshower->graphElements[i]);
 				gp_ui->showLabel(gp_timeshower->graphElements[i]);
 				gp_timeshower->graphElements[i].m_iShouldShow = 1;
 			}			

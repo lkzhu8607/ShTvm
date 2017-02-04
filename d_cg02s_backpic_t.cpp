@@ -27,7 +27,6 @@ void d_cg02s_backpic_t::ShowBack1()
 {
 	const char *s[] = { "cg02_back_ch.png", "cg02_back_en.png" };
 	a_label_t::ROWTYPE  row;
-	a_label_t::ROWTYPE  row2;
 
 	//图片显示 
 	for(int i = 0;i<2;i++){
@@ -52,7 +51,7 @@ void d_cg02s_backpic_t::ShowBack1()
 		row1.m_hot = 0;
 		row1.m_funcname = "ShowBack1";
 		row1.m_funcvalue = 0;
-		this->AddLg( m_Lg, row1 );
+		//this->AddLg( m_Lg, row1 );
 		gp_ui->LabelPrep(row1);
 		gp_ui->pic_task(row1);
 		if(i==0){
@@ -64,23 +63,39 @@ void d_cg02s_backpic_t::ShowBack1()
 	}
 
 	//字符串显示 ——车站 
-	if( plocalcg02->m_SelectedScNode != u8arr_t<4>() )
+	if( 1 )
 	{
+		
+		a_label_t::ROWTYPE  row2;
 		//int LangFlag = GetLanguageState();
-		//SetLanguageCh();
+		SetLanguageEn();
 		gp_ui->LabelMkStr( row2, 0, 
-							"stationName",
+							"EN_stationName",
 							gp_db->GetThatStaName(plocalcg02->m_SelectedScNode) , 
 							gp_ui->X2dR( 0, 377 ), 
 							gp_ui->Y2dR( 0, 220 ), 
 							0.06, 
 							"black" );
 		row2.m_hot = 0;
-		this->AddLg( m_Lg, row2 );
+		//this->AddLg( m_Lg, row2 );
 		gp_ui->LabelPrep(row2);
 		gp_ui->str_task(row2);
-		plocalcg02->graphElementsCN.push_back(row2);
-		plocalcg02->graphElementsEN.push_back(row2);		
+		plocalcg02->graphElementsEN.push_back(row2);
+
+		
+		a_label_t::ROWTYPE  rowx;
+		SetLanguageCh();
+		gp_ui->LabelMkStr( rowx, 0, 
+							"CN_stationName",
+							gp_db->GetThatStaName(plocalcg02->m_SelectedScNode) , 
+							gp_ui->X2dR( 0, 377 ), 
+							gp_ui->Y2dR( 0, 220 ), 
+							0.06, 
+							"black" );
+		rowx.m_hot = 0;
+		gp_ui->LabelPrep(rowx);
+		gp_ui->str_task(rowx);
+		plocalcg02->graphElementsCN.push_back(rowx);	
 	}
 
 	//字符串显示 ——单价元  

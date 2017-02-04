@@ -99,6 +99,7 @@ tbool d_cg00s_t::LocateHot( std::vector<a_label_t::ROWTYPE> &Lg, std::string str
 			//a_label_t::ROWTYPE & row(Lg.GetRow(i));
 
 			if( Lg[i].m_hot == 0 ) continue;
+			//if( Lg[i].m_iShouldShow == 0 ) continue;
 
 			if( scr == Lg[i].m_scr && x >= Lg[i].m_x && y >= Lg[i].m_y && x <= Lg[i].m_x + Lg[i].m_pic_width && y <= Lg[i].m_y + Lg[i].m_pic_height )
 			{

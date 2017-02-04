@@ -39,12 +39,12 @@ void d_cg01s_lang_t::ShowLangButt()
 	//a_label_t  row1;	
 	std::string strpic[2];
 
-	//strpic[0] = row3083.m_MainUiPicFn;
-	//strpic[1] = "e" + strpic[0];
+	strpic[0] = row3083.m_MainUiPicFn;
+	strpic[1] = "e" + strpic[0];
 
 	gp_ui->LabelMkPic( row, 0, 
 						"CN_LangButton",
-						gp_ui->PicPFn( "" ), 
+						gp_ui->PicPFn(strpic[0]), 
 						gp_ui->X2dR( 0, row3083.m_LaunSeleButtX ), 
 						gp_ui->Y2dR( 0, row3083.m_LaunSeleButtY - 17 ), // 实际观察发现有点错位，修正17个。 
 						gp_ui->X2dR( 0, row3083.m_LaunSeleButtWidth ), 
@@ -61,7 +61,7 @@ void d_cg01s_lang_t::ShowLangButt()
 
 	gp_ui->LabelMkPic( row1, 0, 
 						"EN_LangButton",
-						gp_ui->PicPFn( "" ), 
+						gp_ui->PicPFn(strpic[1]), 
 						gp_ui->X2dR( 0, row3083.m_LaunSeleButtX ), 
 						gp_ui->Y2dR( 0, row3083.m_LaunSeleButtY - 17 ), // 实际观察发现有点错位，修正17个。 
 						gp_ui->X2dR( 0, row3083.m_LaunSeleButtWidth ), 

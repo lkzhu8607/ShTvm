@@ -646,7 +646,6 @@ void de_ui_t::pic_task( a_label_t::ROWTYPE & row )
 			gdk_threads_leave();
 		}
 		row.m_gtkpointer = lblTest;
-
 	}
 }
 
@@ -678,7 +677,7 @@ void de_ui_t::OnRunTask( UiTaskType_t t )
 {
 	//goto L_TASKEND;
 
-	/*if( t->m_type == "update" )
+	if( t->m_type == "update" )
 	{
 		/*for( long i =  m_lblset.GetRowCount() - 1; i >= 0; i-- )
 		{
@@ -693,20 +692,20 @@ void de_ui_t::OnRunTask( UiTaskType_t t )
 			}
 		}*/
 
-		/*for( long i = 0; i < m_lblset.GetRowCount(); i++ )
+		for( long i = 0; i < m_lblset.GetRowCount(); i++ )
 		{
 			a_label_t::ROWTYPE & row(m_lblset.GetRow(i));
 
 			//del
-			/*if( row.m_type == "del" || row.m_type == "delall" || row.m_type == "modifyall" || row.m_type == "update" || row.m_type == "refresh" )
+			if( row.m_type == "del" || row.m_type == "delall" || row.m_type == "modifyall" || row.m_type == "update" || row.m_type == "refresh" )
 			{
 				del_task(row, i);
 				i = 0;
 
 				continue;
-			}*/
+			}
 
-			/*if( row.m_iShouldShow == 0 ) continue;
+			if( row.m_iShouldShow == 0 ) continue;
 
 			//str
 			if( row.m_type == "str" )
@@ -806,7 +805,7 @@ void de_ui_t::OnRunTask( UiTaskType_t t )
 L_TASKEND:
 	LabelFixedShow();
 	delete t;
-	return;*/
+	return;
 }
 
 void de_ui_t::updateLabel( a_label_t::ROWTYPE & row, std::string value)
@@ -834,7 +833,7 @@ void de_ui_t::updateLabel( a_label_t::ROWTYPE & row, std::string value)
 void de_ui_t::showLabel( a_label_t::ROWTYPE & row )
 {
 	gdk_threads_enter();
-	gtk_widget_show( (GtkWidget *)row.m_gtkpointer );
+	gtk_widget_show_now( (GtkWidget *)row.m_gtkpointer );
 	gdk_threads_leave();
 }
 
