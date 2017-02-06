@@ -21,6 +21,7 @@
 #include "de_medev_t.h"
 #include "de_coin_t.h"
 #include "bu_timeshower_t.h"
+#include "bu_frontman_mgr_t.h"
 
 
 
@@ -42,6 +43,7 @@ d_cg01_t::d_cg01_t()
 	ErrCodeIndex = 0;
 	MachineStateIndex = 0;
 	pageTab = 0;	
+	isFastFlag = 0;
 }
 
 
@@ -92,21 +94,26 @@ void d_cg01_t::Proc()
 		//show page info
 		if(plocalcg01->displayFlag == 0){
 			if(plocalcg01->langFlag == 0){//
+				if(gp_frontman_mgr->graphLastPageElements.size())
+					gp_frontman_mgr->graphLastPageElements.clear();
 				for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
-					//if(plocalcg01->graphElementsCN[i].m_name == "CN_page1BackPic"){CN_page1BackPic
-					if(plocalcg01->graphElementsCN[i].m_funcname == "CN_ShowBack1"){
+					//if(plocalcg01->graphElementsCN[i].m_name == "CN_page1BackPic"){
+					/*if(plocalcg01->graphElementsCN[i].m_funcname == "CN_ShowBack1"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
-					}
+					}*/
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_StaName"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
 					if(plocalcg01->graphElementsCN[i].m_funcname == "CN_LinePic"){
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_MachineState"){
@@ -114,6 +121,7 @@ void d_cg01_t::Proc()
 						plocalcg01->MachineStateIndex = i;
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}					
 					if(plocalcg01->graphElementsCN[i].m_name == "page1ErrCode"){
@@ -121,6 +129,7 @@ void d_cg01_t::Proc()
 						plocalcg01->ErrCodeIndex = i;
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
 					//else 
@@ -131,11 +140,13 @@ void d_cg01_t::Proc()
 					if(plocalcg01->graphFastButtonCN[i].m_funcname == "CN_FastPicUp"){
 						gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
 						plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
+						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
 						continue;
 					}	
 					if(plocalcg01->graphFastButtonCN[i].m_funcname == "ShowFastDigit"){
 						gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
 						plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
+						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
 						continue;
 					}	
 				}
@@ -144,6 +155,7 @@ void d_cg01_t::Proc()
 						if(plocalcg01->graphLineButtonCN[i].m_funcname=="CN_SeleLine"){
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+							gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
 							continue;
 						}
 					}
@@ -151,12 +163,14 @@ void d_cg01_t::Proc()
 						if(plocalcg01->graphLineButtonCN[i].m_funcvalue <= 10){
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+							gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->pageFlag = 1;
 							continue;
 						}
 						if(plocalcg01->graphLineButtonCN[i].m_funcname=="CN_NextButton"){
 							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
 							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+							gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
 							continue;
 						}						
 					}
@@ -176,6 +190,7 @@ void d_cg01_t::Proc()
 				//gp_ui->str_task(gp_timeshower->graphElements[i]);
 				gp_ui->showLabel(gp_timeshower->graphElements[i]);
 				gp_timeshower->graphElements[i].m_iShouldShow = 1;
+				//gp_frontman_mgr.graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 			}			
 		}		
 

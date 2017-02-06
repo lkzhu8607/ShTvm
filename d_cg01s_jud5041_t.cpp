@@ -83,7 +83,6 @@ tbool d_cg01s_jud5041_t::Find_n_do_gotowork( std::string strinput )
 			gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 			SetLanguageCh();
-
 			return 1;
 		}
 	}

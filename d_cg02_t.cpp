@@ -102,7 +102,7 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
-					if(plocalcg02->graphElementsCN[i].m_name == "CN_stationName"){
+					if(plocalcg02->graphElementsCN[i].m_name == "CN_stationName" && plocalcg01->isFastFlag ==1){
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
@@ -188,8 +188,8 @@ void d_cg02_t::Proc()
 					}					
 				}
 			}
-			if(plocalcg02->langFlag == 1){;
-
+			if(plocalcg02->langFlag == 1){
+				;
 			}
 			plocalcg02->displayFlag = 1;
 		}
@@ -309,24 +309,13 @@ L_GETINPUT:
 				waiter_data.m_ReceiveCoin = 0;
 				waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveBill;
 			}
-			//如果有投钱，则需要退钱，返回上一层界面
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
-			gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
-			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
-			if(plocalcg02->langFlag == 0){
-				plocalcg01->displayFlag = 0;
-				plocalcg01->langFlag = 0;
-			}
-			else if(plocalcg02->langFlag == 1){
-				plocalcg01->displayFlag = 0;
-				plocalcg01->langFlag = 0;
-			}			
+			//如果有投钱，则需要退钱，返回上一层界面	
 			return;
 		}
 
 		if( cg02s_cancel.Find_n_do_Showcancel( gp_frontinput->GetFrontCurrentKey() ) ) 
 		{
-			for(int i = 0;i < plocalcg02->graphElementsCN.size();i++){
+			/*for(int i = 0;i < plocalcg02->graphElementsCN.size();i++){
 				if(plocalcg02->graphElementsCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
 					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
@@ -337,7 +326,7 @@ L_GETINPUT:
 					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
 					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
 				}
-			}			
+			}*/		
 			//关闭纸币硬币投币口
 			cg02s_pieceshow.StopCoinAndBill();
 
@@ -353,18 +342,6 @@ L_GETINPUT:
 				gp_coin->returnCoin();//退硬币
 				waiter_data.m_ReceiveCoin = 0;
 				waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveBill;
-			}
-			
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
-			gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
-			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
-			if(plocalcg02->langFlag == 0){
-				plocalcg01->displayFlag = 0;
-				plocalcg01->langFlag = 0;
-			}
-			else if(plocalcg02->langFlag == 1){
-				plocalcg01->displayFlag = 0;
-				plocalcg01->langFlag = 1;
 			}
 			return;
 		}

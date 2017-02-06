@@ -17,7 +17,7 @@ public:
 	int pageGraphElementsFlags;
 	int displayFlag;//0--No,1--yes
 	int langFlag;//0--CN,1--EN
-	std::vector<a_label_t::ROWTYPE> graphLastPageElements;
+	//std::vector<a_label_t::ROWTYPE> graphLastPageElements;
 	
 public:
 	d_cg00_t();

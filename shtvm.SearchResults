@@ -1,7 +1,59 @@
----- CN_page1BackPic Matches (2 in 2 files) ----
-D_cg01s_backpic_t.cpp:	gp_ui->LabelMkPic( row, 0, "CN_page1BackPic", gp_ui->PicPFn( s[0] ), 0, 0, 1, 1 );
-D_cg01_t.cpp:					/*if(plocalcg01->graphElementsCN[i].m_name == "CN_page1BackPic"){
----- CN_page1BackPic Search Errors Encountered (2) ----
+---- LabelCommit Matches (54 in 25 files) ----
+Bu_asynwork_t.cpp:		gp_ui->LabelCommit();
+Bu_asynwork_t.cpp:		gp_ui->LabelCommit();
+Bu_backman_ele_f_user_judge.xpp:	gp_ui->LabelCommit();
+Bu_backman_ele_f_user_judge.xpp:			gp_ui->LabelCommit();
+Bu_backman_ele_f_user_judge.xpp:			gp_ui->LabelCommit();
+Bu_backman_ele_f_user_judge.xpp:		//	gp_ui->LabelCommit();
+Bu_backman_ele_f_user_judge.xpp:			gp_ui->LabelCommit();
+Bu_backman_ele_t.cpp:	gp_ui->LabelCommit();
+Bu_timeshower_t.cpp:		gp_ui->LabelCommit();
+Bu_timeshower_t.cpp:		gp_ui->LabelCommit();
+Bu_timeshower_t.cpp:		gp_ui->LabelCommit();
+Cg02s_machinestate_t.cpp:	//gp_ui->LabelCommit();
+De_ui_t.cpp:void de_ui_t::LabelCommit()
+De_ui_t.cpp:	if( HaveCommit ) this->LabelCommit();
+De_ui_t.cpp:	if( HaveCommit ) this->LabelCommit();
+De_ui_t.cpp:		this->LabelCommit();
+De_ui_t.cpp:		this->LabelCommit();
+De_ui_t.h:	void LabelCommit();
+D_cg00s_t.cpp:	gp_ui->LabelCommit();
+D_cg01s_backpic_t.cpp:	//gp_ui->LabelCommit();
+D_cg01s_errexplain_t.cpp:	gp_ui->LabelCommit();
+D_cg01s_errpic_t.cpp:	gp_ui->LabelCommit();
+D_cg01s_evtcodes_t.cpp:	//gp_ui->LabelCommit();
+D_cg01s_fastprice_t.cpp:	//gp_ui->LabelCommit();
+D_cg01s_fastprice_t.cpp:	//gp_ui->LabelCommit();
+D_cg01s_linepic_t.cpp:	//gp_ui->LabelCommit();
+D_cg01s_linepic_t.cpp:	//gp_ui->LabelCommit();
+D_cg01s_machinestate_t.cpp:	//gp_ui->LabelCommit();
+D_cg01s_seleline_t.cpp:	//gp_ui->LabelCommit();
+D_cg02s_cancel_t.cpp:	//gp_ui->LabelCommit();
+D_cg02s_goback_t.cpp:	//gp_ui->LabelCommit();
+D_cg02s_goback_t.cpp:	//gp_ui->LabelCommit();
+D_cg02s_goodbillcoin_t.cpp:			//gp_ui->LabelCommit();	
+D_cg02s_goodbillcoin_t.cpp:			//gp_ui->LabelCommit();	
+D_cg02s_pieceshow_t.cpp:	gp_ui->LabelCommit();*/
+D_cg02s_pieceshow_t.cpp:	//gp_ui->LabelCommit();
+D_cg02s_pieceshow_t.cpp:	//gp_ui->LabelCommit();
+D_cg03s_backpic_t.cpp:	//gp_ui->LabelCommit();
+D_cg04s_backpic_t.cpp:	//gp_ui->LabelCommit();
+D_cg04s_stoppic_t.cpp:	//gp_ui->LabelCommit();
+D_cg05s_backpic_t.cpp:	//gp_ui->LabelCommit();
+G06.cpp:		gp_ui->LabelCommit();
+G06.cpp:	//gp_ui->LabelCommit();
+G06.cpp:	//gp_ui->LabelCommit();
+G06.cpp:	//gp_ui->LabelCommit();
+G06.cpp:	//gp_ui->LabelCommit();
+G06.cpp:	gp_ui->LabelCommit();
+G06.cpp:	gp_ui->LabelCommit();
+G06.cpp:	//		gp_ui->LabelCommit();
+G06.cpp:	//		gp_ui->LabelCommit();
+G06.cpp:	//		gp_ui->LabelCommit();
+G06.cpp:	//		gp_ui->LabelCommit();
+G06.cpp:	//gp_ui->LabelCommit();
+G06.cpp:	//	gp_ui->LabelCommit();
+---- LabelCommit Search Errors Encountered (2) ----
 The following 2 files could not be processed:
 D:\git\shtvm\shtvm.IAB : File could not be opened.
 D:\git\shtvm\shtvm.IMB : File could not be opened.

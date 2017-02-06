@@ -150,7 +150,6 @@ void d_cg03_t::Proc()
 							continue;	
 						}
 					}
-
 				}
 			}
 			else if(plocalcg03->langFlag == 1){

@@ -25,6 +25,7 @@ public:
 	d_cg03_t   m_cg03;
 	d_cg04_t   m_cg04;
 	d_cg05_t   m_cg05;
+	std::vector<a_label_t::ROWTYPE> graphLastPageElements;
 
 public:
 	bu_frontman_mgr_t();

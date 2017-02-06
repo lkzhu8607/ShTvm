@@ -55,7 +55,7 @@ void d_cg01s_lang_t::ShowLangButt()
 	row.m_funcvalue = 0;
 	this->AddLg( m_Lg, row );
 	gp_ui->LabelPrep(row);
-	gp_ui->pic_task(row);
+	//gp_ui->pic_task(row);
 	plocalcg01->graphElementsCN.push_back(row);
 
 
@@ -72,7 +72,7 @@ void d_cg01s_lang_t::ShowLangButt()
 	row1.m_funcvalue = 1;
 	this->AddLg( m_Lg, row1 );
 	gp_ui->LabelPrep(row1);	
-	gp_ui->pic_task(row);
+	//gp_ui->pic_task(row);
 	plocalcg01->graphElementsEN.push_back(row1);
 }
 
@@ -81,7 +81,6 @@ void d_cg01s_lang_t::ShowLangButt()
 tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 {
 	a_label_t::ROWTYPE  row;
-
 	if( this->LgFindhot( m_Lg, strinput, row ) )
 	{
 		if( row.m_funcname == "ShowLangButt" )
@@ -94,7 +93,6 @@ tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 			return 1;
 		}
 	}
-
 	return 0;
 }
 

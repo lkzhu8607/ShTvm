@@ -73,6 +73,42 @@ void d_cg02s_cancel_t::Showcancel()
 tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 {
 	std::vector<a_label_t::ROWTYPE>  row;
+	if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) ){
+		if(plocalcg02->langFlag == 0)
+		{
+			for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+				if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
+					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
+				}
+			}
+			for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
+				if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
+					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+					plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
+				}
+			}				
+			for(int i=0;i<row.size();i++){
+				if(row[i].m_name == "CN_page2Cancel--hot"){
+					plocalcg01->displayFlag = 0;
+					plocalcg01->langFlag = 0;
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
+					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
+					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
+					return 1;
+				}
+			}
+		}		
+		if(plocalcg02->langFlag == 1){
+			for(int i=0;i<row.size();i++){
+				if(row[i].m_name == "EN_page2Cancel--hot"){
+					return 1;
+				}
+			}
+		}
+	}
+
+/*	std::vector<a_label_t::ROWTYPE>  row;
 	if(plocalcg02->langFlag == 0){
 		if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) )
 		{
@@ -92,7 +128,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 				}
 			}
 		}
-	}
+	}*/
 	return 0;
 }
 

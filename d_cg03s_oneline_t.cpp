@@ -98,7 +98,7 @@ void d_cg03s_oneline_t::Showoneline()
 			row.m_funcvalue = row3084t.m_StaCode.a[i];
 			this->AddLg( m_Lg, row );
 			gp_ui->LabelPrep(row);
-			gp_ui->pic_task(row);
+			//gp_ui->pic_task(row);
 			CNtmp.push_back(row);
 			ENtmp.push_back(row);
 			//gp_ui->LabelPrep(row);
@@ -159,6 +159,8 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 							}*/ 				
 						}
 					}
+					plocalcg02->displayFlag = 0;
+					plocalcg02->langFlag = 0;
 
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 					gp_frontman_mgr->m_cg02.m_iPrice = v[0]; // 
@@ -169,10 +171,9 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 			}
 		}
 		else if(plocalcg03->langFlag == 1){
-
+			;
 		}
 	}
-
 	return 0;
 }
 

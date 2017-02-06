@@ -24,6 +24,7 @@ public:
 	int MachineStateIndex;
 	//int linePageSize = 0;
 	int pageTab;	
+	int isFastFlag;//0,get price from fastPrice button;1,get price from destStation
 
 public:
 	d_cg01_t();
