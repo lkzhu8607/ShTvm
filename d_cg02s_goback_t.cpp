@@ -110,6 +110,7 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
 						gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 						gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
+						plocalcg02->m_iPieceNum = 1;
 						return 1;
 					}
 				}

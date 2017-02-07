@@ -10,7 +10,9 @@
 #include "bu_frontman_mgr_t.h"
 #include "d_cg03s_backpic_t.h"
 #include "d_cg03s_lang_t.h"
+#include "d_cg03s_seleline_t.h"
 #include "d_cg01s_seleline_t.h"
+
 #include "d_cg03s_goback_t.h"
 #include "d_cg03s_oneline_t.h"
 #include "d_cg03s_rightsidemsg_t.h"
@@ -50,6 +52,7 @@ void d_cg03_t::Proc()
 	d_cg03s_lang_t  cg03s_lang;
 	d_cg03s_goback_t  cg03s_goback;
 	d_cg03s_oneline_t  cg03s_oneline;
+	d_cg03s_seleline_t   cg03s_seleline;
 	d_cg01s_seleline_t   cg01s_seleline;
 	d_cg03s_machinestate_t  cg03s_machinestate;
 	d_cg01s_jud5041_t  cg01s_jud5041;
@@ -250,7 +253,7 @@ L_GETINPUT:
 			goto L_RESHOW_seleline;
 		}
 
-		if( cg01s_seleline.Find_n_do_seleline( gp_frontinput->GetFrontCurrentKey() ) ) 
+		if( cg03s_seleline.Find_n_do_seleline( gp_frontinput->GetFrontCurrentKey() ) ) 
 		{
 			goto L_RESHOW_oneline;
 		}

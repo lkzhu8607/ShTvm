@@ -44,6 +44,7 @@ d_cg01_t::d_cg01_t()
 	MachineStateIndex = 0;
 	pageTab = 0;	
 	isFastFlag = 0;
+	mianPicRecordCount = 0;
 }
 
 
@@ -55,7 +56,6 @@ d_cg01_t::~d_cg01_t()
 //
 void d_cg01_t::Proc()
 {
-	//gp_ui->LabelFixedHide();
 	d_cg01s_backpic_t			cg01s_backpic;
 	d_cg01s_lang_t			cg01s_lang;
 	d_cg01s_rightupmsg_t	cg01s_rightupmsg;
@@ -74,7 +74,7 @@ void d_cg01_t::Proc()
 		cg01s_rightupmsg.Showrightupmsg();
 		cg01s_fastprice.Showfastprice();
 		cg01s_linepic.ShowLinePic();
-		cg01s_linepic.ShowDirButt();
+		//cg01s_linepic.ShowDirButt();
 		cg01s_machinestate.Showmachinestate();
 		cg01s_seleline.Showseleline();
 		cg01s_evtcodes.m_x = 0.207;
@@ -110,12 +110,6 @@ void d_cg01_t::Proc()
 						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
-					if(plocalcg01->graphElementsCN[i].m_funcname == "CN_LinePic"){
-						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
-						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
-						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
-						continue;
-					}
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_MachineState"){
 		     			gp_ui->updateLabel(plocalcg01->graphElementsCN[i],GetStrRes(gp_medev->m_devstatus));
 						plocalcg01->MachineStateIndex = i;
@@ -132,9 +126,41 @@ void d_cg01_t::Proc()
 						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
-					//else 
-						
-					//gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+				}
+				for(int i=0;i < (plocalcg01->graphMainInterfaceCN.size());i++){//
+					//std::string strPic = "CN_MainPic_1" + SStrf::sltoa((int)(i+1));
+					//std::string strButt = "MainPic_"+SStrf::sltoa((int)(1))+"_dirButt1";
+					if(plocalcg01->graphMainInterfaceCN[i].m_name == "CN_MainPic_1"){
+						gp_ui->showLabel(plocalcg01->graphMainInterfaceCN[i]);
+						plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 1;
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
+						continue;
+					}
+					if(plocalcg01->graphMainInterfaceCN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt1")){
+						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 1;
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
+						continue;
+					}	
+					if(plocalcg01->graphMainInterfaceCN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt2")){
+						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 1;
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
+						continue;
+					}	
+					if(plocalcg01->graphMainInterfaceCN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt3")){
+						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 1;
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
+						continue;
+					}	
+					if(plocalcg01->graphMainInterfaceCN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt4")){
+						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 1;
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
+						continue;
+					}						
+
 				}
 				for(int i=0;i < (plocalcg01->graphFastButtonCN.size());i++){
 					if(plocalcg01->graphFastButtonCN[i].m_funcname == "CN_FastPicUp"){
@@ -148,7 +174,7 @@ void d_cg01_t::Proc()
 						plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
 						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
 						continue;
-					}	
+					}
 				}
 				for(int i=0;i < (plocalcg01->graphLineButtonCN.size());i++){
 					if(plocalcg01->pageTab == 1){
@@ -337,8 +363,6 @@ L_GETINPUT2:
 			}while( m_strInput == "" );
 
 			if( cg01s_lang.Find_n_do_ShowLangButt( m_strInput ) ){
-				plocalcg01->langFlag = 1;
-				plocalcg01->displayFlag = 0;
 				continue;
 			}
 			if( cg01s_linepic.Find_n_do_ShowDirButt( m_strInput ) ) 

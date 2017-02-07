@@ -156,6 +156,7 @@ public:
 	void RiseAllSaveFlag();
 	
 	void get3083row( a3083_t::ROWTYPE &row3083out, tuint8 MainUiIdx );
+	void get3083tbl( a3083_t &a3083tblout );
 	std::string GetMyStaName();
 	std::string GetThatStaName( u8arr_t<4> ScNode ); //只比较前两位,根据当前中英文设定，返回从参数中查到的中或英名称	
 	tbool GetPossiblePrices( std::vector< int > & pricesout, u8arr_t<4> aCode = u8arr_t<4>() );

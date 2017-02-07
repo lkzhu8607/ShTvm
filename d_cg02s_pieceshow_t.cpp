@@ -256,10 +256,7 @@ void d_cg02s_pieceshow_t::ShowPieceInfo()
 		plocalcg02->graphElementsCN.push_back(row);
 		plocalcg02->graphElementsEN.push_back(row);		
 	}
-	//gp_ui->LabelCommit();
 }
-
-
 
 //
 tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )

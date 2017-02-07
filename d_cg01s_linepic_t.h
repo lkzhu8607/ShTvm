@@ -24,7 +24,7 @@ public:
 	virtual void OnClean(){ m_row3083 = a3083_t::ROWTYPE(); }
 
 	void ShowLinePic();
-	void ShowDirButt();
+	//void ShowDirButt();
 	tbool Find_n_do_ShowDirButt( std::string strinput );
 };
 

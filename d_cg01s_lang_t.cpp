@@ -8,7 +8,7 @@
 #include "d_str_res.h"
 #include "d_db_t.h"
 #include "d_cg01_t.h"
-
+#include "bu_timeshower_t.h"
 
 //
 d_cg01s_lang_t::d_cg01s_lang_t()
@@ -34,16 +34,13 @@ void d_cg01s_lang_t::ShowLangButt()
 		return;
 
 	a_label_t::ROWTYPE  row;
-	a_label_t::ROWTYPE  row1;
-	//a_label_t  row;
-	//a_label_t  row1;	
 	std::string strpic[2];
 
 	strpic[0] = row3083.m_MainUiPicFn;
 	strpic[1] = "e" + strpic[0];
 
 	gp_ui->LabelMkPic( row, 0, 
-						"CN_LangButton",
+						"LangButton",
 						gp_ui->PicPFn(strpic[0]), 
 						gp_ui->X2dR( 0, row3083.m_LaunSeleButtX ), 
 						gp_ui->Y2dR( 0, row3083.m_LaunSeleButtY - 17 ), // 实际观察发现有点错位，修正17个。 
@@ -57,40 +54,71 @@ void d_cg01s_lang_t::ShowLangButt()
 	gp_ui->LabelPrep(row);
 	//gp_ui->pic_task(row);
 	plocalcg01->graphElementsCN.push_back(row);
-
-
-	gp_ui->LabelMkPic( row1, 0, 
-						"EN_LangButton",
-						gp_ui->PicPFn(strpic[1]), 
-						gp_ui->X2dR( 0, row3083.m_LaunSeleButtX ), 
-						gp_ui->Y2dR( 0, row3083.m_LaunSeleButtY - 17 ), // 实际观察发现有点错位，修正17个。 
-						gp_ui->X2dR( 0, row3083.m_LaunSeleButtWidth ), 
-						gp_ui->Y2dR( 0, row3083.m_LaunSeleButtHeight )   );
-	gp_ui->CalcPicX2Y2(row1);
-	row1.m_hot = 1;
-	row1.m_funcname = "ShowLangButt";
-	row1.m_funcvalue = 1;
-	this->AddLg( m_Lg, row1 );
-	gp_ui->LabelPrep(row1);	
-	//gp_ui->pic_task(row);
-	plocalcg01->graphElementsEN.push_back(row1);
+	plocalcg01->graphElementsEN.push_back(row);
 }
 
 
 //
 tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 {
-	a_label_t::ROWTYPE  row;
-	if( this->LgFindhot( m_Lg, strinput, row ) )
+	std::vector<a_label_t::ROWTYPE>  row;
+	if( this->LocateHot( plocalcg01->graphElementsEN, strinput, row ) )
 	{
-		if( row.m_funcname == "ShowLangButt" )
-		{
-			if( row.m_funcvalue == 0 )
-				SetLanguageEn();
-			else
-				SetLanguageCh();
-	
-			return 1;
+		for(int j=0;j<row.size();j++){
+			if( row[j].m_funcname == "ShowLangButt")
+			{
+				plocalcg01->displayFlag = 0;
+				if(plocalcg01->langFlag == 0){					
+					plocalcg01->langFlag = 1;
+					for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
+						if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
+							gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
+							plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
+						}
+					}
+					for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
+						if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
+							gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
+							plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
+						}			
+					}
+					for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
+						if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
+							gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
+						}			
+					}	
+				}			
+				else if(plocalcg01->langFlag == 1){
+					plocalcg01->langFlag = 0;
+					for(int i=0;i< (plocalcg01->graphElementsEN.size());i++){
+						if(plocalcg01->graphElementsEN[i].m_iShouldShow == 1){
+							gp_ui->hideLabel(plocalcg01->graphElementsEN[i]);
+							plocalcg01->graphElementsEN[i].m_iShouldShow = 0;
+						}
+					}
+					for(int i=0;i<plocalcg01->graphFastButtonEN.size();i++){
+						if(plocalcg01->graphFastButtonEN[i].m_iShouldShow == 1){
+							gp_ui->hideLabel(plocalcg01->graphFastButtonEN[i]);
+							plocalcg01->graphFastButtonEN[i].m_iShouldShow = 0;
+						}			
+					}
+					for(int i=0;i<plocalcg01->graphLineButtonEN.size();i++){
+						if(plocalcg01->graphLineButtonEN[i].m_iShouldShow == 1){
+							gp_ui->hideLabel(plocalcg01->graphLineButtonEN[i]);
+							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 0;
+						}			
+					}						
+				}
+				for(int i=0;i<(gp_timeshower->graphElements.size());i++){
+					if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
+						gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+						gp_timeshower->graphElements[i].m_iShouldShow = 0;
+					}			
+				}				
+				//gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;			
+				return 1;
+			}			
 		}
 	}
 	return 0;

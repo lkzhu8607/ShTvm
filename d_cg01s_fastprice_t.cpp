@@ -174,36 +174,7 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 		//empty vector
 		//gp_frontman_mgr->graphLastPageElements.swap(vector<a_label_t::ROWTYPE>());//crash memory
 		gp_frontman_mgr->graphLastPageElements.clear();//keep memory,just clear data
-		if(plocalcg03->langFlag == 0){
-			//hide last page displayed elements
-			for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
-				if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
-					plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
-				}
-			}
-			for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
-				if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
-					plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
-				}			
-			}
-			for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
-				if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
-					plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
-				}			
-			}	
-			for(int i=0;i<(gp_timeshower->graphElements.size());i++){
-				if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(gp_timeshower->graphElements[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(gp_timeshower->graphElements[i]);
-					gp_timeshower->graphElements[i].m_iShouldShow = 0;
-				}			
-			}		
+		if(plocalcg01->langFlag == 0){	
 			//*****************************************************************************
 			for(j=0;j<row.size();j++){
 				if( row[j].m_funcname == "CN_FastPicUp")
@@ -248,7 +219,36 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 				else if(row[j].m_funcname == "ShowFastDigit"){
 					break;
 				}
-			}			
+			}
+			//hide last page displayed elements
+			for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
+				if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
+					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+					plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
+				}
+			}
+			for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
+				if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
+					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
+					plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
+				}			
+			}
+			for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
+				if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
+					plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
+				}			
+			}	
+			for(int i=0;i<(gp_timeshower->graphElements.size());i++){
+				if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+					gp_frontman_mgr->graphLastPageElements.push_back(gp_timeshower->graphElements[i]);
+					gp_timeshower->graphElements[i].m_iShouldShow = 0;
+				}			
+			}				
 		}		
 		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 		//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 

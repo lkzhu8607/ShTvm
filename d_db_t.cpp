@@ -1035,6 +1035,21 @@ void d_db_t::get3084tbl( a3084_t &a3084tblout )
 	}
 }
 
+void d_db_t::get3083tbl( a3083_t &a3083tblout )
+{
+	MYAUTOLOCK( gp_db->m_a3083.m_ut_tbl_lck );
+	
+	for( long i = 0; i < this->m_a3083.GetRowCount(); i++ )
+	{
+		a3083_t::ROWTYPE &row(this->m_a3083.GetRow(i));
+
+		if( row.m_biDelFlag != 0 ) continue;
+		if( row.m_biIsAffect != 1 ) continue;
+
+		a3083tblout.Add(row);
+	}
+}
+
 
 //
 void d_db_t::get3084row( int iLineCode , a3084_t::ROWTYPE &row3084out )

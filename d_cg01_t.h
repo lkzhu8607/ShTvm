@@ -18,13 +18,15 @@ public:
 	std::vector<a_label_t::ROWTYPE> graphLineButtonEN;
 	std::vector<a_label_t::ROWTYPE> graphFastButtonCN;
 	std::vector<a_label_t::ROWTYPE> graphFastButtonEN;
+	std::vector<a_label_t::ROWTYPE> graphMainInterfaceCN;
+	std::vector<a_label_t::ROWTYPE> graphMainInterfaceEN;	
 	int pageFlag;// 1:next 0:prev
-	
 	int ErrCodeIndex;
 	int MachineStateIndex;
 	//int linePageSize = 0;
 	int pageTab;	
 	int isFastFlag;//0,get price from fastPrice button;1,get price from destStation
+	int mianPicRecordCount;
 
 public:
 	d_cg01_t();
