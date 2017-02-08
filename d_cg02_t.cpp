@@ -258,7 +258,6 @@ L_GETINPUT:
 			//投钱超时，
 			if( gp_qf->IsLongQf( iQf1_user_idle , iQf1_user_idleMAX ) )
 			{
-
 				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << " Throw  timeout ");
 
 				//关闭纸币硬币投币口
@@ -281,13 +280,32 @@ L_GETINPUT:
 				}
 				
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
-
+				plocalcg01->displayFlag = 0;
+				plocalcg01->langFlag = 0;
 				gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
+				
+				if(plocalcg02->langFlag == 0){
+					for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+						if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
+							gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+							plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
+						}
+					}
+					for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
+						if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
+							gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+							plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
+						}
+					}			
+				}
+				else if(plocalcg02->langFlag == 1){
+					//TODO
+				}
+
 				SetLanguageCh();
 				return;
 			}
-			
 		}while( gp_frontinput->GetFrontCurrentKey() == "" );
 
 		if( cg02s_goback.Find_n_do_ShowGoback( gp_frontinput->GetFrontCurrentKey() ) ) 
@@ -315,18 +333,6 @@ L_GETINPUT:
 
 		if( cg02s_cancel.Find_n_do_Showcancel( gp_frontinput->GetFrontCurrentKey() ) ) 
 		{
-			/*for(int i = 0;i < plocalcg02->graphElementsCN.size();i++){
-				if(plocalcg02->graphElementsCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
-					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
-				}
-			}
-			for(int i = 0;i < plocalcg02->graphPieceNumCN.size();i++){
-				if(plocalcg02->graphPieceNumCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
-					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
-				}
-			}*/		
 			//关闭纸币硬币投币口
 			cg02s_pieceshow.StopCoinAndBill();
 
@@ -368,10 +374,8 @@ L_GETINPUT:
 
 			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "处理找零和出票");
 
-		
 			//钱足够，开始关闭纸币、硬币投币口
 			cg02s_pieceshow.StopCoinAndBill();
-
  
 			irc = cg02s_waiter.FnD_WaiterJob( gp_frontinput->GetFrontCurrentKey() , &waiter_data ); // 处理找零和出票 内有getinput 
 			if( 0 != irc )
@@ -379,29 +383,67 @@ L_GETINPUT:
 				//交易失败，暂停服务
 
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
-
+				plocalcg01->displayFlag = 0;
+				plocalcg01->langFlag = 0;
 				gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
+				
+				if(plocalcg02->langFlag == 0){
+					for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+						if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
+							gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+							plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
+						}
+					}
+					for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
+						if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
+							gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+							plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
+						}
+					}			
+				}
+				else if(plocalcg02->langFlag == 1){
+					//TODO
+				}
+
 				SetLanguageCh();
 			}
-	
-			
 			return;
 		}
 
-
-		/*if( cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
+		int ret = 0;
+		if( ret = cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
 		{
 			//如果有投钱，则退钱 或 列印异常交易
-			return;
-		}*/
+			if(ret == 2){
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+			}
+			else if(ret == 1){
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
+			}
 
-		
+			if(plocalcg02->langFlag == 0){
+				for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+					if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
+						gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
+					}
+				}
+				for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
+					if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
+						gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
+					}
+				}			
+			}
+			else if(plocalcg02->langFlag == 1){
+				//TODO
+			}
+
+			return;
+		}		
 		goto L_GETINPUT;
 	}
 
-			
 	return;
 }
-
-

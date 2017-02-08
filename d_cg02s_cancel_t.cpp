@@ -65,7 +65,6 @@ void d_cg02s_cancel_t::Showcancel()
 		}				
 	}
 
-	//gp_ui->LabelCommit();
 }
 
 
@@ -108,28 +107,6 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 			}
 		}
 	}
-
-/*	std::vector<a_label_t::ROWTYPE>  row;
-	if(plocalcg02->langFlag == 0){
-		if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) )
-		{
-			for(int i=0;i<row.size();i++){
-				if(row[i].m_name == "CN_page2Cancel--hot"){
-					return 1;
-				}
-			}
-		}
-	}
-	if(plocalcg02->langFlag == 1){
-		if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) )
-		{
-			for(int i=0;i<row.size();i++){
-				if(row[i].m_name == "EN_page2Cancel--hot"){
-					return 1;
-				}
-			}
-		}
-	}*/
 	return 0;
 }
 

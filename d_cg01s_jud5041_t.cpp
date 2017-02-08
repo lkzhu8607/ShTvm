@@ -41,8 +41,9 @@ tbool d_cg01s_jud5041_t::Find_n_do_stopservice( std::string strinput )
 		{
 			a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041()); //????	
 
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
-
+			//gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+			plocalcg01->displayFlag = 0;
+			plocalcg01->langFlag = 0;
 			gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 			SetLanguageCh();
@@ -53,12 +54,13 @@ tbool d_cg01s_jud5041_t::Find_n_do_stopservice( std::string strinput )
 		{
 			a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041()); //????	
 
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
+			//gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
 
 			gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 			SetLanguageCh();
-
+			plocalcg04->displayFlag = 0;
+			plocalcg04->langFlag = 0;
 			return 1;
 		}
 	}
@@ -78,15 +80,15 @@ tbool d_cg01s_jud5041_t::Find_n_do_gotowork( std::string strinput )
 		int irc = gp_medev->IntegratedStateGood() ;
 		if( ( 1 == irc ) )
 		{
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
-
+			//gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+			//plocalcg01->displayFlag = 0;
+			//plocalcg01->langFlang = 0;
 			gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 			SetLanguageCh();
 			return 1;
 		}
 	}
-
 	return 0;
 }
 

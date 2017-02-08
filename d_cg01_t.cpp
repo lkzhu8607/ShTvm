@@ -45,6 +45,8 @@ d_cg01_t::d_cg01_t()
 	pageTab = 0;	
 	isFastFlag = 0;
 	mianPicRecordCount = 0;
+	errorFlag = 0;
+	errorDetailIndex = 0;
 }
 
 
@@ -242,7 +244,7 @@ void d_cg01_t::Proc()
 			gp_ui->showLabel(plocalcg01->graphElementsEN[ErrCodeIndex]);*/
 		}
 		//检查是否需要补充硬币   //补充条件-> 1. 初始化界面 2.是否需要补币 3.补币箱中是否有币
-		/*if( ( 4 != gp_medev->m_devstatus ) &&
+		if( ( 4 != gp_medev->m_devstatus ) &&
 			( gp_db->m_b8701.GetRow(0).m_A1YuanCycleChg < gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum ) &&
 			( 0 != gp_coin->m_iIsRepCoinOk ) )
 		{
@@ -275,61 +277,71 @@ void d_cg01_t::Proc()
 				}
 				
 			}			
-		}*/
-
-		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
-
+		}
+		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
 		//d_cg01s_backpic_t			cg01s_backpic;
 		//d_cg01s_lang_t			cg01s_lang;
 		//d_cg01s_rightupmsg_t	cg01s_rightupmsg;
-
 		//cg01s_backpic.ShowBack1();
 		//cg01s_lang.ShowLangButt();
 		//cg01s_rightupmsg.Showrightupmsg();
-		
 		//d_cg01s_fastprice_t  cg01s_fastprice;
-
 		//cg01s_fastprice.Showfastprice();
-
 		//d_cg01s_evtcodes_t  cg01s_evtcodes;
 		//d_cg01s_errpic_t cg01s_errpic;
 		//d_cg01s_errexplain_t cg01s_errexplain;
 
-L_RESHOW_linepic:
+//L_RESHOW_linepic:
 		//d_cg01s_linepic_t		cg01s_linepic;
-
 		//cg01s_linepic.ShowLinePic();
 		//cg01s_linepic.ShowDirButt();
 
 		
-L_RESHOW_seleline:
+//L_RESHOW_seleline:
 		//d_cg01s_seleline_t   cg01s_seleline;
 
 		//cg01s_seleline.Showseleline();
 
 L_GETINPUT:
 		//d_cg01s_machinestate_t  cg01s_machinestate;
-
-		//cg01s_machinestate.Showmachinestate();
-		
+		//cg01s_machinestate.Showmachinestate();	
 		//WThrd::tr_sleepu( 0.71 );
 		//continue;
-
 		//d_cg01s_jud5041_t  cg01s_jud5041;
-
 		//cg01s_evtcodes.m_x = 0.207;
 		//cg01s_evtcodes.ShowEvtCodes();
+		do
+		{
+			m_strInput = gp_frontinput->GetFrontNextKey();
+			if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) return;
+		}while( m_strInput == "" );
 
-		
 		int  iLastOutOfServiceStatus = gp_medev->m_outofservicestatus;
 
-		/*if( 4 == gp_medev->m_devstatus )
+		if( 4 == gp_medev->m_devstatus )
 		{
-
 			//??ê?oú?òoí??ó|êy×?
-			cg01s_errpic.Show();
-			cg01s_errexplain.Show();
-
+			/*cg01s_errpic.Show();
+			cg01s_errexplain.Show();*/
+			if(plocalcg01->errorFlag == 0){
+				if(plocalcg01->langFlag == 0){
+					for(int i=0;i<plocalcg01->graphElementsCN.size();i++){
+						if(plocalcg01->graphElementsCN[i].m_name == "errPic"){
+							gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+							plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+							plocalcg01->errorPicIndex = i;
+							continue;
+						}
+						if(plocalcg01->graphElementsCN[i].m_name == "CN_ErrorDetail"){
+							gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+							plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+							plocalcg01->errorDetailIndex = i;
+							continue;
+						}
+					}
+				}
+				plocalcg01->errorFlag = 1;
+			}
 L_GETINPUT2:
 
 			do
@@ -340,11 +352,26 @@ L_GETINPUT2:
 
 			if( 1 == cg01s_jud5041.Find_n_do_stopservice( gp_frontinput->GetFrontCurrentKey() ) )
 			{
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
 				return;
 			}
 			if( cg01s_jud5041.Find_n_do_gotowork(gp_frontinput->GetFrontCurrentKey()) )
 			{
-				return;
+				plocalcg01->displayFlag = 0;
+				plocalcg01->langFlang = 0;
+				if(plocalcg01->errorFlag == 1){
+					if(plocalcg01->langFlag == 0){
+						gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->errorDetailIndex]);
+						plocalcg01->graphElementsCN[plocalcg01->errorDetailIndex].m_iShouldShow = 0;
+						gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->errorPicIndex]);
+						plocalcg01->graphElementsCN[plocalcg01->errorPicIndex].m_iShouldShow = 0;	
+					}
+					else if(plocalcg01->langFlag == 1){
+						//TODO
+					}
+				}
+				plocalcg01->errorFlag = 0;
+				continue;
 			}
 			if( iLastOutOfServiceStatus != gp_medev->m_outofservicestatus )
 			{
@@ -352,15 +379,15 @@ L_GETINPUT2:
 			}
 			goto L_GETINPUT2;
 
-		}*/
-		//else
-		if(1)
-		{
+		}
 
-			do
+		if(1)
+		{			
+			/*do
 			{
 				m_strInput = gp_frontinput->GetFrontNextKey();
-			}while( m_strInput == "" );
+				if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) return;
+			}while( m_strInput == "" );*/
 
 			if( cg01s_lang.Find_n_do_ShowLangButt( m_strInput ) ){
 				continue;
@@ -368,7 +395,7 @@ L_GETINPUT2:
 			if( cg01s_linepic.Find_n_do_ShowDirButt( m_strInput ) ) 
 			{
 				//cg01s_linepic.Clean();
-				goto L_RESHOW_linepic;
+				goto L_GETINPUT;
 			}
 			
 			if( cg01s_fastprice.Find_n_do_Showfastprice( m_strInput ) ) 
@@ -378,7 +405,7 @@ L_GETINPUT2:
 			
 			if( cg01s_seleline.Find_n_do_changepage( m_strInput ) ) 
 			{
-				goto L_RESHOW_seleline;
+				goto L_GETINPUT;
 			}
 
 			if( cg01s_seleline.Find_n_do_seleline( m_strInput ) ) 
@@ -386,19 +413,19 @@ L_GETINPUT2:
 				return;
 			}
 		
-
-			if( cg01s_jud5041.Find_n_do_stopservice(m_strInput) )
+			int ret = 0;
+			if( ret = cg01s_jud5041.Find_n_do_stopservice(m_strInput) )
 			{
-				return;
+				if(ret == 2){
+					continue;
+				}
+				else if(ret == 1){
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
+					return;
+				}
 			}
-
-		
 			goto L_GETINPUT;
 		}
-		//WThrd::tr_sleepu( 0.15 );
 	}
-
 	return;
 }
-
-

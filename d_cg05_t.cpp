@@ -39,16 +39,14 @@ void d_cg05_t::Proc()
 		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
 		
 		d_cg05s_backpic_t  cg05s_backpic;
-	
-		cg05s_backpic.ShowBack1();
-
+		//cg05s_backpic.ShowBack1();
 		//d_cg01s_evtcodes_t  cg01s_evtcodes;
 	
 		a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041()); 
+		d_cg01s_jud5041_t  cg01s_jud5041;
 
 L_GETINPUT:
-		d_cg01s_jud5041_t  cg01s_jud5041;
-		
+		//d_cg01s_jud5041_t  cg01s_jud5041;
 		//cg01s_evtcodes.m_x = 0.33;
 		//cg01s_evtcodes.ShowEvtCodes();
 
@@ -65,19 +63,29 @@ L_GETINPUT:
 		{
 			if( cg01s_jud5041.Find_n_do_gotowork(gp_frontinput->GetFrontCurrentKey()) )
 			{
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+				plocalcg01->displayFlag = 0;
+				plocalcg01->langFlang = 0;
 				return;
 			}
 
-			if( cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
+			int ret = 0;
+			if( ret = cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
 			{
+				//如果有投钱，则退钱 或 列印异常交易
+				if(ret == 2){
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+				}
+				else if(ret == 1){
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
+				}
 				return;
-			}
+			}	
 		}
 
 		goto L_GETINPUT;
 	}
 
-			
 	return;
 }
 

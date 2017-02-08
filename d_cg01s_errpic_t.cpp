@@ -25,7 +25,7 @@ d_cg01s_errpic_t::~d_cg01s_errpic_t()
 //
 void d_cg01s_errpic_t::Show()
 {
-	std::string ShowBack1NAME = GETLABELNAME;
+	//std::string ShowBack1NAME = GETLABELNAME;
 	const char *s[] = { "u5_dark_rect.jpg", "u5_dark_rect.jpg" };
 	
 	a_label_t::ROWTYPE	row;
@@ -37,6 +37,7 @@ void d_cg01s_errpic_t::Show()
 	row.m_funcname = "errorPicShow";
 	row.m_funcvalue = 0;
 	gp_ui->LabelPrep(row);
-	plocalcg01->graphElementsCN.push_bak(row);	
+	plocalcg01->graphElementsCN.push_bak(row);
+	plocalcg01->graphElementsEN.push_bak(row);
 
 }

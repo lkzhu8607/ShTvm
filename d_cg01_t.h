@@ -27,6 +27,9 @@ public:
 	int pageTab;	
 	int isFastFlag;//0,get price from fastPrice button;1,get price from destStation
 	int mianPicRecordCount;
+	int errorFlag;//0:hide,1:show
+	int errorDetailIndex;
+	int errorPicIndex;
 
 public:
 	d_cg01_t();

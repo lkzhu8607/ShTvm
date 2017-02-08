@@ -38,7 +38,14 @@ void d_cg04_t::Proc()
 {
 	d_cg04s_backpic_t  cg04s_backpic;
 	d_cg01s_jud5041_t  cg01s_jud5041;
+	d_cg04s_stoppic_t  cg04s_stoppic;
 	wl::tuint8 lastmachinestatus; 
+	if(plocalcg04->pageGraphElementsFlags == 0){
+		cg04s_stoppic.ShowBack1();
+		cg04s_backpic.ShowBack1();
+		plocalcg04->pageGraphElementsFlags = 1;
+		//SetLanguageCh();
+	}	
 	while(1)
 	{
 		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
@@ -46,15 +53,28 @@ void d_cg04_t::Proc()
 L_CHANGESTATUS:
 
 		//d_cg04s_backpic_t  cg04s_backpic;
-		d_cg04s_stoppic_t  cg04s_stoppic;
+		//d_cg04s_stoppic_t  cg04s_stoppic;
 	
 		if( ( 1 == gp_db->m_a9999.GetRow(0).m_stopservice_sc_flag ) )
 		{
-			cg04s_stoppic.ShowBack1();
+			//cg04s_stoppic.ShowBack1();
+			for(int i=0;i<plocalcg04->graphElementsCN.size();i++){
+				if(plocalcg04->graphElementsCN[i].m_funcname == "page4StopService"){
+					gp_ui->showLabel(plocalcg04->graphElementsCN[i]);
+					plocalcg04->graphElementsCN[i].m_iShouldShow = 1;
+					continue;
+				}
+			}
 		}
 		else
 		{
-			cg04s_backpic.ShowBack1();
+			for(int i=0;i<plocalcg04->graphElementsCN.size();i++){
+				if(plocalcg04->graphElementsCN[i].m_funcname == "page4OutofService"){
+					gp_ui->showLabel(plocalcg04->graphElementsCN[i]);
+					plocalcg04->graphElementsCN[i].m_iShouldShow = 1;
+					continue;
+				}
+			}
 		}
 
 		lastmachinestatus = gp_db->m_a9999.GetRow(0).m_stopservice_sc_flag;
@@ -78,6 +98,16 @@ L_GETINPUT:
 
 		if( cg01s_jud5041.Find_n_do_gotowork(gp_frontinput->GetFrontCurrentKey()) )
 		{
+			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+			plocalcg01->displayFlag = 0;
+			plocalcg01->langFlang = 0;
+			for(int i=0;i<plocalcg04->graphElementsCN.size();i++){
+				if(plocalcg04->graphElementsCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg04->graphElementsCN[i]);
+					plocalcg04->graphElementsCN[i].m_iShouldShow = 0;
+					continue;
+				}
+			}
 			return;
 		}
 

@@ -380,7 +380,7 @@ void d_cg02s_pieceshow_t::ShowPayednchg()
 							0.061, 
 							"brown" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
+		//this->AddLg( m_Lg, row );
 		gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsCN.push_back(row);
@@ -457,17 +457,20 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 				for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDis" && plocalcg02->graphPieceNumCN[i].m_funcvalue != plocalcg02->m_iPieceNum){
 						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDigitDis" && plocalcg02->graphPieceNumCN[i].m_funcvalue != plocalcg02->m_iPieceNum){
 						gp_ui->showLabel(plocalcg02->graphPieceNumCN[i]);
+						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 1;
 						continue;
 					}					
 				}
 			}
 			else if(plocalcg02->langFlag == 1){
-
+				//TODO
 			}
+			this->disableDisplayFlag = 1;
 		}
 		/*if( m_ButtType != DISABLE ) 
 		{
@@ -494,8 +497,7 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 			gp_coin->dCoin_Stop();
 		}
 	}
-	else
-	if( strinput[0] == KIN_BILL )  
+	else if( strinput[0] == KIN_BILL )  
 	{
 		if( Rb8702.m_cNoteValue == 888 || Rb8702.m_cNoteNum == 888 ) // 此处检查参数3003允许的纸币类型 
 		{
@@ -542,19 +544,48 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 	pwaiterdata->m_TickePriceTotal = iShouldPay;
 	pwaiterdata->m_TickePrice1 = plocalcg02->m_iPrice;
 	pwaiterdata->m_TicketoutPlan = m_iPieceNum; 
-	pwaiterdata->m_ShouldChgTotal = this->m_chg; 
+	pwaiterdata->m_ShouldChgTotal = this->m_chg;
+	
+	if(plocalcg02->langFlag == 0){
+		char sz1[33];
+		SClib::p_sprintf()( sz1, "%0.1f", this->m_chg / 100.00 );
+		gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->shouldChangeIndex],sz1);
+		plocalcg02->graphElementsCN[plocalcg02->shouldChangeIndex].m_iShouldShow = 1;
 
-
+		char sz2[33];
+		SClib::p_sprintf()( sz2, "%0.1f", this->m_payed / 100.00 );
+		gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->payedIndex],sz2);
+		plocalcg02->graphElementsCN[plocalcg02->payedIndex].m_iShouldShow = 1;
+	}
+	
 	//返回各种状态值	
 	if( m_payed >= iShouldPay )
 	{
 		//other process
 		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
-
+		plocalcg01->displayFlag = 0;
+		plocalcg01->langFlag = 0;
 		gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 		gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
+		
+		if(plocalcg02->langFlag == 0){
+			for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+				if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
+					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
+				}
+			}
+			for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
+				if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
+					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+					plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
+				}
+			}			
+		}
+		else if(plocalcg02->langFlag == 1){
+			//TODO
+		}
 		SetLanguageCh();
-
 		rc =  1;
 	}
 
