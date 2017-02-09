@@ -167,10 +167,9 @@ void d_cg01s_linepic_t::ShowLinePic()
 tbool d_cg01s_linepic_t::Find_n_do_ShowDirButt( std::string strinput )
 {
 	std::vector<a_label_t::ROWTYPE> row;
-
-	if( this->LocateHot( plocalcg01->graphMainInterfaceCN, strinput, row ) )
-	{
-		if(plocalcg01->langFlag == 0){
+	if(plocalcg01->langFlag == 0){
+		if( this->LocateHot( plocalcg01->graphMainInterfaceCN, strinput, row ) )
+		{
 			for(int i=0;i<plocalcg01->graphMainInterfaceCN.size();i++){
 				std::string strPic = "CN_MainPic_"+SStrf::sltoa((int)(i+1));
 				if(plocalcg01->graphMainInterfaceCN[i].m_name == strPic && plocalcg01->graphMainInterfaceCN[i].m_iShouldShow == 1){
@@ -201,13 +200,54 @@ tbool d_cg01s_linepic_t::Find_n_do_ShowDirButt( std::string strinput )
 					}
 				}				
 			}
+			/*if( row.m_funcname == "ShowDirButt" )
+			{
+				plocalcg01->m_cg01s_linepic_MainUiIdx = row.m_funcvalue;
+		
+				return 1;
+			}*/
 		}
-		/*if( row.m_funcname == "ShowDirButt" )
+	}
+	else if(plocalcg01->langFlag == 1){
+		if( this->LocateHot( plocalcg01->graphMainInterfaceEN, strinput, row ) )
 		{
-			plocalcg01->m_cg01s_linepic_MainUiIdx = row.m_funcvalue;
-	
-			return 1;
-		}*/
+			for(int i=0;i<plocalcg01->graphMainInterfaceEN.size();i++){
+				std::string strPic = "EN_MainPic_"+SStrf::sltoa((int)(i+1));
+				if(plocalcg01->graphMainInterfaceEN[i].m_name == strPic && plocalcg01->graphMainInterfaceEN[i].m_iShouldShow == 1){
+					//gp_ui->hideLabel(plocalcg01->graphMainInterfaceCN[i]);
+					plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 0;
+					continue;
+				}
+				else{
+					plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 0;
+				}
+			}
+			for(int i=0;i<row.size();i++){
+				if( row[i].m_funcname == "ShowDirButt" && row[i].m_iShouldShow == 1){
+					for(int j=0;j<plocalcg01->graphMainInterfaceEN.size();j++){
+						if(plocalcg01->graphMainInterfaceEN[j].m_funcname == "EN_mInterface" && plocalcg01->graphMainInterfaceEN[j].m_funcvalue == row[i].m_funcvalue){
+							gp_ui->pic_task(plocalcg01->graphMainInterfaceEN[j]);
+							gp_ui->showLabel(plocalcg01->graphMainInterfaceEN[j]);
+							plocalcg01->graphMainInterfaceEN[j].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg01->graphMainInterfaceEN[j].m_name == ("MainPic_"+SStrf::sltoa((int)row[i].m_funcvalue)+"_dirButt1") || \
+							plocalcg01->graphMainInterfaceEN[j].m_name == ("MainPic_"+SStrf::sltoa((int)row[i].m_funcvalue)+"_dirButt2") || \
+							plocalcg01->graphMainInterfaceEN[j].m_name == ("MainPic_"+SStrf::sltoa((int)row[i].m_funcvalue)+"_dirButt3") || \
+							plocalcg01->graphMainInterfaceEN[j].m_name == ("MainPic_"+SStrf::sltoa((int)row[i].m_funcvalue)+"_dirButt4") ){
+							plocalcg01->graphMainInterfaceEN[j].m_iShouldShow = 1;
+							continue;
+						}
+					}
+				}				
+			}
+			/*if( row.m_funcname == "ShowDirButt" )
+			{
+				plocalcg01->m_cg01s_linepic_MainUiIdx = row.m_funcvalue;
+		
+				return 1;
+			}*/
+		}
 	}
 	return 0;
 }

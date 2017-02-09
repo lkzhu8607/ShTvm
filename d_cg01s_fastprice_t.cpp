@@ -169,13 +169,12 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 	std::vector<a_label_t::ROWTYPE>  row;
 	plocalcg01->isFastFlag = 0;
 	int j=0;
-	if( this->LocateHot( plocalcg01->graphFastButtonCN, strinput, row ) )
-	{
-		//empty vector
-		//gp_frontman_mgr->graphLastPageElements.swap(vector<a_label_t::ROWTYPE>());//crash memory
-		gp_frontman_mgr->graphLastPageElements.clear();//keep memory,just clear data
-		if(plocalcg01->langFlag == 0){	
-			//*****************************************************************************
+	if(plocalcg01->langFlag == 0){
+		if( this->LocateHot( plocalcg01->graphFastButtonCN, strinput, row ) )
+		{
+			//empty vector
+			//gp_frontman_mgr->graphLastPageElements.swap(vector<a_label_t::ROWTYPE>());//crash memory
+			//gp_frontman_mgr->graphLastPageElements.clear();//keep memory,just clear data		
 			for(j=0;j<row.size();j++){
 				if( row[j].m_funcname == "CN_FastPicUp")
 				{
@@ -183,13 +182,83 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 					for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
 						if(plocalcg01->graphFastButtonCN[i].m_funcname == "CN_FastPicDn" && plocalcg01->graphFastButtonCN[i].m_funcvalue == row[j].m_funcvalue){
 							//gp_ui->pic_task(plocalcg01->graphFastButtonCN[i]);
-							gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);	
+							gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]); 
 							plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
 						}
 						if(plocalcg01->graphFastButtonCN[i].m_funcname == "ShowFastDigit" && plocalcg01->graphFastButtonCN[i].m_funcvalue == row[j].m_funcvalue){
 							//gp_ui->str_task(plocalcg01->graphFastButtonCN[i]);
 							gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
 							plocalcg01->graphFastButtonCN[i].m_iShouldShow = 1;
+						}
+					}					
+					break;
+				}
+				else if(row[j].m_funcname == "EN_FastPicUp" ){
+					for(int i=0;i<plocalcg01->graphFastButtonEN.size();i++){
+						if(plocalcg01->graphFastButtonEN[i].m_funcname == "EN_FastPicDn" && plocalcg01->graphFastButtonEN[i].m_funcvalue == row[j].m_funcvalue){
+								//gp_ui->pic_task(plocalcg01->graphFastButtonEN[i]);
+								gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
+								plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
+						}
+						if(plocalcg01->graphFastButtonEN[i].m_funcname == "ShowFastDigit" && plocalcg01->graphFastButtonEN[i].m_funcvalue == row[j].m_funcvalue){
+							//gp_ui->str_task(plocalcg01->graphFastButtonEN[i]);
+							gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
+							plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
+						}					
+					}
+					break;
+				}
+				/*else if(row.m_funcname == "EN_FastPicDn"){
+			
+				}
+				else if(row.m_funcname == "CN_FastPicDn"){
+			
+				}*/ 
+				else if(row[j].m_funcname == "ShowFastDigit"){
+					break;
+				}
+			}
+			//hide last page displayed elements
+			plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
+			else if(plocalcg01->langFlag == 1){
+				//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
+			}
+			if(GetLanguageState() == 0){
+				plocalcg02->langFlag = 0;
+			}
+			else if(GetLanguageState() == 1){
+				plocalcg02->langFlag = 1;
+			}
+			plocalcg02->displayFlag = 0;
+			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
+			//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
+			gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;
+			gp_frontman_mgr->m_cg02.m_SelectedScNode = u8arr_t<4>();
+			//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg01;	
+			//plocalcg02->displayFlag = 0;
+			return 1;
+		}
+	}
+	else if(plocalcg01->langFlag == 1){
+		if( this->LocateHot( plocalcg01->graphFastButtonEN, strinput, row ) )
+		{
+			//empty vector
+			//gp_frontman_mgr->graphLastPageElements.swap(vector<a_label_t::ROWTYPE>());//crash memory
+			//gp_frontman_mgr->graphLastPageElements.clear();//keep memory,just clear data		
+			for(j=0;j<row.size();j++){
+				if( row[j].m_funcname == "EN_FastPicUp")
+				{
+					/*Showfastprice1block( row.m_funcvalue, m_v, 1 );*/
+					for(int i=0;i<plocalcg01->graphFastButtonEN.size();i++){
+						if(plocalcg01->graphFastButtonEN[i].m_funcname == "EN_FastPicDn" && plocalcg01->graphFastButtonEN[i].m_funcvalue == row[j].m_funcvalue){
+							//gp_ui->pic_task(plocalcg01->graphFastButtonCN[i]);
+							gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]); 
+							plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
+						}
+						if(plocalcg01->graphFastButtonEN[i].m_funcname == "ShowFastDigit" && plocalcg01->graphFastButtonEN[i].m_funcvalue == row[j].m_funcvalue){
+							//gp_ui->str_task(plocalcg01->graphFastButtonCN[i]);
+							gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
+							plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
 						}
 					}					
 					break;
@@ -211,76 +280,34 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 					break;
 				}
 				/*else if(row.m_funcname == "EN_FastPicDn"){
-
+			
 				}
 				else if(row.m_funcname == "CN_FastPicDn"){
-
-				}*/	
+			
+				}*/ 
 				else if(row[j].m_funcname == "ShowFastDigit"){
 					break;
 				}
 			}
 			//hide last page displayed elements
 			plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-			/*for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
-				if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
-					plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
-				}
+			else if(plocalcg01->langFlag == 1){
+				//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
 			}
-			for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
-				if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
-					plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
-				}			
+			if(GetLanguageState() == 0){
+				plocalcg02->langFlag = 0;
 			}
-			for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
-				if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
-					plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
-				}			
-			}	
-			for(int i=0;i<(gp_timeshower->graphElements.size());i++){
-				if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(gp_timeshower->graphElements[i]);
-					gp_frontman_mgr->graphLastPageElements.push_back(gp_timeshower->graphElements[i]);
-					gp_timeshower->graphElements[i].m_iShouldShow = 0;
-				}			
-			}	
-			for(int i=0;i<plocalcg01->graphMainInterfaceCN.size();i++){
-				std::string strPic = "CN_MainPic_"+SStrf::sltoa((int)(i+1));
-				if(plocalcg01->graphMainInterfaceCN[i].m_name == strPic && plocalcg01->graphMainInterfaceCN[i].m_iShouldShow == 1){
-					gp_ui->hideLabel(plocalcg01->graphMainInterfaceCN[i]);
-					plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
-					continue;
-				}
-				else{
-					plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
-				}
-			}*/
+			else if(GetLanguageState() == 1){
+				plocalcg02->langFlag = 1;
+			}
+			plocalcg02->displayFlag = 0;
+			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
+			//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
+			gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;
+			gp_frontman_mgr->m_cg02.m_SelectedScNode = u8arr_t<4>();
+			//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg01;	
+			return 1;
 		}
-		else if(plocalcg01->langFlag == 1){
-			//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-		}
-		if(GetLanguageState() == 0){
-			plocalcg02->langFlag = 0;
-		}
-		else if(GetLanguageState() == 1){
-			plocalcg02->langFlag = 1;
-		}	
-		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
-		//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
-		gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;
-		gp_frontman_mgr->m_cg02.m_SelectedScNode = u8arr_t<4>();
-		//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg01;	
-		plocalcg02->displayFlag = 0;
-	
-
-		//plocalcg02->displayFlag = 0;
-		return 1;
 	}
 
 	return 0;
