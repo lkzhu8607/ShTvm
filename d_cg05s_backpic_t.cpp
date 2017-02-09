@@ -41,7 +41,7 @@ void d_cg05s_backpic_t::ShowBack1()
 
 		//gp_ui->LabelMkDelPrep( ShowBack1NAME );
 
-		gp_ui->LabelPrep(row);
+		//gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg05->graphElementsCN.push_back(row);
 	}
@@ -58,7 +58,7 @@ void d_cg05s_backpic_t::ShowBack1()
 
 		//gp_ui->LabelMkDelPrep( ShowBack1NAME );
 
-		gp_ui->LabelPrep(row);
+		//gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg05->graphElementsEN.push_back(row);
 	}	

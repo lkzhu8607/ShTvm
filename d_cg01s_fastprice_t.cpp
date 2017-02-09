@@ -59,7 +59,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[0].m_funcname = "CN_FastPicUp";
 	row[0].m_funcvalue = v[i];
 	//this->AddLg( m_Lg, row[0] );
-	gp_ui->LabelPrep(row[0]);
+	//gp_ui->LabelPrep(row[0]);
 	gp_ui->pic_task(row[0]);
 	plocalcg01->graphFastButtonCN.push_back(row[0]);
 
@@ -76,7 +76,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[1].m_funcname = "EN_FastPicUp";
 	row[1].m_funcvalue = v[i];
 	//this->AddLg( m_Lg, row[1] );
-	gp_ui->LabelPrep(row[1]);	
+	//gp_ui->LabelPrep(row[1]);	
 	gp_ui->pic_task(row[1]);
 	plocalcg01->graphFastButtonEN.push_back(row[1]);
 	
@@ -93,7 +93,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[2].m_funcname = "CN_FastPicDn";
 	row[2].m_funcvalue = v[i];
 	//this->AddLg( m_Lg, row[2] );
-	gp_ui->LabelPrep(row[2]);
+	//gp_ui->LabelPrep(row[2]);
 	gp_ui->pic_task(row[2]);
 	plocalcg01->graphFastButtonCN.push_back(row[2]);
 
@@ -110,7 +110,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[3].m_funcname = "EN_FastPicDn";
 	row[3].m_funcvalue = v[i];
 	//this->AddLg( m_Lg, row[3] );
-	gp_ui->LabelPrep(row[3]);
+	//gp_ui->LabelPrep(row[3]);
 	gp_ui->pic_task(row[3]);
 	plocalcg01->graphFastButtonEN.push_back(row[3]);
 	//gp_ui->LabelCommit();
@@ -136,7 +136,7 @@ void d_cg01s_fastprice_t::Showfastprice1block( int i, std::vector< int > & v, in
 	row[4].m_funcvalue = v[i];
 	row[4].m_pic_width += SStrf::rand1(x+i); //为了影响数字摘要而不影响内容 
 	//this->AddLg( m_Lg, row[4] );
-	gp_ui->LabelPrep(row[4]);
+	//gp_ui->LabelPrep(row[4]);
 	gp_ui->str_task(row[4]);
 	plocalcg01->graphFastButtonCN.push_back(row[4]);
 	plocalcg01->graphFastButtonEN.push_back(row[4]);
@@ -221,7 +221,8 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 				}
 			}
 			//hide last page displayed elements
-			for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
+			plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
+			/*for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
 				if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
 					gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
@@ -259,21 +260,25 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 				else{
 					plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
 				}
-			}
-
-		}		
-		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
-		//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
-		gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;
-		gp_frontman_mgr->m_cg02.m_SelectedScNode = u8arr_t<4>();
-		gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg01;	
-		plocalcg02->displayFlag = 0;
+			}*/
+		}
+		else if(plocalcg01->langFlag == 1){
+			//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
+		}
 		if(GetLanguageState() == 0){
 			plocalcg02->langFlag = 0;
 		}
 		else if(GetLanguageState() == 1){
 			plocalcg02->langFlag = 1;
-		}
+		}	
+		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
+		//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
+		gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;
+		gp_frontman_mgr->m_cg02.m_SelectedScNode = u8arr_t<4>();
+		//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg01;	
+		plocalcg02->displayFlag = 0;
+	
+
 		//plocalcg02->displayFlag = 0;
 		return 1;
 	}

@@ -40,12 +40,12 @@ void d_cg04_t::Proc()
 	d_cg01s_jud5041_t  cg01s_jud5041;
 	d_cg04s_stoppic_t  cg04s_stoppic;
 	wl::tuint8 lastmachinestatus; 
-	if(plocalcg04->pageGraphElementsFlags == 0){
+	/*if(plocalcg04->pageGraphElementsFlags == 0){
 		cg04s_stoppic.ShowBack1();
 		cg04s_backpic.ShowBack1();
 		plocalcg04->pageGraphElementsFlags = 1;
 		//SetLanguageCh();
-	}	
+	}*/
 	while(1)
 	{
 		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
@@ -93,6 +93,9 @@ L_GETINPUT:
 
 		if( 2 == cg01s_jud5041.Find_n_do_stopservice( gp_frontinput->GetFrontCurrentKey() ) )
 		{
+			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+			plocalcg01->displayFlag = 0;
+			plocalcg01->langFlag = 0;		
 			return;
 		}
 
@@ -100,7 +103,7 @@ L_GETINPUT:
 		{
 			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 			plocalcg01->displayFlag = 0;
-			plocalcg01->langFlang = 0;
+			plocalcg01->langFlag = 0;
 			for(int i=0;i<plocalcg04->graphElementsCN.size();i++){
 				if(plocalcg04->graphElementsCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg04->graphElementsCN[i]);

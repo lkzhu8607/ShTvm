@@ -36,8 +36,9 @@ void d_cg01s_errpic_t::Show()
 	row.m_hot = 0;
 	row.m_funcname = "errorPicShow";
 	row.m_funcvalue = 0;
-	gp_ui->LabelPrep(row);
-	plocalcg01->graphElementsCN.push_bak(row);
-	plocalcg01->graphElementsEN.push_bak(row);
+	//gp_ui->LabelPrep(row);
+	gp_ui->pic_task(row);
+	plocalcg01->graphElementsCN.push_back(row);
+	plocalcg01->graphElementsEN.push_back(row);
 
 }

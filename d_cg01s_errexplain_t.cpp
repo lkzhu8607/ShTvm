@@ -32,14 +32,16 @@ void d_cg01s_errexplain_t::Show()
 
 	SetLanguageEn();
 	gp_ui->LabelMkStr( row2, 0, "EN_ErrorDetail", GetStrRes( gp_medev->m_outofservicestatus ), 0.288752,0.418333, 0.186, "red" );
-	gp_ui->LabelPrep(row2);
-	plocalcg01->graphElementsEN.push_bak(row2);
+	//gp_ui->LabelPrep(row2);
+	gp_ui->str_task(row2);
+	plocalcg01->graphElementsEN.push_back(row2);
 
 	a_label_t::ROWTYPE  row1;
 	SetLanguageCh();
 	gp_ui->LabelMkStr( row1, 0, "CN_ErrorDetail", GetStrRes( gp_medev->m_outofservicestatus ), 0.288752,0.418333, 0.186, "red" );
-	gp_ui->LabelPrep(row1);
-	plocalcg01->graphElementsCN.push_bak(row1);	
+	//gp_ui->LabelPrep(row1);
+	gp_ui->str_task(row1);
+	plocalcg01->graphElementsCN.push_back(row1);	
 	//gp_ui->LabelCommit();
 
 }

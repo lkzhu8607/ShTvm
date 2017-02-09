@@ -52,7 +52,7 @@ void d_cg02s_backpic_t::ShowBack1()
 		row1.m_funcname = "ShowBack1";
 		row1.m_funcvalue = 0;
 		//this->AddLg( m_Lg, row1 );
-		gp_ui->LabelPrep(row1);
+		//gp_ui->LabelPrep(row1);
 		gp_ui->pic_task(row1);
 		if(i==0){
 			plocalcg02->graphElementsCN.push_back(row1);
@@ -78,7 +78,7 @@ void d_cg02s_backpic_t::ShowBack1()
 							"black" );
 		row2.m_hot = 0;
 		//this->AddLg( m_Lg, row2 );
-		gp_ui->LabelPrep(row2);
+		//gp_ui->LabelPrep(row2);
 		gp_ui->str_task(row2);
 		plocalcg02->graphElementsEN.push_back(row2);
 
@@ -93,7 +93,7 @@ void d_cg02s_backpic_t::ShowBack1()
 							0.06, 
 							"black" );
 		rowx.m_hot = 0;
-		gp_ui->LabelPrep(rowx);
+		//gp_ui->LabelPrep(rowx);
 		gp_ui->str_task(rowx);
 		plocalcg02->graphElementsCN.push_back(rowx);	
 	}
@@ -110,8 +110,8 @@ void d_cg02s_backpic_t::ShowBack1()
 							0.061, 
 							"black" );
 		row3.m_hot = 0;
-		this->AddLg( m_Lg, row3 );
-		gp_ui->LabelPrep(row3);
+		//this->AddLg( m_Lg, row3 );
+		//gp_ui->LabelPrep(row3);
 		gp_ui->str_task(row3);
 		plocalcg02->graphElementsCN.push_back(row3);
 		plocalcg02->graphElementsEN.push_back(row3);

@@ -76,7 +76,7 @@ tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 				if( row[i].m_funcname == "CN_page3Goback" )
 				{
 					//other process
-					for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
+					/*for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
 						if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
 							gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
 							plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
@@ -97,15 +97,13 @@ tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 					for(int j = 0;j<plocalcg03->lineCount;j++){
 						if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
 							gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
-							plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;
-							/*for(int j = 1;j <plocalcg03->graphLineStationCN[i].size(); j++){
-								;
-							}*/ 				
+							plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0; 				
 						}
-					}
+					}*/
 					plocalcg01->langFlag = 0;
 					plocalcg01->displayFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 					return 1;
 				}
 			}
@@ -115,7 +113,10 @@ tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 				if( row[i].m_funcname == "EN_page3GoBack" )
 				{
 					//other process
+					plocalcg01->langFlag = 1;
+					plocalcg01->displayFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 					return 1;
 				}
 			}

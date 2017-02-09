@@ -266,7 +266,7 @@ void de_ui_t::LabelInvisible(a_label_t &lblset)
 			a_label_t::ROWTYPE & row(lblset.GetRow(i));
 		
 			//if( row.m_iShouldShow == 1 ) continue;
-		
+
 			//gdk_threads_enter();
 			gtk_widget_hide( (GtkWidget *)row.m_gtkpointer );
 			//row.m_iShouldShow = 1;
@@ -522,6 +522,8 @@ void de_ui_t::str_task( a_label_t::ROWTYPE & row )
 
 		s3 += " font_family='黑体' foreground='" + row.m_font_color + "'";
 		s3 += " font_desc='黑体 bold " + sSize + "'";
+		//s3 += " font_family='宋体' foreground='" + row.m_font_color + "'";
+		//s3 += " font_desc='宋体 bold " + sSize + "'";
 
 		//s3 += "   foreground='" + row.m_font_color + "'";
 		//s3 += " font_desc=' bold " + sSize + "'";
@@ -820,6 +822,9 @@ void de_ui_t::updateLabel( a_label_t::ROWTYPE & row, std::string value)
 	s3	= "<span" ;	
 	s3 += " font_family='黑体' foreground='" + row.m_font_color + "'";
 	s3 += " font_desc='黑体 bold " + sSize + "'";	
+	//s3 += " font_family='宋体' foreground='" + row.m_font_color + "'";
+	//s3 += " font_desc='宋体 bold " + sSize + "'";
+
 	s3 += ">" + value + "</span>";
 
 	gdk_threads_enter();

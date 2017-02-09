@@ -77,8 +77,8 @@ void d_cg02s_pieceshow_t::Show1PieceButt( int i )
 		//热点注册	
 		row.m_name += "--hot";
 		row.m_hot = 1;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);		
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);		
 		gp_ui->pic_task(row);
 		plocalcg02->graphPieceNumCN.push_back(row);
 		plocalcg02->graphPieceNumEN.push_back(row);
@@ -98,8 +98,8 @@ void d_cg02s_pieceshow_t::Show1PieceButt( int i )
 		//热点注册	
 		row.m_name += "--hot";
 		row.m_hot = 1;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg02->graphPieceNumCN.push_back(row);
 		plocalcg02->graphPieceNumEN.push_back(row);
@@ -117,8 +117,8 @@ void d_cg02s_pieceshow_t::Show1PieceButt( int i )
 
 		//热点注册
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg02->graphPieceNumCN.push_back(row);
 		plocalcg02->graphPieceNumEN.push_back(row);
@@ -140,8 +140,8 @@ void d_cg02s_pieceshow_t::Show1PieceButt( int i )
 		row1.m_funcvalue = i;
 		row1.m_funcname = "PieceNumDigitUp";
 		row1.m_pic_width += SStrf::rand1(x+i); //为了影响数字摘要而不影响内容 
-		this->AddLg( m_Lg, row1 );
-		gp_ui->LabelPrep(row1);
+		//this->AddLg( m_Lg, row1 );
+		//gp_ui->LabelPrep(row1);
 		gp_ui->str_task(row1);
 		plocalcg02->graphPieceNumCN.push_back(row1);
 		plocalcg02->graphPieceNumEN.push_back(row1);
@@ -162,8 +162,8 @@ void d_cg02s_pieceshow_t::Show1PieceButt( int i )
 		row1.m_funcvalue = i;
 		row1.m_funcname = "PieceNumDigitDn";
 		row1.m_pic_width += SStrf::rand1(x+i); //为了影响数字摘要而不影响内容 
-		this->AddLg( m_Lg, row1 );
-		gp_ui->LabelPrep(row1);
+		//this->AddLg( m_Lg, row1 );
+		//gp_ui->LabelPrep(row1);
 		gp_ui->str_task(row1);
 		plocalcg02->graphPieceNumCN.push_back(row1);
 		plocalcg02->graphPieceNumEN.push_back(row1);
@@ -184,8 +184,8 @@ void d_cg02s_pieceshow_t::Show1PieceButt( int i )
 		row1.m_funcvalue = i;
 		row1.m_funcname = "PieceNumDigitDis";
 		row1.m_pic_width += SStrf::rand1(x+i); //为了影响数字摘要而不影响内容 
-		this->AddLg( m_Lg, row1 );
-		gp_ui->LabelPrep(row1);
+		//this->AddLg( m_Lg, row1 );
+		//gp_ui->LabelPrep(row1);
 		gp_ui->str_task(row1);
 		plocalcg02->graphPieceNumCN.push_back(row1);
 		plocalcg02->graphPieceNumEN.push_back(row1);
@@ -230,8 +230,8 @@ void d_cg02s_pieceshow_t::ShowPieceInfo()
 							0.061, 
 							"black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsCN.push_back(row);
 		plocalcg02->graphElementsEN.push_back(row);		
@@ -250,8 +250,8 @@ void d_cg02s_pieceshow_t::ShowPieceInfo()
 							0.061, 
 							"black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsCN.push_back(row);
 		plocalcg02->graphElementsEN.push_back(row);		
@@ -357,8 +357,8 @@ void d_cg02s_pieceshow_t::ShowPayednchg()
 							0.061, 
 							"brown" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 	 	plocalcg02->graphElementsCN.push_back(row);
 		plocalcg02->graphElementsEN.push_back(row);			
@@ -381,7 +381,7 @@ void d_cg02s_pieceshow_t::ShowPayednchg()
 							"brown" );
 		row.m_hot = 0;
 		//this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsCN.push_back(row);
 		plocalcg02->graphElementsEN.push_back(row);			
@@ -569,7 +569,8 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 		gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 		
 		if(plocalcg02->langFlag == 0){
-			for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+			plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+			/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
 				if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
 					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
 					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
@@ -580,10 +581,11 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
 					plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
 				}
-			}			
+			}*/			
 		}
 		else if(plocalcg02->langFlag == 1){
 			//TODO
+			plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 		}
 		SetLanguageCh();
 		rc =  1;

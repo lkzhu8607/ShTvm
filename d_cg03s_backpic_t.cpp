@@ -38,8 +38,8 @@ void d_cg03s_backpic_t::ShowBack1()
 	row.m_hot = 0;
 	row.m_funcname = "CN_page3BackPic";
 	row.m_funcvalue = 0;
-	this->AddLg( m_Lg, row );
-	gp_ui->LabelPrep(row);
+	//this->AddLg( m_Lg, row );
+	//gp_ui->LabelPrep(row);
 	gp_ui->pic_task(row);
 	plocalcg03->graphElementsCN.push_back(row);
 
@@ -49,8 +49,8 @@ void d_cg03s_backpic_t::ShowBack1()
 	row1.m_hot = 0;
 	row1.m_funcname = "EN_page3BackPic";
 	row1.m_funcvalue = 1;
-	this->AddLg( m_Lg, row1 );
-	gp_ui->LabelPrep(row1);
+	//this->AddLg( m_Lg, row1 );
+	//gp_ui->LabelPrep(row1);
 	gp_ui->pic_task(row1);
 	plocalcg03->graphElementsEN.push_back(row1);
 

@@ -27,7 +27,7 @@ public:
 	virtual void Proc();
 
 public:
-
+	void cg03_graphElementsHide(int langFlag);
 };
 
 

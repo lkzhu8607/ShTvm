@@ -54,6 +54,27 @@ d_cg02_t::~d_cg02_t()
 {
 }
 
+void d_cg02_t::cg02_graphElementsHide(int langFlag)
+{
+	if(langFlag == 0){
+		for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+			if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
+				gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+				plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
+			}
+		}
+		for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
+			if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
+				gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
+				plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
+			}
+		}
+	}
+	else if(langFlag == 1){
+		;
+	}
+}
+
 //
 void d_cg02_t::Proc()
 {
@@ -67,7 +88,7 @@ void d_cg02_t::Proc()
 	d_cg01s_jud5041_t  cg01s_jud5041;
 	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
 	b8702_t::ROWTYPE & Rb8702(gp_db->GetTheRowb8702());
-	if(plocalcg02->pageGraphElementsFlags == 0){
+	/*if(plocalcg02->pageGraphElementsFlags == 0){
 		cg02s_backpic.ShowBack1();
 		cg02s_goback.ShowGoback();
 		cg02s_pieceshow.ShowPieceButtBoard();
@@ -75,9 +96,10 @@ void d_cg02_t::Proc()
 		cg02s_pieceshow.ShowPayednchg();
 		cg02s_cancel.Showcancel();
 		cg02s_goodbillcoin.ShowValidMoneyType();
+		cg02s_machinestate.ShowStatus();
 		plocalcg02->pageGraphElementsFlags = 1;
 		//SetLanguageCh();
-	}	
+	}*/
 	
 	a_waiter_t_rowtype  waiter_data; // 本窗体接收钱。记录收钱各币种的数量。 
 	//de_coin_t coin_data;//主界面直接调用coin操作
@@ -279,14 +301,15 @@ L_GETINPUT:
 					waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveBill;
 				}
 				
-				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 				plocalcg01->displayFlag = 0;
 				plocalcg01->langFlag = 0;
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 				gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 				
 				if(plocalcg02->langFlag == 0){
-					for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+					/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
 						if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
 							gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
 							plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
@@ -297,12 +320,12 @@ L_GETINPUT:
 							gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
 							plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
 						}
-					}			
+					}*/		
 				}
 				else if(plocalcg02->langFlag == 1){
 					//TODO
+					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 				}
-
 				SetLanguageCh();
 				return;
 			}
@@ -389,7 +412,8 @@ L_GETINPUT:
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 				
 				if(plocalcg02->langFlag == 0){
-					for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+					/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
 						if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
 							gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
 							plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
@@ -400,10 +424,11 @@ L_GETINPUT:
 							gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
 							plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
 						}
-					}			
+					}*/			
 				}
 				else if(plocalcg02->langFlag == 1){
 					//TODO
+					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 				}
 
 				SetLanguageCh();
@@ -416,14 +441,19 @@ L_GETINPUT:
 		{
 			//如果有投钱，则退钱 或 列印异常交易
 			if(ret == 2){
+				plocalcg01->displayFlag = 0;
+				plocalcg01->langFlag = 0;
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 			}
 			else if(ret == 1){
+				plocalcg04->displayFlag = 0;
+				plocalcg04->langFlag = 0;
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
 			}
 
 			if(plocalcg02->langFlag == 0){
-				for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+				plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+				/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
 					if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
 						gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
@@ -434,10 +464,11 @@ L_GETINPUT:
 						gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
 						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
 					}
-				}			
+				}*/			
 			}
 			else if(plocalcg02->langFlag == 1){
 				//TODO
+				plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 			}
 
 			return;

@@ -59,7 +59,7 @@ void d_cg01s_linepic_t::ShowLinePic()
 		row.m_funcvalue = m_row3083.m_MainUiIdx;
 		//this->AddLg( m_Lg, row );
 		
-		gp_ui->LabelPrep(row);
+		//gp_ui->LabelPrep(row);
 		//gp_ui->LabelCommit();
 		gp_ui->pic_task(row);
 		plocalcg01->graphMainInterfaceCN.push_back(row);
@@ -75,7 +75,7 @@ void d_cg01s_linepic_t::ShowLinePic()
 		row1.m_funcvalue = m_row3083.m_MainUiIdx;
 		//this->AddLg( m_Lg, row1 );
 		
-		gp_ui->LabelPrep(row1);
+		//gp_ui->LabelPrep(row1);
 		//gp_ui->LabelCommit();
 		gp_ui->pic_task(row1);
 		plocalcg01->graphMainInterfaceEN.push_back(row1);	
@@ -95,7 +95,7 @@ void d_cg01s_linepic_t::ShowLinePic()
 			row.m_funcname = "ShowDirButt";
 			row.m_funcvalue = m_row3083.m_DirButt1MainUiIdx;
 			//this->AddLg( m_Lg, row );
-			gp_ui->LabelPrep(row);
+			//gp_ui->LabelPrep(row);
 			//gp_ui->pic_task(row);
 			plocalcg01->graphMainInterfaceCN.push_back(row);
 			plocalcg01->graphMainInterfaceEN.push_back(row);		
@@ -115,7 +115,7 @@ void d_cg01s_linepic_t::ShowLinePic()
 			row.m_funcname = "ShowDirButt";
 			row.m_funcvalue = m_row3083.m_DirButt2MainUiIdx;
 			//this->AddLg( m_Lg, row );
-			gp_ui->LabelPrep(row);
+			//gp_ui->LabelPrep(row);
 			//gp_ui->pic_task(row);
 			plocalcg01->graphMainInterfaceCN.push_back(row);
 			plocalcg01->graphMainInterfaceEN.push_back(row);		
@@ -135,7 +135,7 @@ void d_cg01s_linepic_t::ShowLinePic()
 			row.m_funcname = "ShowDirButt";
 			row.m_funcvalue = m_row3083.m_DirButt3MainUiIdx;
 			//this->AddLg( m_Lg, row );
-			gp_ui->LabelPrep(row);
+			//gp_ui->LabelPrep(row);
 			//gp_ui->pic_task(row);
 			plocalcg01->graphMainInterfaceCN.push_back(row);
 			plocalcg01->graphMainInterfaceEN.push_back(row);	
@@ -155,7 +155,7 @@ void d_cg01s_linepic_t::ShowLinePic()
 			row.m_funcname = "ShowDirButt";
 			row.m_funcvalue = m_row3083.m_DirButt4MainUiIdx;
 			//this->AddLg( m_Lg, row );
-			gp_ui->LabelPrep(row);
+			//gp_ui->LabelPrep(row);
 			//gp_ui->pic_task(row);
 			plocalcg01->graphMainInterfaceCN.push_back(row);
 			plocalcg01->graphMainInterfaceEN.push_back(row);

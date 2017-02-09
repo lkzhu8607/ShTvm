@@ -32,15 +32,15 @@ void d_cg01s_rightupmsg_t::Showrightupmsg()
 	a_label_t::ROWTYPE  row1;
 
 	gp_ui->LabelMkStr( row, 0, "CN_StaName", gp_db->GetMyStaName(), 0.868750,0.110750, 0.038, "black" );
-	this->AddLg( m_Lg, row );
-	gp_ui->LabelPrep(row);
+	//this->AddLg( m_Lg, row );
+	//gp_ui->LabelPrep(row);
 	gp_ui->str_task(row);
 	plocalcg01->graphElementsCN.push_back(row);
 
 	SetLanguageEn();
 	gp_ui->LabelMkStr( row1, 0, "EN_StaName", gp_db->GetMyStaName(), 0.896875,0.125000, 0.022, "black" );
-	this->AddLg( m_Lg, row1 );
-	gp_ui->LabelPrep(row1);
+	//this->AddLg( m_Lg, row1 );
+	//gp_ui->LabelPrep(row1);
 	gp_ui->str_task(row1);
 	plocalcg01->graphElementsEN.push_back(row1);
 

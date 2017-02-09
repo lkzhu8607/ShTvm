@@ -35,8 +35,8 @@ void d_cg04s_backpic_t::ShowBack1()
 	row.m_hot = 0;
 	row.m_funcname = "page4OutofService";
 	row.m_funcvalue = 0;
-	this->AddLg( m_Lg, row );
-	gp_ui->LabelPrep(row);
+	//this->AddLg( m_Lg, row );
+	//gp_ui->LabelPrep(row);
 	gp_ui->pic_task(row);
 	plocalcg04->graphElementsCN.push_back(row);
 	plocalcg04->graphElementsEN.push_back(row);

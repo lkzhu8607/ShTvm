@@ -65,7 +65,7 @@ L_GETINPUT:
 			{
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 				plocalcg01->displayFlag = 0;
-				plocalcg01->langFlang = 0;
+				plocalcg01->langFlag = 0;
 				return;
 			}
 
@@ -74,9 +74,13 @@ L_GETINPUT:
 			{
 				//如果有投钱，则退钱 或 列印异常交易
 				if(ret == 2){
+					plocalcg01->displayFlag = 0;
+					plocalcg01->langFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 				}
 				else if(ret == 1){
+					plocalcg04->displayFlag = 0;
+					plocalcg04->langFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
 				}
 				return;

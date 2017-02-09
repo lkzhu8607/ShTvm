@@ -30,42 +30,18 @@ tbool d_cg02s_goodbillcoin_t::ShowValidMoneyType()
 		a_label_t::ROWTYPE  row;
 		gp_ui->LabelMkStr( row, 0, "CN_NormalNotesType", "5元 10元 20元 50元", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsCN.push_back(row);
-
-		/*if( Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 )
-		{
-	 		a_label_t::ROWTYPE  row;
-			if(GetLanguageState() == 0){
-				gp_ui->LabelMkStr( row, 0, GETLABELNAME, "5元 10元 20元 50元", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
-				if( gp_bill->m_iIsNotBillChange == 1 )
-				{
-					gp_ui->LabelMkStr( row, 0, GETLABELNAME, "5元 10元", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
-				}			
-			
-			}
-			else{
-				gp_ui->LabelMkStr( row, 0, GETLABELNAME, "￥5 ￥10 ￥20 ￥50", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
-				if( gp_bill->m_iIsNotBillChange == 1 )
-				{
-					gp_ui->LabelMkStr( row, 0, GETLABELNAME, "￥5 ￥10", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
-				}				
-			}
-			row.m_hot = 0;
-			this->AddLg( m_Lg, row );
-			gp_ui->LabelPrep(row);
-			//gp_ui->LabelCommit();	
-		}*/
-		
+	
 	}
 	if(1){
 		a_label_t::ROWTYPE  row;
 		gp_ui->LabelMkStr( row, 0, "CN_exceptionNotesType", "5元 10元", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsCN.push_back(row);
 	}
@@ -73,8 +49,8 @@ tbool d_cg02s_goodbillcoin_t::ShowValidMoneyType()
 		a_label_t::ROWTYPE  row;
 		gp_ui->LabelMkStr( row, 0, "EN_NormalNotesType", "￥5 ￥10 ￥20 ￥50", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsEN.push_back(row);
 	}
@@ -82,8 +58,8 @@ tbool d_cg02s_goodbillcoin_t::ShowValidMoneyType()
 		a_label_t::ROWTYPE  row;
 		gp_ui->LabelMkStr( row, 0, "EN_exceptionNotesType", "￥5 ￥10", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsEN.push_back(row);
 	}
@@ -93,29 +69,17 @@ tbool d_cg02s_goodbillcoin_t::ShowValidMoneyType()
 		a_label_t::ROWTYPE	row;
 		gp_ui->LabelMkStr( row, 0, "CN_CoinType", "1元 5角", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 770 ), 0.05, "black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);	
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);	
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsCN.push_back(row);
-		/*if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 )
-		{
-			a_label_t::ROWTYPE	row;
-			if(GetLanguageState() == 0)
-				gp_ui->LabelMkStr( row, 0, GETLABELNAME, "1元 5角", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 770 ), 0.05, "black" );
-			else
-				gp_ui->LabelMkStr( row, 0, GETLABELNAME, "￥1 ￥0.5", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 770 ), 0.05, "black" );
-			row.m_hot = 0;
-			this->AddLg( m_Lg, row );
-			gp_ui->LabelPrep(row);
-			//gp_ui->LabelCommit();	
-		}*/
 	}
 	if(1){
 		a_label_t::ROWTYPE	row;
 		gp_ui->LabelMkStr( row, 0, "EN_CoinType", "￥1 ￥0.5", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 770 ), 0.05, "black" );
 		row.m_hot = 0;
-		this->AddLg( m_Lg, row );
-		gp_ui->LabelPrep(row);	
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);	
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsEN.push_back(row);
 	}

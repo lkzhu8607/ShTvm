@@ -34,6 +34,43 @@
 //封装的纸币模块头文件
 #include "bnr_operation.h"
 
+#include "d_cg01_t.h"
+#include "d_cg01s_backpic_t.h"
+#include "d_cg01s_lang_t.h"
+#include "d_cg01s_linepic_t.h"
+#include "d_cg01s_rightupmsg_t.h"
+#include "d_cg01s_machinestate_t.h"
+#include "d_cg01s_fastprice_t.h"
+#include "d_cg01s_seleline_t.h"
+#include "d_cg01s_jud5041_t.h"
+#include "d_cg01s_evtcodes_t.h"
+#include "d_cg01s_errpic_t.h"
+#include "d_cg01s_errexplain_t.h"
+#include "d_cg02_t.h"
+#include "d_cg02s_backpic_t.h"
+#include "d_cg02s_goback_t.h"
+#include "d_cg02s_cancel_t.h"
+#include "d_cg02s_pieceshow_t.h"
+#include "d_cg02s_goodbillcoin_t.h"
+#include "d_cg01s_jud5041_t.h"
+#include "d_cg02s_waiter_t.h"
+#include "cg02s_machinestate_t.h"
+#include "d_cg03_t.h"
+#include "d_cg03s_backpic_t.h"
+#include "d_cg03s_lang_t.h"
+#include "d_cg03s_seleline_t.h"
+#include "d_cg03s_goback_t.h"
+#include "d_cg03s_oneline_t.h"
+#include "d_cg03s_rightsidemsg_t.h"
+#include "d_cg03s_machinestate_t.h"
+#include "d_cg04_t.h"
+#include "d_cg04s_backpic_t.h"
+#include "d_cg04s_stoppic_t.h"
+
+
+
+
+
 #ifdef LINUENV_
 #include <signal.h>
 struct A
@@ -81,12 +118,10 @@ int main( int argc, char *argv[] )
 	gp_conf = &conf1;
 	gp_conf->LoadConfFile();
 	gp_conf->MakeDiskEnv();
-	
 
 	bu_asynwork_t::DoSetThisIp();
 	bu_asynwork_t::DoTime1Server();
 	bu_asynwork_t::DoTime2Server();
-
 
 	gp_qf = &qf;
 	gp_qf->tr_open();
@@ -94,7 +129,7 @@ int main( int argc, char *argv[] )
 	//LOG;
 	gp_log = log;
 	LogInit();
-	
+
 	gp_moneylog = &moneylog;
 	gp_moneylog->Init();
 	TWO_REC( "tvm begin" );
@@ -104,11 +139,9 @@ int main( int argc, char *argv[] )
 	//test_double();
 	//return 0;
 
-
 	gp_db = &db;
 	gp_db->LoadDb();
 	gp_db->SaveDb();
-
 
 			//gp_bill = &bill;
 			//gp_bill->billInit();
@@ -126,7 +159,6 @@ int main( int argc, char *argv[] )
 			//gp_bilchg->bilchgInit();
 			//gp_bilchg->bilchgChangeOut( 0, 1 );
 
-
 	//test_send6002aa();
 	//return 0;
 
@@ -140,7 +172,6 @@ int main( int argc, char *argv[] )
 	gp_ui = &ui;
 	gp_ui->MyInit();
 	
-
 	if( gp_conf->getnvB("scrall_width") == "" )
 		backupg_go();
 
@@ -231,13 +262,16 @@ int main( int argc, char *argv[] )
 	//gp_upsdev = &upsdev;
 	//gp_upsdev->UpsInit();
 
-	gp_frontman_mgr = &frontman;
-	gp_frontman_mgr->frontmanInit();
-
 	gp_backman_mgr = &backman;
 	gp_backman_mgr->backmanInit();
 
-	
+	//gp_frontman_mgr = &frontman;
+	//gp_frontman_mgr->frontmanInit();
+
+	//gp_backman_mgr = &backman;
+	//gp_backman_mgr->backmanInit();
+
+
 	//test_top_scr();
 	//test_printer();
 	//test_printline();
@@ -249,7 +283,6 @@ int main( int argc, char *argv[] )
 	
 	bu_asynwork_t::RepeatSendReg6000();
 
-
 	gp_medev->EvtInitBegin();
 	WThrd::tr_sleep( 3 );
 	gp_medev->EvtInitEnd();
@@ -257,7 +290,99 @@ int main( int argc, char *argv[] )
 
 
 	gp_ui->LineScrClearA();
- 
+	
+
+
+	if(plocalcg01->pageGraphElementsFlags == 0){
+		d_cg01s_backpic_t			cg01s_backpic;
+		d_cg01s_lang_t			cg01s_lang;
+		d_cg01s_rightupmsg_t	cg01s_rightupmsg;
+		d_cg01s_fastprice_t  cg01s_fastprice;
+		d_cg01s_evtcodes_t	cg01s_evtcodes;
+		d_cg01s_errpic_t cg01s_errpic;
+		d_cg01s_errexplain_t cg01s_errexplain;
+		d_cg01s_linepic_t		cg01s_linepic;
+		d_cg01s_seleline_t	 cg01s_seleline;
+		d_cg01s_machinestate_t	cg01s_machinestate;
+		cg01s_backpic.ShowBack1();
+		cg01s_lang.ShowLangButt();
+		cg01s_rightupmsg.Showrightupmsg();
+		cg01s_fastprice.Showfastprice();
+		cg01s_linepic.ShowLinePic();
+		//cg01s_linepic.ShowDirButt();
+		cg01s_machinestate.Showmachinestate();
+		cg01s_seleline.Showseleline();
+		cg01s_evtcodes.m_x = 0.207;
+		cg01s_evtcodes.ShowEvtCodes();	
+		cg01s_errpic.Show();
+		cg01s_errexplain.Show();
+		plocalcg01->pageGraphElementsFlags = 1;
+		if((plocalcg01->graphLineButtonCN.size()%10) == 0){
+			plocalcg01->pageTab = (plocalcg01->graphLineButtonCN.size() / 10);
+		}
+		else{
+			plocalcg01->pageTab = (plocalcg01->graphLineButtonCN.size() / 10) + 1;
+		}
+		plocalcg01->displayFlag = 0;
+		plocalcg01->langFlag = 0;
+		//SetLanguageCh();
+	}
+
+	if(plocalcg02->pageGraphElementsFlags == 0){
+		d_cg02s_backpic_t  cg02s_backpic;
+		d_cg02s_goback_t  cg02s_goback;
+		d_cg02s_cancel_t  cg02s_cancel;
+		d_cg02s_machinestate_t cg02s_machinestate;
+		d_cg02s_goodbillcoin_t cg02s_goodbillcoin;
+		d_cg02s_pieceshow_t  cg02s_pieceshow;
+		cg02s_backpic.ShowBack1();
+		cg02s_goback.ShowGoback();
+		cg02s_pieceshow.ShowPieceButtBoard();
+		cg02s_pieceshow.ShowPieceInfo();
+		cg02s_pieceshow.ShowPayednchg();
+		cg02s_cancel.Showcancel();
+		cg02s_goodbillcoin.ShowValidMoneyType();
+		cg02s_machinestate.ShowStatus();
+		plocalcg02->pageGraphElementsFlags = 1;
+		plocalcg02->displayFlag = 0;
+		plocalcg02->langFlag = 0;		
+		//SetLanguageCh();
+	}
+
+	if(plocalcg03->pageGraphElementsFlags == 0){
+		d_cg03s_backpic_t  cg03s_backpic;
+		d_cg03s_rightsidemsg_t  cg03s_rightsidemsg;
+		d_cg03s_lang_t  cg03s_lang;
+		d_cg03s_goback_t  cg03s_goback;
+		d_cg03s_oneline_t  cg03s_oneline;
+		d_cg03s_seleline_t   cg03s_seleline;
+		d_cg01s_seleline_t   cg01s_seleline;
+		d_cg03s_machinestate_t  cg03s_machinestate;
+		cg03s_backpic.ShowBack1();
+		cg03s_rightsidemsg.Showrightsidemsg();
+		cg03s_lang.ShowLangButt();
+		cg03s_goback.ShowGoback();
+		cg03s_oneline.Showoneline();
+		cg03s_machinestate.Showmachinestate();
+		plocalcg03->pageGraphElementsFlags = 1;
+		plocalcg03->displayFlag = 0;
+		plocalcg03->langFlag = 0;
+		//SetLanguageCh();
+	}	
+
+	if(plocalcg04->pageGraphElementsFlags == 0){
+		d_cg04s_backpic_t  cg04s_backpic;
+		//d_cg01s_jud5041_t  cg01s_jud5041;
+		d_cg04s_stoppic_t  cg04s_stoppic;
+		cg04s_stoppic.ShowBack1();
+		cg04s_backpic.ShowBack1();
+		plocalcg04->pageGraphElementsFlags = 1;
+		plocalcg04->displayFlag = 0;
+		plocalcg04->langFlag = 0;
+		//SetLanguageCh();
+	}
+	gp_frontman_mgr = &frontman;
+	gp_frontman_mgr->frontmanInit();
 
 	//主循环 
 

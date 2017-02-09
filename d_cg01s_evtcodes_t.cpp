@@ -35,7 +35,7 @@ void d_cg01s_evtcodes_t::ShowEvtCodes()
 	gp_ui->LabelMkStr( row, 0, "page1ErrCode", gp_medev->GetEvtStr(), m_x, 0.8761, 0.03, "black" );
 	row.m_font_align = 0;
 	this->AddLg( m_Lg, row );
-	gp_ui->LabelPrep(row);
+	//gp_ui->LabelPrep(row);
 	gp_ui->str_task(row);
 	plocalcg01->graphElementsCN.push_back(row);
 	plocalcg01->graphElementsEN.push_back(row);	

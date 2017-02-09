@@ -38,11 +38,47 @@ d_cg03_t::d_cg03_t()
 
 }
 
-
 //
 d_cg03_t::~d_cg03_t()
 {
 }
+
+void d_cg03_t::cg03_graphElementsHide(int langFlag)
+{
+	if(langFlag == 0){
+		for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
+			if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
+				gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
+				plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
+			}
+		}
+		for(int j=0;j<plocalcg01->graphLineButtonCN.size();j++){
+			if(plocalcg01->graphLineButtonCN[j].m_iShouldShow == 1){
+				gp_ui->hideLabel(plocalcg01->graphLineButtonCN[j]);
+				plocalcg01->graphLineButtonCN[j].m_iShouldShow = 0;
+			}
+		}
+		for(int j=0;j<gp_timeshower->graphElements.size();j++){
+			if(gp_timeshower->graphElements[j].m_iShouldShow == 1){
+				gp_ui->hideLabel(gp_timeshower->graphElements[j]);
+				gp_timeshower->graphElements[j].m_iShouldShow = 0;
+			}
+		}
+		for(int j = 0;j<plocalcg03->lineCount;j++){
+			if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
+				gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
+				plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;
+				/*for(int j = 1;j <plocalcg03->graphLineStationCN[i].size(); j++){
+					;
+				}*/ 				
+			}
+		}
+	}
+	else if(langFlag == 1){
+		;
+	}
+}
+
 
 //
 void d_cg03_t::Proc()
@@ -56,7 +92,7 @@ void d_cg03_t::Proc()
 	d_cg01s_seleline_t   cg01s_seleline;
 	d_cg03s_machinestate_t  cg03s_machinestate;
 	d_cg01s_jud5041_t  cg01s_jud5041;
-	if(plocalcg03->pageGraphElementsFlags == 0){
+	/*if(plocalcg03->pageGraphElementsFlags == 0){
 		cg03s_backpic.ShowBack1();
 		cg03s_rightsidemsg.Showrightsidemsg();
 		cg03s_lang.ShowLangButt();
@@ -65,7 +101,7 @@ void d_cg03_t::Proc()
 		cg03s_machinestate.Showmachinestate();
 		plocalcg03->pageGraphElementsFlags = 1;
 		//SetLanguageCh();
-	}	
+	}*/
 
 	//for timeout 
 	bu_quickflow_t::qf_counter_t  iQf1_user_idle;
@@ -228,7 +264,8 @@ L_GETINPUT:
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 
 				if(plocalcg03->langFlag == 0){
-					for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
+					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
+					/*for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
 						if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
 							gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
 							plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
@@ -249,15 +286,13 @@ L_GETINPUT:
 					for(int j = 0;j<plocalcg03->lineCount;j++){
 						if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
 							gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
-							plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;
-							/*for(int j = 1;j <plocalcg03->graphLineStationCN[i].size(); j++){
-								;
-							}*/ 				
+							plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;			
 						}
-					}
+					}*/
 				}
 				else if(plocalcg03->langFlag == 1){
 					//TODO
+					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 				}
 				
 				SetLanguageCh();
@@ -294,14 +329,20 @@ L_GETINPUT:
 		{
 			//如果有投钱，则退钱 或 列印异常交易
 			if(ret == 2){
+				plocalcg01->displayFlag = 0;
+				plocalcg01->langFlag = 0;
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 			}
 			else if(ret == 1){
+				plocalcg04->displayFlag = 0;
+				plocalcg04->langFlag = 0;
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
 			}
 
+
 			if(plocalcg03->langFlag == 0){
-				for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
+				plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
+				/*for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
 					if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
 						gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
 						plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
@@ -322,22 +363,18 @@ L_GETINPUT:
 				for(int j = 0;j<plocalcg03->lineCount;j++){
 					if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
 						gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
-						plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;
-						/*for(int j = 1;j <plocalcg03->graphLineStationCN[i].size(); j++){
-							;
-						}*/ 				
+						plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;			
 					}
-				}
+				}*/
 			}
 			else if(plocalcg03->langFlag == 1){
 				//TODO
+				plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 			}
 			return;
 		}	
-
 		goto L_GETINPUT;
 	}
-	
 	return;
 }
 

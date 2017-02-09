@@ -55,7 +55,7 @@ void d_cg02s_cancel_t::Showcancel()
 		row[i].m_name += "--hot";
 		row[i].m_hot = 1;
 		this->AddLg( m_Lg, row[i] );
-		gp_ui->LabelPrep(row[i]);
+		//gp_ui->LabelPrep(row[i]);
 		gp_ui->pic_task(row[i]);
 		if(i==0){
 			plocalcg02->graphElementsCN.push_back(row[i]);
@@ -75,7 +75,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 	if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) ){
 		if(plocalcg02->langFlag == 0)
 		{
-			for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+			/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
 				if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
 					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
 					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
@@ -86,7 +86,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
 					plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
 				}
-			}				
+			}*/			
 			for(int i=0;i<row.size();i++){
 				if(row[i].m_name == "CN_page2Cancel--hot"){
 					plocalcg01->displayFlag = 0;
@@ -98,6 +98,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 					return 1;
 				}
 			}
+			plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 		}		
 		if(plocalcg02->langFlag == 1){
 			for(int i=0;i<row.size();i++){
@@ -105,6 +106,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 					return 1;
 				}
 			}
+			plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 		}
 	}
 	return 0;

@@ -19,7 +19,6 @@ d_cg01s_seleline_t::d_cg01s_seleline_t()
 	m_iPageSize = 10;
 }
 
-
 //
 d_cg01s_seleline_t::~d_cg01s_seleline_t()
 {
@@ -77,7 +76,7 @@ void d_cg01s_seleline_t::Showseleline()
 		row.m_funcvalue = row3084.m_LineCode;
 		//this->AddLg( m_Lg, row );
 	
-		gp_ui->LabelPrep(row);
+		//gp_ui->LabelPrep(row);
 
 		//热点注册 
 		row.m_name += "--hot";
@@ -98,7 +97,7 @@ void d_cg01s_seleline_t::Showseleline()
 		row1.m_funcvalue = row3084.m_LineCode;
 		//this->AddLg( m_Lg, row1 );
 	
-		gp_ui->LabelPrep(row1);
+		//gp_ui->LabelPrep(row1);
 
 		//热点注册 
 		row1.m_name += "--hot";
@@ -149,7 +148,7 @@ void d_cg01s_seleline_t::Showseleline()
 		row[j].m_funcvalue = m_a3084snapshot.GetRowCount()+j+1;
 		//this->AddLg( m_Lg, row[j] );
 
-		gp_ui->LabelPrep(row[j]);
+		//gp_ui->LabelPrep(row[j]);
 
 		//热点注册 
 		row[j].m_name += "--hot";
@@ -192,19 +191,18 @@ tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 		if(plocalcg01->langFlag == 0){
 			for(int j=0;j<row.size();j++){
 				if(row[j].m_funcname == "CN_SeleLine" && row[j].m_iShouldShow == 1){
-					
-					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
-					gp_frontman_mgr->m_cg03.m_iLineCode = row[j].m_funcvalue;
 					plocalcg03->displayFlag = 0;
 					plocalcg03->langFlag = 0;
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
+					gp_frontman_mgr->m_cg03.m_iLineCode = row[j].m_funcvalue;
 					if(row[j].m_funcvalue <= 10){
 						plocalcg01->pageFlag = 1;
 					}
 					else {
 						plocalcg01->pageFlag = 0;
 					}
-					
-					for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
+					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
+					/*for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
 						if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
 							gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
 							gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
@@ -242,16 +240,8 @@ tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 						else{
 							plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
 						}
-					}
-
-					/*gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
-					gp_frontman_mgr->m_cg03.m_iLineCode = row[j].m_funcvalue;
-					if(row[j].m_funcvalue <= 10){
-						plocalcg01->pageFlag = 1;
-					}
-					else {
-						plocalcg01->pageFlag = 0;
 					}*/
+
 					return 1;
 				}
 			}
@@ -261,11 +251,11 @@ tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 				if(row[i].m_funcname == "EN_SeleLine"){
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;
 					gp_frontman_mgr->m_cg03.m_iLineCode = row[i].m_funcvalue;
+					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
 					return 1;
 				}
 			}
 		}
-		
 	}
 	return 0;
 }

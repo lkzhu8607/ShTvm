@@ -32,25 +32,16 @@ void d_cg03s_rightsidemsg_t::Showrightsidemsg()
 	a_label_t::ROWTYPE  row;
 	a_label_t::ROWTYPE  row1;
 	gp_ui->LabelMkStr( row, 0, "CN_page3UpRightMsg", gp_db->GetMyStaName(), 0.870000,0.18940, 0.041, "black" );
-	this->AddLg( m_Lg, row );
-	gp_ui->LabelPrep(row);
+	//this->AddLg( m_Lg, row );
+	//gp_ui->LabelPrep(row);
 	gp_ui->str_task(row);
 	plocalcg03->graphElementsCN.push_back(row);
 
 	gp_ui->LabelMkStr( row1, 0, "EN_page3UpRightMsg", gp_db->GetMyStaName(), 0.890000,0.200000, 0.022, "black" );
-	this->AddLg( m_Lg, row1 );
-	gp_ui->LabelPrep(row1);
+	//this->AddLg( m_Lg, row1 );
+	//gp_ui->LabelPrep(row1);
 	gp_ui->str_task(row1);
 	plocalcg03->graphElementsEN.push_back(row1);	
-	/*if( GetLanguageState() == 0 ) 
-	{
-		gp_ui->LabelMkStr( row, 0, strNAME, gp_db->GetMyStaName(), 0.870000,0.18940, 0.041, "black" );
-	}
-	else
-	{
-		gp_ui->LabelMkStr( row, 0, strNAME, gp_db->GetMyStaName(), 0.890000,0.200000, 0.022, "black" );
-	}*/
-	//gp_timeshower->SetSType( bu_timeshower_t::DATE );
 }
 
 
