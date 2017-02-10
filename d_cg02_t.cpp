@@ -71,7 +71,18 @@ void d_cg02_t::cg02_graphElementsHide(int langFlag)
 		}
 	}
 	else if(langFlag == 1){
-		;
+		for(int i=0;i<plocalcg02->graphElementsEN.size();i++){
+			if(plocalcg02->graphElementsEN[i].m_iShouldShow ==1){
+				gp_ui->hideLabel(plocalcg02->graphElementsEN[i]);
+				plocalcg02->graphElementsEN[i].m_iShouldShow = 0;
+			}
+		}
+		for(int i=0;i<plocalcg02->graphPieceNumEN.size();i++){
+			if(plocalcg02->graphPieceNumEN[i].m_iShouldShow ==1){
+				gp_ui->hideLabel(plocalcg02->graphPieceNumEN[i]);
+				plocalcg02->graphPieceNumEN[i].m_iShouldShow = 0;
+			}
+		}
 	}
 }
 
@@ -312,21 +323,6 @@ void d_cg02_t::Proc()
 		}
 		
 		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
-		
-		if( Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 ){
-			if(gp_bill->m_iIsNotBillChange == 1){
-				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
-				gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
-				plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 0;
-				plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 1;
-			}
-			else{
-				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
-				gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
-				plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 1;
-				plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 0;				
-			}
-		}
 
 		//d_cg02s_backpic_t  cg02s_backpic;
 
@@ -364,6 +360,36 @@ void d_cg02_t::Proc()
 L_GETINPUT:
 		//d_cg01s_jud5041_t  cg01s_jud5041;
 		int irc(0);
+		if( Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 ){
+			if(plocalcg02->langFlag == 0){
+				if(gp_bill->m_iIsNotBillChange == 1){
+					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
+					gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
+					plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 0;
+					plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 1;
+				}
+				else{
+					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
+					gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
+					plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 1;
+					plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 0; 			
+				}
+			}
+			if(plocalcg02->langFlag == 1){
+				if(gp_bill->m_iIsNotBillChange == 1){
+					gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex]);
+					gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex]);
+					plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex].m_iShouldShow = 0;
+					plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex].m_iShouldShow = 1;
+				}
+				else{
+					gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex]);
+					gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex]);
+					plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex].m_iShouldShow = 1;
+					plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex].m_iShouldShow = 0; 			
+				}
+			}
+		}
 
 		//cg01s_evtcodes.ShowEvtCodes();
 		//cg02s_goodbillcoin.ShowValidMoneyType();
@@ -502,24 +528,11 @@ L_GETINPUT:
 				
 				if(plocalcg02->langFlag == 0){
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
-					/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
-						if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
-							gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
-							plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
-						}
-					}
-					for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
-						if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
-							gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
-							plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
-						}
-					}*/			
 				}
 				else if(plocalcg02->langFlag == 1){
 					//TODO
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 				}
-
 				SetLanguageCh();
 			}
 			return;
@@ -541,19 +554,7 @@ L_GETINPUT:
 			}
 
 			if(plocalcg02->langFlag == 0){
-				plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
-				/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
-					if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
-						gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
-						plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
-					}
-				}
-				for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
-					if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
-						gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
-						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
-					}
-				}*/			
+				plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);	
 			}
 			else if(plocalcg02->langFlag == 1){
 				//TODO
@@ -561,7 +562,7 @@ L_GETINPUT:
 			}
 
 			return;
-		}		
+		}	
 		goto L_GETINPUT;
 	}
 

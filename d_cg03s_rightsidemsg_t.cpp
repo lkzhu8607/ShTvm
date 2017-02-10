@@ -37,6 +37,7 @@ void d_cg03s_rightsidemsg_t::Showrightsidemsg()
 	gp_ui->str_task(row);
 	plocalcg03->graphElementsCN.push_back(row);
 
+	SetLanguageEn();
 	gp_ui->LabelMkStr( row1, 0, "EN_page3UpRightMsg", gp_db->GetMyStaName(), 0.890000,0.200000, 0.022, "black" );
 	//this->AddLg( m_Lg, row1 );
 	//gp_ui->LabelPrep(row1);

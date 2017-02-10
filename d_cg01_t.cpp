@@ -60,31 +60,24 @@ void d_cg01_t::cg01_graphElementsHide(int langFlag)
 		for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
 			if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
-				gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+				//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 				plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
 			}
 		}
 		for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
 			if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
-				gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
+				//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
 				plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
 			}			
 		}
 		for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
 			if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-				gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
+				//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
 				plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
 			}			
 		}	
-		/*for(int i=0;i<(gp_timeshower->graphElements.size());i++){
-			if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
-				gp_ui->hideLabel(gp_timeshower->graphElements[i]);
-				gp_frontman_mgr->graphLastPageElements.push_back(gp_timeshower->graphElements[i]);
-				gp_timeshower->graphElements[i].m_iShouldShow = 0;
-			}			
-		}*/
 		for(int i=0;i<plocalcg01->graphMainInterfaceCN.size();i++){
 			std::string strPic = "CN_MainPic_"+SStrf::sltoa((int)(i+1));
 			if(plocalcg01->graphMainInterfaceCN[i].m_name == strPic && plocalcg01->graphMainInterfaceCN[i].m_iShouldShow == 1){
@@ -98,7 +91,38 @@ void d_cg01_t::cg01_graphElementsHide(int langFlag)
 		}
 	}
 	else if(langFlag == 1){
-		;
+		for(int i=0;i< (plocalcg01->graphElementsEN.size());i++){
+			if(plocalcg01->graphElementsEN[i].m_iShouldShow == 1){
+				gp_ui->hideLabel(plocalcg01->graphElementsEN[i]);
+				//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+				plocalcg01->graphElementsEN[i].m_iShouldShow = 0;
+			}
+		}
+		for(int i=0;i<plocalcg01->graphFastButtonEN.size();i++){
+			if(plocalcg01->graphFastButtonEN[i].m_iShouldShow == 1){
+				gp_ui->hideLabel(plocalcg01->graphFastButtonEN[i]);
+				//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
+				plocalcg01->graphFastButtonEN[i].m_iShouldShow = 0;
+			}			
+		}
+		for(int i=0;i<plocalcg01->graphLineButtonEN.size();i++){
+			if(plocalcg01->graphLineButtonEN[i].m_iShouldShow == 1){
+				gp_ui->hideLabel(plocalcg01->graphLineButtonEN[i]);
+				//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
+				plocalcg01->graphLineButtonEN[i].m_iShouldShow = 0;
+			}			
+		}	
+		for(int i=0;i<plocalcg01->graphMainInterfaceEN.size();i++){
+			std::string strPic = "EN_MainPic_"+SStrf::sltoa((int)(i+1));
+			if(plocalcg01->graphMainInterfaceEN[i].m_name == strPic && plocalcg01->graphMainInterfaceEN[i].m_iShouldShow == 1){
+				gp_ui->hideLabel(plocalcg01->graphMainInterfaceEN[i]);
+				plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 0;
+				continue;
+			}
+			else{
+				plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 0;
+			}
+		}
 	}
 	for(int i=0;i<(gp_timeshower->graphElements.size());i++){
 		if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
@@ -153,8 +177,8 @@ void d_cg01_t::Proc()
 		//show page info
 		if(plocalcg01->displayFlag == 0){
 			if(plocalcg01->langFlag == 0){//
-				if(gp_frontman_mgr->graphLastPageElements.size())
-					gp_frontman_mgr->graphLastPageElements.clear();
+				//if(gp_frontman_mgr->graphLastPageElements.size())
+					//gp_frontman_mgr->graphLastPageElements.clear();
 				for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
 					//WThrd::tr_sleepu(5);
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_page1BackPic"){
@@ -162,14 +186,14 @@ void d_cg01_t::Proc()
 						//gp_ui->pic_task(plocalcg01->graphElementsCN[i]);
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
-						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_StaName"){
 						//gp_ui->str_task(plocalcg01->graphElementsCN[i]);
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
-						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
 					if(plocalcg01->graphElementsCN[i].m_name == "CN_MachineState"){
@@ -178,7 +202,7 @@ void d_cg01_t::Proc()
 						plocalcg01->MachineStateIndex = i;
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
-						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}					
 					if(plocalcg01->graphElementsCN[i].m_name == "page1ErrCode"){
@@ -187,7 +211,7 @@ void d_cg01_t::Proc()
 						plocalcg01->ErrCodeIndex = i;
 						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
 						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
-						gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
 				}
@@ -276,23 +300,23 @@ void d_cg01_t::Proc()
 				for(int i=0;i< (plocalcg01->graphElementsEN.size());i++){
 					//WThrd::tr_sleepu(5);
 					if(plocalcg01->graphElementsEN[i].m_name == "EN_page1BackPic"){
-					//if(plocalcg01->graphElementsCN[i].m_funcname == "CN_ShowBack1"){
-						//gp_ui->pic_task(plocalcg01->graphElementsCN[i]);
+					//if(plocalcg01->graphElementsCN[i].m_funcname == "EN_ShowBack1"){
+						//gp_ui->pic_task(plocalcg01->graphElementsEN[i]);
 						gp_ui->showLabel(plocalcg01->graphElementsEN[i]);
 						plocalcg01->graphElementsEN[i].m_iShouldShow = 1;
-						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsEN[i]);
 						continue;
 					}
 					if(plocalcg01->graphElementsEN[i].m_name == "EN_StaName"){
-						//gp_ui->str_task(plocalcg01->graphElementsCN[i]);
+						//gp_ui->str_task(plocalcg01->graphElementsEN[i]);
 						gp_ui->showLabel(plocalcg01->graphElementsEN[i]);
 						plocalcg01->graphElementsEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 						continue;
 					}
 					if(plocalcg01->graphElementsEN[i].m_name == "EN_MachineState"){
-		     			gp_ui->updateLabel(plocalcg01->graphElementsCN[i],GetStrRes(gp_medev->m_devstatus));
-						//gp_ui->str_task(plocalcg01->graphElementsCN[i]);
+		     			gp_ui->updateLabel(plocalcg01->graphElementsEN[i],GetStrRes(gp_medev->m_devstatus));
+						//gp_ui->str_task(plocalcg01->graphElementsEN[i]);
 						plocalcg01->MachineStateIndex = i;
 						gp_ui->showLabel(plocalcg01->graphElementsEN[i]);
 						plocalcg01->graphElementsEN[i].m_iShouldShow = 1;
@@ -311,32 +335,32 @@ void d_cg01_t::Proc()
 				}
 				for(int i=0;i < (plocalcg01->graphMainInterfaceEN.size());i++){
 					if(plocalcg01->graphMainInterfaceEN[i].m_name == "EN_MainPic_1"){
-						//gp_ui->pic_task(plocalcg01->graphMainInterfaceCN[i]);
-						gp_ui->showLabel(plocalcg01->graphMainInterfaceCN[i]);
+						//gp_ui->pic_task(plocalcg01->graphMainInterfaceEN[i]);
+						gp_ui->showLabel(plocalcg01->graphMainInterfaceEN[i]);
 						plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
 						continue;
 					}
 					if(plocalcg01->graphMainInterfaceEN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt1")){
-						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						//gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
 						plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
 						continue;
 					}	
 					if(plocalcg01->graphMainInterfaceEN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt2")){
-						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						//gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
 						plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
 						continue;
 					}	
 					if(plocalcg01->graphMainInterfaceEN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt3")){
-						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						//gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
 						plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
 						continue;
 					}	
 					if(plocalcg01->graphMainInterfaceEN[i].m_name == ("MainPic_"+SStrf::sltoa((int)(1))+"_dirButt4")){
-						//gp_ui->showLabel(plocalcg01->graphFastButtonCN[i]);
+						//gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
 						plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphMainInterfaceCN[i]);
 						continue;
@@ -345,14 +369,14 @@ void d_cg01_t::Proc()
 				}
 				for(int i=0;i < (plocalcg01->graphFastButtonEN.size());i++){
 					if(plocalcg01->graphFastButtonEN[i].m_funcname == "EN_FastPicUp"){
-						//gp_ui->pic_task(plocalcg01->graphFastButtonCN[i]);
+						//gp_ui->pic_task(plocalcg01->graphFastButtonEN[i]);
 						gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
 						plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
 						continue;
 					}	
 					if(plocalcg01->graphFastButtonEN[i].m_funcname == "ShowFastDigit"){
-						//gp_ui->str_task(plocalcg01->graphFastButtonCN[i]);
+						//gp_ui->str_task(plocalcg01->graphFastButtonEN[i]);
 						gp_ui->showLabel(plocalcg01->graphFastButtonEN[i]);
 						plocalcg01->graphFastButtonEN[i].m_iShouldShow = 1;
 						//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
@@ -362,8 +386,8 @@ void d_cg01_t::Proc()
 				for(int i=0;i < (plocalcg01->graphLineButtonEN.size());i++){
 					if(plocalcg01->pageTab == 1){
 						if(plocalcg01->graphLineButtonEN[i].m_funcname=="EN_SeleLine"){
-							//gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+							//gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
+							gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
 							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
 							//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
 							continue;
@@ -379,7 +403,7 @@ void d_cg01_t::Proc()
 							continue;
 						}
 						if(plocalcg01->graphLineButtonEN[i].m_funcname=="EN_NextButton"){
-							//gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
+							//gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
 							gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
 							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
 							//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
@@ -390,7 +414,17 @@ void d_cg01_t::Proc()
 			}
 			plocalcg01->displayFlag = 1;//
 		}
-		
+		for(int i=0;i<(gp_timeshower->graphElements.size());i++){
+			if(gp_timeshower->graphElements[i].m_name == "timeDisplay"){
+				gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+		     	gp_ui->updateLabel(gp_timeshower->graphElements[i],SDte::GetNow().ReadString());
+				gp_ui->str_task(gp_timeshower->graphElements[i]);
+				gp_ui->showLabel(gp_timeshower->graphElements[i]);
+				gp_timeshower->graphElements[i].m_iShouldShow = 1;
+				//gp_frontman_mgr.graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
+			}			
+		}
+
 		//检查是否需要补充硬币   //补充条件-> 1. 初始化界面 2.是否需要补币 3.补币箱中是否有币
 		if( ( 4 != gp_medev->m_devstatus ) &&
 			( gp_db->m_b8701.GetRow(0).m_A1YuanCycleChg < gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum ) &&
@@ -462,16 +496,18 @@ L_GETINPUT:
 		//refresh timedisplay
 		for(int i=0;i<(gp_timeshower->graphElements.size());i++){
 			if(gp_timeshower->graphElements[i].m_name == "timeDisplay"){
-				//gp_ui->hideLabel(gp_timeshower->graphElements[i]);
+				gp_ui->hideLabel(gp_timeshower->graphElements[i]);
 		     	gp_ui->updateLabel(gp_timeshower->graphElements[i],SDte::GetNow().ReadString());
-				//gp_ui->str_task(gp_timeshower->graphElements[i]);
+				gp_ui->str_task(gp_timeshower->graphElements[i]);
 				gp_ui->showLabel(gp_timeshower->graphElements[i]);
 				gp_timeshower->graphElements[i].m_iShouldShow = 1;
 				//gp_frontman_mgr.graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 			}			
 		}
+
 		//refresh MachineState and ErrorCodes
 		if(plocalcg01->langFlag == 0){
+			SetLanguageCh();
 			//gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex]);
 		    gp_ui->updateLabel(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex],GetStrRes(gp_medev->m_devstatus));
 			//gp_ui->str_task(plocalcg01->graphElementsCN[plocalcg01->MachineStateIndex]);
@@ -483,15 +519,16 @@ L_GETINPUT:
 			gp_ui->showLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex]);
 		}
 		else if(plocalcg01->langFlag == 1){
-			/*gp_ui->hideLabel(plocalcg01->graphElementsEN[plocalcg01->MachineStateIndex]);
+			SetLanguageEn();
+			//gp_ui->hideLabel(plocalcg01->graphElementsEN[plocalcg01->MachineStateIndex]);
 		    gp_ui->updateLabel(plocalcg01->graphElementsEN[plocalcg01->MachineStateIndex],GetStrRes(gp_medev->m_devstatus));
-			gp_ui->str_task(plocalcg01->graphElementsEN[plocalcg01->MachineStateIndex]);
+			//gp_ui->str_task(plocalcg01->graphElementsEN[plocalcg01->MachineStateIndex]);
 			gp_ui->showLabel(plocalcg01->graphElementsEN[plocalcg01->MachineStateIndex]);
 
-			gp_ui->hideLabel(plocalcg01->graphElementsEN[plocalcg01->ErrCodeIndex]);
+			//gp_ui->hideLabel(plocalcg01->graphElementsEN[plocalcg01->ErrCodeIndex]);
 		    gp_ui->updateLabel(plocalcg01->graphElementsEN[plocalcg01->ErrCodeIndex],gp_medev->GetEvtStr());
-			gp_ui->str_task(plocalcg01->graphElementsEN[plocalcg01->ErrCodeIndex]);
-			gp_ui->showLabel(plocalcg01->graphElementsEN[plocalcg01->ErrCodeIndex]);*/
+			//gp_ui->str_task(plocalcg01->graphElementsEN[plocalcg01->ErrCodeIndex]);
+			gp_ui->showLabel(plocalcg01->graphElementsEN[plocalcg01->ErrCodeIndex]);
 		}
 
 		int  iLastOutOfServiceStatus = gp_medev->m_outofservicestatus;
@@ -499,8 +536,8 @@ L_GETINPUT:
 		if( 4 == gp_medev->m_devstatus )
 		{
 			//??ê?oú?òoí??ó|êy×?
-			/*cg01s_errpic.Show();
-			cg01s_errexplain.Show();*/
+			//cg01s_errpic.Show();
+			//cg01s_errexplain.Show();
 			if(plocalcg01->errorFlag == 0){
 				if(plocalcg01->langFlag == 0){
 					for(int i=0;i<plocalcg01->graphElementsCN.size();i++){
@@ -535,45 +572,6 @@ L_GETINPUT2:
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
 				if(plocalcg01->langFlag == 0){
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-					/*for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
-						if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
-							gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
-							plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
-						}
-					}
-					for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
-						if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
-							gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphFastButtonCN[i]);
-							plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
-						}			
-					}
-					for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
-						if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
-							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
-						}			
-					}	
-					for(int i=0;i<(gp_timeshower->graphElements.size());i++){
-						if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(gp_timeshower->graphElements[i]);
-							gp_frontman_mgr->graphLastPageElements.push_back(gp_timeshower->graphElements[i]);
-							gp_timeshower->graphElements[i].m_iShouldShow = 0;
-						}			
-					}	
-					for(int i=0;i<plocalcg01->graphMainInterfaceCN.size();i++){
-						std::string strPic = "CN_MainPic_"+SStrf::sltoa((int)(i+1));
-						if(plocalcg01->graphMainInterfaceCN[i].m_name == strPic && plocalcg01->graphMainInterfaceCN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphMainInterfaceCN[i]);
-							plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
-							continue;
-						}
-						else{
-							plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
-						}
-					}*/
 				}
 				else if(plocalcg01->langFlag == 1){
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
@@ -607,11 +605,6 @@ L_GETINPUT2:
 
 		if(1)
 		{			
-			/*do
-			{
-				m_strInput = gp_frontinput->GetFrontNextKey();
-				if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) return;
-			}while( m_strInput == "" );*/
 
 			if( cg01s_lang.Find_n_do_ShowLangButt( m_strInput ) ){
 				continue;

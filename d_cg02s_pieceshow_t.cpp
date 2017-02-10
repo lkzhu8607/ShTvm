@@ -331,7 +331,70 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 		}
 	}
 	else if(plocalcg02->langFlag==1){
-		return 1;
+		if( this->LocateHot(plocalcg02->graphPieceNumEN, strinput, row)){
+			for(int i =0;i < row.size();i++){
+				choicePieceNum = row[i].m_funcvalue;
+				if(row[i].m_funcvalue == m_iPieceNum){
+					continue;
+				}
+				if(row[i].m_funcname == "PieceNumDn"){
+					for(int j = 0;j<plocalcg02->graphPieceNumEN.size();j++){
+					 	if(plocalcg02->graphPieceNumEN[j].m_funcname == "PieceNumDn" && plocalcg02->graphPieceNumEN[j].m_funcvalue == m_iPieceNum){
+							gp_ui->hideLabel(plocalcg02->graphPieceNumEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 0;
+							continue;
+						}	
+						if(plocalcg02->graphPieceNumEN[j].m_funcname == "PieceNumDigitDn" && plocalcg02->graphPieceNumEN[j].m_funcvalue == m_iPieceNum){
+							gp_ui->hideLabel(plocalcg02->graphPieceNumEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 0;
+							continue;
+						}							
+					 	if(plocalcg02->graphPieceNumEN[j].m_funcname == "PieceNumUp" && plocalcg02->graphPieceNumEN[j].m_funcvalue == m_iPieceNum){
+							gp_ui->showLabel(plocalcg02->graphPieceNumEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg02->graphPieceNumEN[j].m_funcname == "PieceNumDigitUp" && plocalcg02->graphPieceNumEN[j].m_funcvalue == m_iPieceNum){
+							gp_ui->showLabel(plocalcg02->graphPieceNumEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 1;
+							continue;
+						}						
+						if(row[i].m_funcname == plocalcg02->graphPieceNumEN[j].m_funcname && row[i].m_funcvalue == plocalcg02->graphPieceNumEN[j].m_funcvalue){
+							gp_ui->showLabel(plocalcg02->graphPieceNumEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg02->graphPieceNumEN[j].m_funcname == "PieceNumDigitDn" && row[i].m_funcvalue == plocalcg02->graphPieceNumEN[j].m_funcvalue){
+							gp_ui->showLabel(plocalcg02->graphPieceNumEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 1;
+							continue;
+						}
+					}
+					for(int j = 0;j<plocalcg02->graphElementsEN.size();j++){
+						if(plocalcg02->graphElementsEN[j].m_name == "choicePieceNum"){
+							gp_ui->hideLabel(plocalcg02->graphElementsEN[j]);
+							gp_ui->updateLabel(plocalcg02->graphElementsEN[j],SStrf::sltoa( row[i].m_funcvalue ));
+							gp_ui->str_task(plocalcg02->graphElementsEN[j]);
+							gp_ui->showLabel(plocalcg02->graphElementsEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg02->graphElementsEN[j].m_name == "shouldPay"){
+							gp_ui->hideLabel(plocalcg02->graphElementsEN[j]);
+							gp_ui->updateLabel(plocalcg02->graphElementsEN[j],SStrf::sltoa( row[i].m_funcvalue * plocalcg02->m_iPrice));
+							gp_ui->str_task(plocalcg02->graphElementsEN[j]);
+							gp_ui->showLabel(plocalcg02->graphElementsEN[j]);
+							plocalcg02->graphPieceNumEN[j].m_iShouldShow = 1;
+							continue;
+						}
+					}						
+				}			
+			}
+			m_iPieceNum = choicePieceNum;
+			plocalcg02->m_iPieceNum = choicePieceNum;
+			return 1;
+		}
+
 	}
 	return 0;
 }
@@ -468,7 +531,18 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 				}
 			}
 			else if(plocalcg02->langFlag == 1){
-				//TODO
+				for(int i=0;i<plocalcg02->graphPieceNumEN.size();i++){
+					if(plocalcg02->graphPieceNumEN[i].m_funcname == "PieceNumDis" && plocalcg02->graphPieceNumEN[i].m_funcvalue != plocalcg02->m_iPieceNum){
+						gp_ui->showLabel(plocalcg02->graphPieceNumEN[i]);
+						plocalcg02->graphPieceNumEN[i].m_iShouldShow = 1;
+						continue;
+					}
+					if(plocalcg02->graphPieceNumEN[i].m_funcname == "PieceNumDigitDis" && plocalcg02->graphPieceNumEN[i].m_funcvalue != plocalcg02->m_iPieceNum){
+						gp_ui->showLabel(plocalcg02->graphPieceNumEN[i]);
+						plocalcg02->graphPieceNumEN[i].m_iShouldShow = 1;
+						continue;
+					}					
+				}
 			}
 			this->disableDisplayFlag = 1;
 		}
@@ -557,6 +631,18 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 		gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->payedIndex],sz2);
 		plocalcg02->graphElementsCN[plocalcg02->payedIndex].m_iShouldShow = 1;
 	}
+	else if(plocalcg02->langFlag == 0){
+		char sz1[33];
+		SClib::p_sprintf()( sz1, "%0.1f", this->m_chg / 100.00 );
+		gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->shouldChangeIndex],sz1);
+		plocalcg02->graphElementsEN[plocalcg02->shouldChangeIndex].m_iShouldShow = 1;
+
+		char sz2[33];
+		SClib::p_sprintf()( sz2, "%0.1f", this->m_payed / 100.00 );
+		gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->payedIndex],sz2);
+		plocalcg02->graphElementsEN[plocalcg02->payedIndex].m_iShouldShow = 1;
+	}
+
 	
 	//返回各种状态值	
 	if( m_payed >= iShouldPay )
@@ -570,18 +656,6 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 		
 		if(plocalcg02->langFlag == 0){
 			plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
-			/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
-				if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
-					gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
-					plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
-				}
-			}
-			for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
-				if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
-					gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
-					plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
-				}
-			}*/			
 		}
 		else if(plocalcg02->langFlag == 1){
 			//TODO

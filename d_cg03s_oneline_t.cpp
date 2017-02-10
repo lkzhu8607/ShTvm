@@ -113,10 +113,9 @@ void d_cg03s_oneline_t::Showoneline()
 tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 {
 	std::vector<a_label_t::ROWTYPE>  row;
-
-	if( this->LocateHot( plocalcg03->graphLineStationCN[plocalcg03->lineIndex], strinput, row ) )
-	{
-		if(plocalcg03->langFlag == 0){
+	if(plocalcg03->langFlag == 0){
+		if( this->LocateHot( plocalcg03->graphLineStationCN[plocalcg03->lineIndex], strinput, row ) )
+		{
 			for(int i=0;i<row.size();i++){
 				if( row[i].m_funcname == ("CN_line"+SStrf::sltoa((int)gp_frontman_mgr->m_cg03.m_iLineCode)) )
 				{
@@ -125,41 +124,16 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 				
 					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)plocalcg03->m_iLineCode );
 					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)row[i].m_funcvalue );
-
+			
 					if( !gp_db->GetPossiblePrices(v,ScNode) )
 					{
 						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "???????????????" << SStrf::b2s(ScNode) << " ??????" << SStrf::b2s(gp_db->GetTheRowa3014().m_EqpNode) );
 						return 0;
 					}
 					//hide last displayed elements
-					
-					/*for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
-						if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
-							plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
-						}
-					}
-					for(int j=0;j<plocalcg01->graphLineButtonCN.size();j++){
-						if(plocalcg01->graphLineButtonCN[j].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphLineButtonCN[j]);
-							plocalcg01->graphLineButtonCN[j].m_iShouldShow = 0;
-						}
-					}
-					for(int j=0;j<gp_timeshower->graphElements.size();j++){
-						if(gp_timeshower->graphElements[j].m_iShouldShow == 1){
-							gp_ui->hideLabel(gp_timeshower->graphElements[j]);
-							gp_timeshower->graphElements[j].m_iShouldShow = 0;
-						}
-					}
-					for(int j = 0;j<plocalcg03->lineCount;j++){
-						if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
-							gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
-							plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;			
-						}
-					}*/
 					plocalcg02->displayFlag = 0;
 					plocalcg02->langFlag = 0;
-
+			
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 					gp_frontman_mgr->m_cg02.m_iPrice = v[0]; // 
 					gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;
@@ -169,7 +143,10 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 				}
 			}
 		}
-		else if(plocalcg03->langFlag == 1){
+	}
+	else if(plocalcg03->langFlag == 1){
+		if( this->LocateHot( plocalcg03->graphLineStationCN[plocalcg03->lineIndex], strinput, row ) )
+		{
 			for(int i=0;i<row.size();i++){
 				if( row[i].m_funcname == ("CN_line"+SStrf::sltoa((int)gp_frontman_mgr->m_cg03.m_iLineCode)) )
 				{
@@ -178,7 +155,7 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 				
 					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)plocalcg03->m_iLineCode );
 					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)row[i].m_funcvalue );
-
+			
 					if( !gp_db->GetPossiblePrices(v,ScNode) )
 					{
 						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "???????????????" << SStrf::b2s(ScNode) << " ??????" << SStrf::b2s(gp_db->GetTheRowa3014().m_EqpNode) );

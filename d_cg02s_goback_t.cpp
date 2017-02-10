@@ -72,59 +72,39 @@ void d_cg02s_goback_t::ShowGoback()
 //
 tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 {
-	/*a_label_t::ROWTYPE  row;
-
-	//gp_ui->LabelMkPic( row, 0, GETLABELNAME , gp_ui->PicPFn("tmpx.png") , 0 , 0 , 1 , 1 );
-	//gp_ui->LabelCommit();
-
-	if( this->LgFindhot( m_Lg, strinput, row ) )
-	{
-		if( row.m_funcname == "ShowGoback" )
-		{
-			//other process
-			gp_frontman_mgr->m_pcg = plocalcg02->m_pLastCg;
-
-			return 1;
-		}
-	}*/
-		std::vector<a_label_t::ROWTYPE>  row;
+	std::vector<a_label_t::ROWTYPE>  row;
+	if(plocalcg02->langFlag == 0){
 		if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) ){
-			if(plocalcg02->langFlag == 0)
-			{
-				/*for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
-					if(plocalcg02->graphElementsCN[i].m_iShouldShow ==1){
-						gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
-						plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
-					}
-				}
-				for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
-					if(plocalcg02->graphPieceNumCN[i].m_iShouldShow ==1){
-						gp_ui->hideLabel(plocalcg02->graphPieceNumCN[i]);
-						plocalcg02->graphPieceNumCN[i].m_iShouldShow = 0;
-					}
-				}*/			
-				for(int i=0;i<row.size();i++){
-					if(row[i].m_name == "CN_page2Goback--hot"){
-						plocalcg01->displayFlag = 0;
-						plocalcg01->langFlag = 0;	
-						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
-						gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
-						gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
-						plocalcg02->m_iPieceNum = 1;
-						return 1;
-					}
-				}
-				plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
-			}		
-			if(plocalcg02->langFlag == 1){
-				for(int i=0;i<row.size();i++){
-					if(row[i].m_name == "EN_page2Goback--hot"){
-						return 1;
-					}
+			for(int i=0;i<row.size();i++){
+				if(row[i].m_name == "CN_page2Goback--hot"){
+					plocalcg01->displayFlag = 0;
+					plocalcg01->langFlag = 0;	
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
+					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
+					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
+					plocalcg02->m_iPieceNum = 1;
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+					return 1;
 				}
 			}
 		}
+	}
+	else if(plocalcg02->langFlag == 1){
+		if( this->LocateHot( plocalcg02->graphElementsEN, strinput, row ) ){
+			for(int i=0;i<row.size();i++){
+				if(row[i].m_name == "EN_page2Goback--hot"){
+					plocalcg01->displayFlag = 0;
+					plocalcg01->langFlag = 0;	
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
+					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
+					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
+					plocalcg02->m_iPieceNum = 1;
+					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+					return 1;
+				}
+			}
+		}
+	}
 	return 0;
 }
 

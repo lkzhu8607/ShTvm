@@ -56,7 +56,8 @@ void d_cg01s_backpic_t::ShowBack1()
 	plocalcg01->graphElementsEN.push_back(row1);
 
 	//gp_ui->LabelCommit();*/
-	const char *s[] = { "main.jpg", "maine.jpg" };
+	//const char *s[] = { "main.jpg", "maine.jpg" };
+	const char *s[] = { "maine.jpg" , "main.jpg" };
 	if(1){
 		a_label_t::ROWTYPE  row;
 
@@ -73,6 +74,7 @@ void d_cg01s_backpic_t::ShowBack1()
 		//gp_ui->LabelPrep(row);
 		gp_ui->pic_task(row);
 		plocalcg01->graphElementsCN.push_back(row);
+		//plocalcg01->graphElementsEN.push_back(row);
 	}
 	if(1){
 		a_label_t::ROWTYPE  row;

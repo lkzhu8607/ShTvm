@@ -42,8 +42,8 @@ void d_cg03s_lang_t::ShowLangButt()
 	row.m_hot = 1;
 	row.m_funcname = "CN_LangButt";
 	row.m_funcvalue = 0;
-	this->AddLg( m_Lg, row );
-	gp_ui->pic_task(row);
+	//this->AddLg( m_Lg, row );
+	//gp_ui->pic_task(row);
 	plocalcg03->graphElementsCN.push_back(row);
 
 	gp_ui->LabelMkPic( row1, 0, 
@@ -57,8 +57,8 @@ void d_cg03s_lang_t::ShowLangButt()
 	row1.m_hot = 1;
 	row1.m_funcname = "EN_LangButt";
 	row1.m_funcvalue = 1;
-	this->AddLg( m_Lg, row1 );
-	gp_ui->pic_task(row1);
+	//this->AddLg( m_Lg, row1 );
+	//gp_ui->pic_task(row1);
 	plocalcg03->graphElementsEN.push_back(row1);	
 }
 
@@ -66,21 +66,31 @@ void d_cg03s_lang_t::ShowLangButt()
 //
 tbool d_cg03s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 {
-	a_label_t::ROWTYPE  row;
+	std::vector<a_label_t::ROWTYPE>  row;
+	plocalcg03->displayFlag = 0;
+	if(plocalcg03->langFlag == 0){
+		if( this->LocateHot(plocalcg03->graphElementsCN, strinput, row ) ){
+			for(int i=0;i<row.size();i++){
+				if( row[i].m_funcname == "CN_LangButt"){
+					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
+					plocalcg03->langFlag = 1;
+					return 1;
+				}
 
-	if( this->LgFindhot( m_Lg, strinput, row ) )
-	{
-		if( row.m_funcname == "ShowLangButt" )
-		{
-			if( row.m_funcvalue == 0 )
-				SetLanguageEn();
-			else
-				SetLanguageCh();
-	
-			return 1;
+			}
 		}
 	}
-
+	else if(plocalcg03->langFlag == 1){
+		if( this->LocateHot( plocalcg03->graphElementsEN, strinput, row ) ){
+			for(int i=0;i<row.size();i++){
+				if( row[i].m_funcname == "EN_LangButt"){
+					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
+					plocalcg03->langFlag = 0;
+					return 1;
+				}
+			}
+		}
+	}
 	return 0;
 }
 

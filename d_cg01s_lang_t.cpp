@@ -62,66 +62,31 @@ void d_cg01s_lang_t::ShowLangButt()
 tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 {
 	std::vector<a_label_t::ROWTYPE>  row;
-	if( this->LocateHot( plocalcg01->graphElementsEN, strinput, row ) )
-	{
-		for(int j=0;j<row.size();j++){
-			if( row[j].m_funcname == "ShowLangButt")
-			{
-				plocalcg01->displayFlag = 0;
-				if(plocalcg01->langFlag == 0){
+	plocalcg01->displayFlag = 0;
+	if(plocalcg01->langFlag == 0){
+		if( this->LocateHot( plocalcg01->graphElementsEN, strinput, row ) )
+		{
+			for(int j=0;j<row.size();j++){
+				if( row[j].m_funcname == "ShowLangButt")
+				{
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-					plocalcg01->langFlag = 1;
-					/*for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
-						if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphElementsCN[i]);
-							plocalcg01->graphElementsCN[i].m_iShouldShow = 0;
-						}
-					}
-					for(int i=0;i<plocalcg01->graphFastButtonCN.size();i++){
-						if(plocalcg01->graphFastButtonCN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphFastButtonCN[i]);
-							plocalcg01->graphFastButtonCN[i].m_iShouldShow = 0;
-						}			
-					}
-					for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
-						if(plocalcg01->graphLineButtonCN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
-						}			
-					}*/	
+					plocalcg01->langFlag = 1;		
+					return 1;
 				}			
-				else if(plocalcg01->langFlag == 1){
+			}
+		}
+	}
+	else if(plocalcg01->langFlag == 1){
+		if( this->LocateHot( plocalcg01->graphElementsEN, strinput, row ) )
+		{
+			for(int j=0;j<row.size();j++){
+				if( row[j].m_funcname == "ShowLangButt")
+				{
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-					plocalcg01->langFlag = 0;
-					
-					/*for(int i=0;i< (plocalcg01->graphElementsEN.size());i++){
-						if(plocalcg01->graphElementsEN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphElementsEN[i]);
-							plocalcg01->graphElementsEN[i].m_iShouldShow = 0;
-						}
-					}
-					for(int i=0;i<plocalcg01->graphFastButtonEN.size();i++){
-						if(plocalcg01->graphFastButtonEN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphFastButtonEN[i]);
-							plocalcg01->graphFastButtonEN[i].m_iShouldShow = 0;
-						}			
-					}
-					for(int i=0;i<plocalcg01->graphLineButtonEN.size();i++){
-						if(plocalcg01->graphLineButtonEN[i].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphLineButtonEN[i]);
-							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 0;
-						}			
-					}*/					
-				}
-				/*for(int i=0;i<(gp_timeshower->graphElements.size());i++){
-					if(gp_timeshower->graphElements[i].m_iShouldShow == 1){
-						gp_ui->hideLabel(gp_timeshower->graphElements[i]);
-						gp_timeshower->graphElements[i].m_iShouldShow = 0;
-					}			
-				}*/				
-				//gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;			
-				return 1;
-			}			
+					plocalcg01->langFlag = 0;		
+					return 1;
+				}			
+			}
 		}
 	}
 	return 0;

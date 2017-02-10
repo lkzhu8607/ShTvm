@@ -44,7 +44,7 @@ void d_cg03s_goback_t::ShowGoback()
 	row.m_funcname = "CN_page3Goback";
 	row.m_funcvalue = 0;
 	//this->AddLg( m_Lg, row );
-	gp_ui->pic_task(row);
+	//gp_ui->pic_task(row);
 	plocalcg03->graphElementsCN.push_back(row);
 
 	//ÈÈµã×¢²á	
@@ -60,7 +60,7 @@ void d_cg03s_goback_t::ShowGoback()
 	row1.m_funcname = "EN_page3Goback";
 	row1.m_funcvalue = 0;
 	//this->AddLg( m_Lg, row1 );
-	gp_ui->pic_task(row1);
+	//gp_ui->pic_task(row1);
 	plocalcg03->graphElementsEN.push_back(row1);	
 }
 
@@ -69,37 +69,13 @@ void d_cg03s_goback_t::ShowGoback()
 tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 {
 	std::vector<a_label_t::ROWTYPE>  row;
-	if( this->LocateHot( plocalcg03->graphElementsCN, strinput, row ) )
-	{
-		if(plocalcg03->langFlag == 0){
+	if(plocalcg03->langFlag == 0){
+		if( this->LocateHot( plocalcg03->graphElementsCN, strinput, row ) )
+		{
 			for(int i = 0;i<row.size();i++){
 				if( row[i].m_funcname == "CN_page3Goback" )
 				{
 					//other process
-					/*for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
-						if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
-							plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
-						}
-					}
-					for(int j=0;j<plocalcg01->graphLineButtonCN.size();j++){
-						if(plocalcg01->graphLineButtonCN[j].m_iShouldShow == 1){
-							gp_ui->hideLabel(plocalcg01->graphLineButtonCN[j]);
-							plocalcg01->graphLineButtonCN[j].m_iShouldShow = 0;
-						}
-					}
-					for(int j=0;j<gp_timeshower->graphElements.size();j++){
-						if(gp_timeshower->graphElements[j].m_iShouldShow == 1){
-							gp_ui->hideLabel(gp_timeshower->graphElements[j]);
-							gp_timeshower->graphElements[j].m_iShouldShow = 0;
-						}
-					}
-					for(int j = 0;j<plocalcg03->lineCount;j++){
-						if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
-							gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
-							plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0; 				
-						}
-					}*/
 					plocalcg01->langFlag = 0;
 					plocalcg01->displayFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
@@ -108,12 +84,15 @@ tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 				}
 			}
 		}
-		else if(plocalcg03->langFlag == 1){
+	}
+	else if(plocalcg03->langFlag == 1){
+		if( this->LocateHot( plocalcg03->graphElementsEN, strinput, row ) )
+		{
 			for(int i = 0;i<row.size();i++){
-				if( row[i].m_funcname == "EN_page3GoBack" )
+				if( row[i].m_funcname == "EN_page3Goback" )
 				{
 					//other process
-					plocalcg01->langFlag = 1;
+					plocalcg01->langFlag = 0;
 					plocalcg01->displayFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);

@@ -219,21 +219,20 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 				}
 			}
 			//hide last page displayed elements
-			plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-			else if(plocalcg01->langFlag == 1){
-				//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-			}
-			if(GetLanguageState() == 0){
+			//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
+			/*if(GetLanguageState() == 0){
 				plocalcg02->langFlag = 0;
 			}
 			else if(GetLanguageState() == 1){
 				plocalcg02->langFlag = 1;
-			}
+			}*/
+			plocalcg02->langFlag = 0;
 			plocalcg02->displayFlag = 0;
 			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 			//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
 			gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;
 			gp_frontman_mgr->m_cg02.m_SelectedScNode = u8arr_t<4>();
+			plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
 			//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg01;	
 			//plocalcg02->displayFlag = 0;
 			return 1;
@@ -290,21 +289,20 @@ tbool d_cg01s_fastprice_t::Find_n_do_Showfastprice( std::string strinput )
 				}
 			}
 			//hide last page displayed elements
-			plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-			else if(plocalcg01->langFlag == 1){
-				//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
-			}
-			if(GetLanguageState() == 0){
+			//plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
+			/*if(GetLanguageState() == 0){
 				plocalcg02->langFlag = 0;
 			}
 			else if(GetLanguageState() == 1){
 				plocalcg02->langFlag = 1;
-			}
+			}*/
+			plocalcg02->langFlag = 1;
 			plocalcg02->displayFlag = 0;
 			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 			//gp_frontman_mgr->m_cg02.m_iPrice = m_v[row[j].m_funcvalue]; //的值就是价 
 			gp_frontman_mgr->m_cg02.m_iPrice = row[j].m_funcvalue;
 			gp_frontman_mgr->m_cg02.m_SelectedScNode = u8arr_t<4>();
+			plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
 			//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg01;	
 			return 1;
 		}
