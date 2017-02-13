@@ -85,7 +85,7 @@ tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
 					plocalcg01->langFlag = 0;		
 					return 1;
-				}			
+				}
 			}
 		}
 	}

@@ -20,8 +20,8 @@ public:
 	int payedIndex;
 	int shouldChangeIndex;
 	//int coinIndex;
-	int normalNoteIndex;
-	int exceptNoteIndex;	
+	int notesIndex;
+	//int exceptNoteIndex;	
 
 public:
 	d_cg02_t();

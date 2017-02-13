@@ -41,8 +41,9 @@ d_cg02_t::d_cg02_t()
 	langFlag = 0;	
 	payedIndex = 0;
 	shouldChangeIndex = 0;
-	normalNoteIndex = 0;
-	exceptNoteIndex = 0;
+	//normalNoteIndex = 0;
+	//exceptNoteIndex = 0;
+	notesIndex = 0;
 	pageGraphElementsFlags = 0;
 	//coinIndex = 0;
 
@@ -84,6 +85,7 @@ void d_cg02_t::cg02_graphElementsHide(int langFlag)
 			}
 		}
 	}
+	plocalcg01->isFastFlag = 0;
 }
 
 //
@@ -136,6 +138,8 @@ void d_cg02_t::Proc()
 						continue;
 					}
 					if(plocalcg02->graphElementsCN[i].m_name == "CN_stationName" && plocalcg01->isFastFlag ==1){
+						SetLanguageCh();
+						gp_ui->updateLabel(plocalcg02->graphElementsCN[i], gp_db->GetThatStaName(gp_frontman_mgr->m_cg02.m_SelectedScNode) );
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
@@ -173,22 +177,31 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}					
-					if(plocalcg02->graphElementsCN[i].m_name == "CN_exceptionNotesType"){
+					/*if(plocalcg02->graphElementsCN[i].m_name == "CN_exceptionNotesType"){
 						plocalcg02->exceptNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 && gp_bill->m_iIsNotBillChange == 1){
 							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
 							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 							continue;
 						}
-					}
-					if(plocalcg02->graphElementsCN[i].m_name == "CN_NormalNotesType"){
+					}*/
+					if(plocalcg02->graphElementsCN[i].m_name == "CN_NotesType"){
+						plocalcg02->notesIndex = i;
+						//SetLanguageCh();
+						//gp_ui->updateLabel(plocalcg02->graphElementsCN[i],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
+						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
+						continue;
+
+					}						
+					/*if(plocalcg02->graphElementsCN[i].m_name == "CN_NormalNotesType"){
 						plocalcg02->normalNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0){
 							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
 							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 							continue;
 						}
-					}					
+					}	*/				
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsCN[i].m_name == "CN_CoinType"){
 							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
@@ -233,7 +246,9 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
 					}
-					if(plocalcg02->graphElementsCN[i].m_name == "EN_stationName" && plocalcg01->isFastFlag ==1){
+					if(plocalcg02->graphElementsEN[i].m_name == "EN_stationName" && plocalcg01->isFastFlag ==1){
+						SetLanguageEn();
+						gp_ui->updateLabel(plocalcg02->graphElementsEN[i], gp_db->GetThatStaName(gp_frontman_mgr->m_cg02.m_SelectedScNode) );
 						gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
@@ -271,22 +286,31 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
 					}					
-					if(plocalcg02->graphElementsEN[i].m_name == "EN_exceptionNotesType"){
+					/*if(plocalcg02->graphElementsEN[i].m_name == "EN_exceptionNotesType"){
 						plocalcg02->exceptNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 && gp_bill->m_iIsNotBillChange == 1){
 							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
 							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 							continue;
 						}
+					}*/
+					if(plocalcg02->graphElementsEN[i].m_name == "EN_NotesType"){
+						plocalcg02->notesIndex = i;
+						//SetLanguageEn();
+						//gp_ui->updateLabel(plocalcg02->graphElementsEN[i],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
+						gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
+						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
+						continue;
+
 					}
-					if(plocalcg02->graphElementsEN[i].m_name == "EN_NormalNotesType"){
+					/*if(plocalcg02->graphElementsEN[i].m_name == "EN_NormalNotesType"){
 						plocalcg02->normalNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0){
 							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
 							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 							continue;
 						}
-					}					
+					}*/		
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsEN[i].m_name == "EN_CoinType"){
 							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
@@ -360,35 +384,20 @@ void d_cg02_t::Proc()
 L_GETINPUT:
 		//d_cg01s_jud5041_t  cg01s_jud5041;
 		int irc(0);
-		if( Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 ){
-			if(plocalcg02->langFlag == 0){
-				if(gp_bill->m_iIsNotBillChange == 1){
-					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
-					gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
-					plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 0;
-					plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 1;
-				}
-				else{
-					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex]);
-					gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex]);
-					plocalcg02->graphElementsCN[plocalcg02->normalNoteIndex].m_iShouldShow = 1;
-					plocalcg02->graphElementsCN[plocalcg02->exceptNoteIndex].m_iShouldShow = 0; 			
-				}
-			}
-			if(plocalcg02->langFlag == 1){
-				if(gp_bill->m_iIsNotBillChange == 1){
-					gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex]);
-					gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex]);
-					plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex].m_iShouldShow = 0;
-					plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex].m_iShouldShow = 1;
-				}
-				else{
-					gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex]);
-					gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex]);
-					plocalcg02->graphElementsEN[plocalcg02->normalNoteIndex].m_iShouldShow = 1;
-					plocalcg02->graphElementsEN[plocalcg02->exceptNoteIndex].m_iShouldShow = 0; 			
-				}
-			}
+		if(plocalcg02->langFlag == 0){
+			SetLanguageCh();
+			gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex]);
+			gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
+			gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex]);
+			plocalcg02->graphElementsCN[plocalcg02->notesIndex].m_iShouldShow = 1;
+
+		}
+		else if(plocalcg02->langFlag == 0){
+			gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex]);
+			gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
+			gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex]);
+			plocalcg02->graphElementsEN[plocalcg02->notesIndex].m_iShouldShow = 1; 
+
 		}
 
 		//cg01s_evtcodes.ShowEvtCodes();
@@ -509,7 +518,7 @@ L_GETINPUT:
 		if( irc == 1 )
 		{
 			//d_cg02s_waiter_t  cg02s_waiter;
-
+			plocalcg01->isFastFlag = 0;
 			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "处理找零和出票");
 
 			//钱足够，开始关闭纸币、硬币投币口
@@ -538,7 +547,7 @@ L_GETINPUT:
 			return;
 		}
 
-		int ret = 0;
+		/*int ret = 0;
 		if( ret = cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
 		{
 			//如果有投钱，则退钱 或 列印异常交易
@@ -562,7 +571,7 @@ L_GETINPUT:
 			}
 
 			return;
-		}	
+		}	*/
 		goto L_GETINPUT;
 	}
 

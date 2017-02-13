@@ -25,7 +25,28 @@ tbool d_cg02s_goodbillcoin_t::ShowValidMoneyType()
 	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
 	b8702_t::ROWTYPE & Rb8702(gp_db->GetTheRowb8702());
 
-	if(1)
+	if(1){
+		a_label_t::ROWTYPE  row;
+		gp_ui->LabelMkStr( row, 0, "CN_NotesType", "5元 10元 20元 50元", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
+		row.m_hot = 0;
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
+		gp_ui->str_task(row);
+		plocalcg02->graphElementsCN.push_back(row);
+
+	}
+	if(1){
+		a_label_t::ROWTYPE  row;
+		gp_ui->LabelMkStr( row, 0, "EN_NotesType", "￥5 ￥10 ￥20 ￥50", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
+		row.m_hot = 0;
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row);
+		gp_ui->str_task(row);
+		plocalcg02->graphElementsEN.push_back(row);
+
+	}
+
+	/*if(1)
 	{
 		a_label_t::ROWTYPE  row;
 		gp_ui->LabelMkStr( row, 0, "CN_NormalNotesType", "5元 10元 20元 50元", gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
@@ -62,7 +83,7 @@ tbool d_cg02s_goodbillcoin_t::ShowValidMoneyType()
 		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);
 		plocalcg02->graphElementsEN.push_back(row);
-	}
+	}*/
 
 	if(1)
 	{

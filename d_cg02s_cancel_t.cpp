@@ -94,7 +94,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 			for(int i=0;i<row.size();i++){
 				if(row[i].m_name == "EN_page2Cancel--hot"){
 					plocalcg01->displayFlag = 0;
-					plocalcg01->langFlag = 1;	
+					plocalcg01->langFlag = 0;	
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	

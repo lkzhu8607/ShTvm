@@ -133,6 +133,7 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 					//hide last displayed elements
 					plocalcg02->displayFlag = 0;
 					plocalcg02->langFlag = 0;
+					plocalcg01->isFastFlag = 1;
 			
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 					gp_frontman_mgr->m_cg02.m_iPrice = v[0]; // 
@@ -164,6 +165,7 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 					//hide last displayed elements
 					plocalcg02->displayFlag = 0;
 					plocalcg02->langFlag = 1;
+					plocalcg01->isFastFlag = 1;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
 					gp_frontman_mgr->m_cg02.m_iPrice = v[0]; // 
 					gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;

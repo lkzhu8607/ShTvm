@@ -165,7 +165,7 @@ public:
 
 	tuint32 GetSendConversationFlow();	//
 	tuint32 GetTicketTradeTerminalFlow();	//
-
+	std::string GetVaildNotesType(int iShouldPayAmount);
 	int Get5041EvtCapacity(){ return 234;} 
 };
 

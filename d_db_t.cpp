@@ -4,6 +4,8 @@
 #include "de_log_t.h"
 #include "d_config_t.h"
 #include "d_str_res.h"
+#include "de_medev_t.h"
+#include "de_bill_t.h"
 
 
 
@@ -920,6 +922,70 @@ std::string d_db_t::GetThatStaName( u8arr_t<4> ScNode )
 	return "";
 }
 
+std::string d_db_t::GetVaildNotesType(int iShouldPayAmount){
+	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	b8702_t::ROWTYPE & Rb8702(gp_db->GetTheRowb8702());
+	std::string strVal;
+	if( Rb8702.m_ConnState == 1 && 
+		Rb8702.m_BigErr == 0 && 
+		Rb8702.m_BillStopUseFlag == 0  &&
+		gp_medev->m_devstatus != 5	)
+	{
+		//a_label_t::ROWTYPE  row;
+		if(GetLanguageState() == 0)
+		{
+			std::string strVal = "5元 10元 20元 50元";
+			//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
+			if( gp_bill->m_iIsNotBillChange == 1 )
+			{
+				if( 5000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "5元 10元 20元 50元";
+				}
+				else if( 2000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "5元 10元 20元";
+				}
+				else if( 1000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "5元 10元";
+				}
+				else if( 500 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "5元";
+				}
+				//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
+			}			
+		
+		}
+		else
+		{
+			std::string strVal = "￥5 ￥10 ￥20 ￥50";
+			//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
+			if( gp_bill->m_iIsNotBillChange == 1 )
+			{
+				if( 5000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "￥5 ￥10 ￥20 ￥50";
+				}
+				else if( 2000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "￥5 ￥10 ￥20";
+				}
+				else if( 1000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "￥5 ￥10";
+				}
+				else if( 500 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
+				{
+					strVal = "￥5";
+				}
+				//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
+			}				
+		}
+	}
+	return strVal;
+}
 
 
 
