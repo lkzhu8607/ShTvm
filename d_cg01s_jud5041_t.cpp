@@ -10,6 +10,8 @@
 #include "d_db_t.h"
 #include "bu_frontman_mgr_t.h"
 #include "de_medev_t.h"
+#include "de_coin_t.h"
+#include "de_bill_t.h"
 
 
 
@@ -86,6 +88,12 @@ tbool d_cg01s_jud5041_t::Find_n_do_gotowork( std::string strinput )
 			gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 			SetLanguageCh();
+
+
+			gp_coin->RepCoinStock();    //??????????
+			gp_coin->CleanCoinStock();  //????????????
+			gp_bill->RepBillStock();    //??????????
+
 			return 1;
 		}
 	}

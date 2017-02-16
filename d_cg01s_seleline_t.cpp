@@ -188,7 +188,7 @@ tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 	if(plocalcg01->langFlag == 0){
 		if( this->LocateHot( plocalcg01->graphLineButtonCN, strinput, row ) )
 		{
-			gp_frontman_mgr->graphLastPageElements.clear();
+			//gp_frontman_mgr->graphLastPageElements.clear();
 			for(int j=0;j<row.size();j++){
 				if(row[j].m_funcname == "CN_SeleLine" && row[j].m_iShouldShow == 1){
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
@@ -211,7 +211,7 @@ tbool d_cg01s_seleline_t::Find_n_do_seleline( std::string strinput )
 	else if(plocalcg01->langFlag == 1){
 		if( this->LocateHot( plocalcg01->graphLineButtonEN, strinput, row ) )
 		{
-			gp_frontman_mgr->graphLastPageElements.clear();
+			//gp_frontman_mgr->graphLastPageElements.clear();
 			for(int j=0;j<row.size();j++){
 				if(row[j].m_funcname == "EN_SeleLine" && row[j].m_iShouldShow == 1){
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
@@ -247,8 +247,8 @@ tbool d_cg01s_seleline_t::Find_n_do_changepage( std::string strinput )
 					gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
 					//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
 					plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
-				}			
-			}*/	
+				}
+			}*/
 			for(int j = 0; j < row.size(); j++){
 				if(row[j].m_funcname == "EN_NextButton"  && plocalcg01->pageFlag == 1 && GetLanguageState()==1)
 				{

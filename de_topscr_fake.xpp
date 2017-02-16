@@ -42,7 +42,7 @@ void de_topscr_t::TopscrAdvice()
 
 
 // 
-void de_topscr_t::TopscrInit()
+int de_topscr_t::TopscrInit()
 {
 	this->tr_open();
 
@@ -52,6 +52,8 @@ void de_topscr_t::TopscrInit()
 	Rb8706.m_BigErr = 0;
 
 	Rb8706.m_RtnVal = 0;
+
+	return 1;
 }
 
 //

@@ -55,7 +55,7 @@ public:
 	void LabelMkDelPrep( std::string strName );
 
 
-	void LineScrPrint( int scrnum, const std::string & strLine, tbool HaveCommit = 1 );
+	void LineScrPrint( int scrnum, const std::string & strLine, tbool IsContinue = 0, tbool HaveCommit = 1 );
 	void LineScrClear( int scrnum, tbool HaveCommit = 1 );
 	void LineScrPrintA( const std::string & strLine );
 	void LineScrPrintA( int i );

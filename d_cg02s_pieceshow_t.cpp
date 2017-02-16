@@ -36,8 +36,11 @@ d_cg02s_pieceshow_t::~d_cg02s_pieceshow_t()
 	gp_coin->dCoinHold();
 	gp_coin->dCoin_Stop();
 
-	gp_bill->dBill_Stop();
-	gp_bill->m_de_state = 0;
+	if( !gp_medev->IsOnlyCoin() ) 
+	{
+		gp_bill->dBill_Stop();
+		gp_bill->m_de_state = 0;
+	}
 }
 
 
@@ -265,6 +268,9 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 	int choicePieceNum = 0;
 	//如果已全禁止，则不能再选价	
 	//if( m_ButtType == DISABLE ) return 0;
+	if(plocalcg02->disableDisplayFlag == 1){
+		return 0;
+	}
 	if(plocalcg02->langFlag==0){
 		if( this->LocateHot(plocalcg02->graphPieceNumCN, strinput, row)){
 			for(int i =0;i < row.size();i++){
@@ -459,30 +465,37 @@ void d_cg02s_pieceshow_t::ShowPayednchg()
 void d_cg02s_pieceshow_t::ActiveCoinBill()
 {
 	int irc = 0;
-	gp_coin->dCoinHold();
-	irc = gp_coin->dCoin_Work( 1, 1 );
-	if( irc != 0 )
+	if( !gp_medev->IsOnlyBill() )
 	{
-		gp_db->m_b8701.GetRow(0).m_BigErr = 1;
-		//return ;
+		gp_coin->dCoinHold();
+		irc = gp_coin->dCoin_Work( 1, 1 );
+		if( irc != 0 )
+		{
+			gp_db->m_b8701.GetRow(0).m_BigErr = 1;
+			//return ;
+		}
+
+		//如果硬币口没打开，则表示打开失败。设bigerr
+		//Bit2:=1/0  1投币口闸门已打开，    0 未打开
+		if( ( !gp_medev->IsOnlyBill() ) &&
+			( SStrf::readbit( gp_db->m_b8701.GetRow(0).m_CoinPollData.a[2], 2 ) == 0 ) )
+		{
+			gp_db->m_b8701.GetRow(0).m_BigErr = 1;
+			//return ;
+		}
 	}
 
-	//如果硬币口没打开，则表示打开失败。设bigerr
-	//Bit2:=1/0  1投币口闸门已打开，    0 未打开
-	if( ( !gp_medev->IsOnlyBill() ) &&
-		( SStrf::readbit( gp_db->m_b8701.GetRow(0).m_CoinPollData.a[2], 2 ) == 0 ) )
+	if( !gp_medev->IsOnlyCoin() )
 	{
-		gp_db->m_b8701.GetRow(0).m_BigErr = 1;
-		//return ;
+		irc = gp_bill->dBill_Work();  //modify by jfren@2161122
+	
+		if( irc != 0 )
+		{
+			gp_db->m_b8702.GetRow(0).m_BigErr = 1;
+			return ;
+		}
+		gp_bill->m_de_state = 2;
 	}
-
-	irc = gp_bill->dBill_Work();  //modify by jfren@2161122
-	if( irc != 0 )
-	{
-		gp_db->m_b8702.GetRow(0).m_BigErr = 1;
-		return ;
-	}
-	gp_bill->m_de_state = 2;
 }
 
 void d_cg02s_pieceshow_t::StopCoinAndBill()
@@ -491,12 +504,15 @@ void d_cg02s_pieceshow_t::StopCoinAndBill()
 	gp_coin->dCoinHold();
 	irc = gp_coin->dCoin_Stop();
 
-	irc = gp_bill->dBill_Stop();
-
-	gp_bill->m_de_state = 0;
-	if( irc != 0 )
+	if( !gp_medev->IsOnlyCoin() ) 
 	{
-		gp_db->m_b8701.GetRow(0).m_BigErr = 1;
+		irc = gp_bill->dBill_Stop();
+
+		gp_bill->m_de_state = 0;
+		if( irc != 0 )
+		{
+			gp_db->m_b8701.GetRow(0).m_BigErr = 1;
+		}
 	}
 }
 
@@ -511,11 +527,13 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 
 	if( ! ( strinput[0] == KIN_COIN || strinput[0] == KIN_BILL ) )
 		return rc;
-
+	/*if(plocalcg02->disableDisplayFlag == 1){
+		return rc;
+	}*/
 	//如果有钱投入则 张数键盘 全禁止
-	if( Rb8701.m_CoinPollData.a[0] + Rb8701.m_CoinPollData.a[1] + Rb8702.m_cNoteNum != 0 && this->m_payed == 0 ) 
+	if( Rb8701.m_CoinPollData.a[0] + Rb8701.m_CoinPollData.a[1] + Rb8702.m_cNoteNum != 0 && this->m_payed == 0) 
 	{
-		if(this->disableDisplayFlag == 0){
+		if(plocalcg02->disableDisplayFlag == 0){
 			if(plocalcg02->langFlag == 0){
 				for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDis" && plocalcg02->graphPieceNumCN[i].m_funcvalue != plocalcg02->m_iPieceNum){
@@ -544,7 +562,8 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 					}					
 				}
 			}
-			this->disableDisplayFlag = 1;
+			//this->disableDisplayFlag = 1;
+			plocalcg02->disableDisplayFlag = 1;
 		}
 		/*if( m_ButtType != DISABLE ) 
 		{
@@ -564,20 +583,26 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 		pwaiterdata->m_Coin1 = Rb8701.m_CoinPollData.a[0];
 
 		//if coin count = 30   //则该笔交易停止接收硬币   
-		if( 30 == (pwaiterdata->m_Coin5 + pwaiterdata->m_Coin1 ) )
+		if( ( 30 == ( pwaiterdata->m_Coin5 + pwaiterdata->m_Coin1 ) ) &&
+			( 3  == gp_coin->m_de_state ) )
 		{
 			// 关闭硬币投币口
 			gp_coin->dCoinHold();
-			gp_coin->dCoin_Stop();
+			gp_coin->dCoin_Stop( 0 );   //
 		}
 	}
-	else if( strinput[0] == KIN_BILL )  
+	else
+	if( strinput[0] == KIN_BILL )  
 	{
 		if( Rb8702.m_cNoteValue == 888 || Rb8702.m_cNoteNum == 888 ) // 此处检查参数3003允许的纸币类型 
 		{
 			Rb8702.m_cNoteValue = Rb8702.m_cNoteNum = 0;
 			gp_bill->dBill_Refund();  //modify by jfren @20161122 
-			gp_bill->dBill_Work();
+
+			if( !gp_medev->IsOnlyCoin() )
+			{
+				gp_bill->dBill_Work();
+			}
 		}
 		else
 		{
@@ -587,7 +612,10 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Rb8702.notevalue=["<<Rb8702.m_cNoteValue<<"],Notenum=["<<pwaiterdata->m_BillPieces.a[Rb8702.m_cNoteValue]<<"]");//add by jfren @20161123
 			Rb8702.m_cNoteValue = Rb8702.m_cNoteNum = 0;
 			//gp_bill->dBill_Encash();   //modify by jfren @20161122  默认到暂存
-			gp_bill->dBill_Work();
+			if( !gp_medev->IsOnlyCoin() )
+			{
+				gp_bill->dBill_Work();
+			}
 		}
 	}
 
@@ -605,7 +633,10 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 	if( m_payed >= iShouldPay )
 	{
 		this->m_chg = m_payed - iShouldPay ;
-		gp_bill->dBill_Stop(); //关闭投币口
+		if( !gp_medev->IsOnlyCoin() ) 
+		{
+			gp_bill->dBill_Stop(); //关闭投币口
+		}
 	}
 
 	//this->ShowPayednchg();
@@ -631,7 +662,7 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 		gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->payedIndex],sz2);
 		plocalcg02->graphElementsCN[plocalcg02->payedIndex].m_iShouldShow = 1;
 	}
-	else if(plocalcg02->langFlag == 0){
+	else if(plocalcg02->langFlag == 1){
 		char sz1[33];
 		SClib::p_sprintf()( sz1, "%0.1f", this->m_chg / 100.00 );
 		gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->shouldChangeIndex],sz1);
@@ -648,9 +679,11 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 	if( m_payed >= iShouldPay )
 	{
 		//other process
-		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+		/*
 		plocalcg01->displayFlag = 0;
 		plocalcg01->langFlag = 0;
+		plocalcg01->errorFlag = 0;
+		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 		gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 		gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 		
@@ -661,9 +694,10 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 			//TODO
 			plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 		}
-		SetLanguageCh();
+		SetLanguageCh();*/
 		rc =  1;
 	}
+	//plocalcg02->disableDisplayFlag = 0;
 
 	return rc;
 }

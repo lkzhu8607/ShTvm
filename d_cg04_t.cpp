@@ -24,6 +24,8 @@ d_cg04_t  *plocalcg04;
 d_cg04_t::d_cg04_t()
 {
 	plocalcg04 = this;
+	displayFlag = 0;
+	langFlag = 0;
 
 }
 
@@ -53,8 +55,8 @@ L_CHANGESTATUS:
 
 		//d_cg04s_backpic_t  cg04s_backpic;
 		//d_cg04s_stoppic_t  cg04s_stoppic;
-	
-		if( ( 1 == gp_db->m_a9999.GetRow(0).m_stopservice_sc_flag ) )
+L_GETINPUT:	
+		if( ( 9 == gp_medev->m_devstatus ) )
 		{
 			//cg04s_stoppic.ShowBack1();
 			for(int i=0;i<plocalcg04->graphElementsCN.size();i++){
@@ -63,6 +65,12 @@ L_CHANGESTATUS:
 					plocalcg04->graphElementsCN[i].m_iShouldShow = 1;
 					continue;
 				}
+				if(plocalcg04->graphElementsCN[i].m_funcname == "page4OutofService" && plocalcg04->graphElementsCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg04->graphElementsCN[i]);
+					plocalcg04->graphElementsCN[i].m_iShouldShow = 0;
+					continue;
+				}
+
 			}
 		}
 		else
@@ -73,14 +81,20 @@ L_CHANGESTATUS:
 					plocalcg04->graphElementsCN[i].m_iShouldShow = 1;
 					continue;
 				}
+				if(plocalcg04->graphElementsCN[i].m_funcname == "page4StopService" && plocalcg04->graphElementsCN[i].m_iShouldShow == 1){
+					gp_ui->hideLabel(plocalcg04->graphElementsCN[i]);
+					plocalcg04->graphElementsCN[i].m_iShouldShow = 0;
+					continue;
+				}				
 			}
 		}
 
-		lastmachinestatus = gp_db->m_a9999.GetRow(0).m_stopservice_sc_flag;
+		lastmachinestatus = gp_medev->m_devstatus;
 		//d_cg01s_evtcodes_t  cg01s_evtcodes;
 
-L_GETINPUT:
-		//d_cg01s_jud5041_t  cg01s_jud5041;
+//L_GETINPUT:
+		d_cg01s_jud5041_t  cg01s_jud5041;
+
 		//cg01s_evtcodes.ShowEvtCodes();
 
 		do{
@@ -91,16 +105,9 @@ L_GETINPUT:
 
 		if( 2 == cg01s_jud5041.Find_n_do_stopservice( gp_frontinput->GetFrontCurrentKey() ) )
 		{
-			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 			plocalcg01->displayFlag = 0;
-			plocalcg01->langFlag = 0;		
-			return;
-		}
-
-		if( cg01s_jud5041.Find_n_do_gotowork(gp_frontinput->GetFrontCurrentKey()) )
-		{
-			plocalcg01->displayFlag = 0;
-			plocalcg01->langFlag = 0;
+			plocalcg01->langFlag = 0;	
+			plocalcg01->errorFlag = 0;
 			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 			if(plocalcg04->langFlag == 0){
 				for(int i=0;i<plocalcg04->graphElementsCN.size();i++){
@@ -120,10 +127,39 @@ L_GETINPUT:
 					}
 				}
 			}
-			//return;
+			//plocalcg01->errorFlag = 0;
+			return;
 		}
 
-		if( lastmachinestatus != gp_db->m_a9999.GetRow(0).m_stopservice_sc_flag )
+		if( cg01s_jud5041.Find_n_do_gotowork(gp_frontinput->GetFrontCurrentKey()) )
+		{
+			plocalcg01->displayFlag = 0;
+			plocalcg01->langFlag = 0;
+			plocalcg01->errorFlag = 0;
+			gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+			if(plocalcg04->langFlag == 0){
+				for(int i=0;i<plocalcg04->graphElementsCN.size();i++){
+					if(plocalcg04->graphElementsCN[i].m_iShouldShow == 1){
+						gp_ui->hideLabel(plocalcg04->graphElementsCN[i]);
+						plocalcg04->graphElementsCN[i].m_iShouldShow = 0;
+						continue;
+					}
+				}
+			}
+			else if(plocalcg04->langFlag == 1){
+				for(int i=0;i<plocalcg04->graphElementsEN.size();i++){
+					if(plocalcg04->graphElementsEN[i].m_iShouldShow == 1){
+						gp_ui->hideLabel(plocalcg04->graphElementsEN[i]);
+						plocalcg04->graphElementsEN[i].m_iShouldShow = 0;
+						continue;
+					}
+				}
+			}
+			//plocalcg01->errorFlag = 0;
+			return;
+		}
+
+		if( lastmachinestatus != gp_medev->m_devstatus )
 		{
 			goto L_CHANGESTATUS;
 		}

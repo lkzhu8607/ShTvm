@@ -23,6 +23,9 @@
 #include "de_frontinput_t.h"
 #include "de_cashbox_t.h"
 #include "g06.h"
+#include "FTPManager.h"
+
+
 
 #define HAVEUP ( m_iStart != 0 )
 #define HAVEDN ( (tuint32)m_iStart + m_Scr2.size() < m_Scr1.size() )
@@ -540,7 +543,7 @@ void bu_backman_ele_t::OnRunFunc( std::string strFuncName )
 		if( strFuncName == "f_show_ver" )				{ f_show_ver();	break; }
 		if( strFuncName == "f_show_err_codes" )			{ f_show_err_codes();	break; }
 		if( strFuncName == "f_dev_id" )					{ f_dev_id();	break; }
-		if( strFuncName == "f_emitticket_sense" )		{ f_emitticket_sense();	break; }
+		if( strFuncName == "f_coincontrol_sense" )		{ f_coincontrol_sense();	break; }
 		if( strFuncName == "f_eod_ver" )				{ f_eod_ver();	break; }
 
 		if( strFuncName == "f_Udisk" )					{ f_Udisk();	break; }
@@ -891,11 +894,11 @@ void bu_backman_ele_t::f_ShowCurrBillChangeMode()
 
 	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_WorkModeConf.a[0], 0 ) ) )
 	{
-		m_Scr1.push_back( "..............当前纸币找零不使用" );
+		m_Scr1.push_back( "..............当前找零不使用" );
 	}
 	else
 	{
-		m_Scr1.push_back( "..............当前纸币找零使用" );
+		m_Scr1.push_back( "..............当前找零使用" );
 	}
 }
 
@@ -982,17 +985,46 @@ void bu_backman_ele_t::f_StopPrint()
 
 void bu_backman_ele_t::f_ShowCurrOpenDoorSellMode()
 {
-
+	m_Scr1.clear();
+	
+	m_Scr1.push_back( "显示当前门开售票模式:" );
+	
+	if( ( 0 == gp_medev->m_IsOpenDoorSellModule ) )
+	{
+		m_Scr1.push_back( "..............当前门开售票模式不使用" );
+	}
+	else
+	{
+		m_Scr1.push_back( "..............当前门开售票模式使用" );
+	}
 }
 
 void bu_backman_ele_t::f_OpenDoorSellStart()
 {
+	m_Scr1.clear();
+	
+	m_Scr1.push_back( "开启门开售票模式:" );
+	
+	gp_medev->m_IsOpenDoorSellModule = 1;
 
+	m_Scr1.push_back( "..............门开售票模式开启" );
+
+	gp_frontinput->input_KIN_APP();
+	
 }
 
 void bu_backman_ele_t::f_OpenDoorSellStop()
 {
+	m_Scr1.clear();
+	
+	m_Scr1.push_back( "关闭门开售票模式:" );
+	
+	gp_medev->m_IsOpenDoorSellModule = 0;
 
+	m_Scr1.push_back( "..............门开售票模式关闭" );
+
+	gp_frontinput->input_KIN_APP();
+	
 }
 
 //
@@ -1211,21 +1243,32 @@ void bu_backman_ele_t::f_CoinRecognizer_Test()
 	//2.while(1) { 查询是否有投钱，显示 }
 	std::string str1;
 	int iThrowth = 0;
-	BYTE bLastThrowCount = 0;
-	BYTE bThisThrowCount = 0;
+	BYTE bLastThrow1YuanCount = 0;
+	BYTE bLastThrow5MaoCount = 0;
 	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
 	while(1)
 	{
 		gp_coin->dCoin_Query();
-		bThisThrowCount = R8701.m_CoinPollData.a[0]*100 + R8701.m_CoinPollData.a[1]*50 ;
-		if( bThisThrowCount - bLastThrowCount )
+		//bThisThrowCount = R8701.m_CoinPollData.a[0]*100 + R8701.m_CoinPollData.a[1]*50 ;
+		if( ( R8701.m_CoinPollData.a[0] - bLastThrow1YuanCount ) ||
+			( R8701.m_CoinPollData.a[1] - bLastThrow5MaoCount ) )
 		{
-			char sz1[33];
-			SClib::p_sprintf()( sz1, "%0.1f", ( bThisThrowCount - bLastThrowCount ) / 100.00 );
+			//char sz1[33];
+			//SClib::p_sprintf()( sz1, "%0.1f", ( bThisThrowCount - bLastThrowCount ) / 100.00 );
 			iThrowth++;
-			m_Scr1.push_back( "第" + wl::SStrf::sltoa(iThrowth) + "次投入:" + sz1 );
+			if(  R8701.m_CoinPollData.a[0] - bLastThrow1YuanCount )
+			{
+				m_Scr1.push_back( "第" + wl::SStrf::sltoa(iThrowth) + "次投入: 1.0");
+			}
+			else
+			{
+				m_Scr1.push_back( "第" + wl::SStrf::sltoa(iThrowth) + "次投入: 0.5" );
+			}
+
 			ShowCurrScr();
-			bLastThrowCount = bThisThrowCount;
+			bLastThrow1YuanCount = R8701.m_CoinPollData.a[0];
+			bLastThrow5MaoCount = R8701.m_CoinPollData.a[1];
+			//bLastThrowCount = bThisThrowCount;
 		}
 
 		this->GetInputKey(str1);
@@ -1524,6 +1567,8 @@ void bu_backman_ele_t::f_OpenWarnning()
 	ShowCurrScr();
 
 	ret = gp_coin->dCoinOpenAlert();
+	LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "ret：" <<ret );
+
 
 	if( ret != 0 )	 
 	{
@@ -1547,6 +1592,8 @@ void bu_backman_ele_t::f_StopWarnning()
 	ShowCurrScr();
 
 	ret = gp_coin->dCoinCloseAlert();
+	LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "ret：" <<ret );
+
 
 	if( ret != 0 )	 
 	{
@@ -1572,6 +1619,7 @@ void bu_backman_ele_t::f_OpenLight()
 	ret = gp_coin->dCoinOpenUplight();
 	ret = gp_coin->dCoinOpenDownlight();
 
+	LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "ret：" <<ret );
 	if( ret != 0 )	 
 	{
 		m_Scr1.push_back( "打开前照明和取票灯命令失败" );
@@ -1595,6 +1643,7 @@ void bu_backman_ele_t::f_CloseLight()
 
 	ret = gp_coin->dCoinCloseUplight();
 	ret = gp_coin->dCoinCloseDownlight();
+	LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "ret：" <<ret );
 
 	if( ret != 0 )	 
 	{
@@ -1657,51 +1706,162 @@ void bu_backman_ele_t::f_Print_Profit_Report()
 	t_line = Ra1040.m_CcNode.a[0] & 0x0F;
 	lineNum += t_line;
 
+
+	wl::SDte YunYingStartDt = wl::SDte::GetNow();
+	wl::SDte YunYingEndDt = wl::SDte::GetNow();
+	GetYunYingDT(YunYingStartDt,YunYingEndDt);
+
+	
+
+	std::map<int ,int > MapReceiveBill;  // index 5元 10元 20元 50元 100元 
+	int ReceiveCoin[2] = {0};	//1元 5角 
+	long lReceiveCoinAmount = 0;
+	long lReceivceBillAmount = 0;
+	long lCoinChgAmount = 0;
+	long lBillChgAmount = 0;
+	long lCoinAddAmount = 0;
+	long lBillAddAmount = 0;
+	long lCoinCleanAmount = 0;
+	int iYunYingStartCoinChgBoxAmount = 0;
+	int iYunYingStartBillChgBoxAmount = 0;
+	int iYunYingEndBillChgBoxAmount = 0;
+	long lOverPayAmount = 0;
+	long lTodayProfileAmount = 0;
+
+	std::map<int ,int > MapSaleTicket;   // iTicketPrice = m_TickePrice1 分
+
+	int iBadTicketAmount = 0;
+	int iSaleTicketAmount = 0;
+
+	for(long l = gp_db->m_a_waiter_t.GetRowCount()-1;l > 0;l--)
+	{
+		if(gp_db->m_a_waiter_t.GetRow(l).m_begin_time >= YunYingStartDt )
+		{
+			
+			MapSaleTicket[gp_db->m_a_waiter_t.GetRow(l).m_TickePrice1] += gp_db->m_a_waiter_t.GetRow(l).m_TicketoutActual;
+
+			ReceiveCoin[0] += gp_db->m_a_waiter_t.GetRow(l).m_Coin1;
+			ReceiveCoin[1] += gp_db->m_a_waiter_t.GetRow(l).m_Coin5;
+
+			MapReceiveBill[5] += gp_db->m_a_waiter_t.GetRow(l).m_BillPieces.a[5];
+			MapReceiveBill[10] += gp_db->m_a_waiter_t.GetRow(l).m_BillPieces.a[10];
+			MapReceiveBill[20] += gp_db->m_a_waiter_t.GetRow(l).m_BillPieces.a[20];
+			MapReceiveBill[50] += gp_db->m_a_waiter_t.GetRow(l).m_BillPieces.a[50];
+			MapReceiveBill[100] += gp_db->m_a_waiter_t.GetRow(l).m_BillPieces.a[100];
+
+			lCoinChgAmount += gp_db->m_a_waiter_t.GetRow(l).m_CoinRecycleChgActual;
+			lBillChgAmount += gp_db->m_a_waiter_t.GetRow(l).m_BilchgActual;
+
+			lCoinAddAmount += 0;
+			lBillAddAmount += 0;
+			lCoinCleanAmount += 0;
+			lOverPayAmount += ( gp_db->m_a_waiter_t.GetRow(l).m_ShouldChgTotal - 
+				                gp_db->m_a_waiter_t.GetRow(l).m_CoinRecycleChgActual -
+								gp_db->m_a_waiter_t.GetRow(l).m_BilchgActual );
+
+			iBadTicketAmount += 0;
+
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	lReceiveCoinAmount =  (ReceiveCoin[1] * 50 + ReceiveCoin[0]*100)/100 ;
+	lReceivceBillAmount = ( MapReceiveBill[5]*500 + MapReceiveBill[10]*1000 + 
+						    MapReceiveBill[20]*2000 + MapReceiveBill[50]*5000 + 
+						    MapReceiveBill[100]*10000 )/100 ;
+
+	lTodayProfileAmount = ( lReceiveCoinAmount + lReceivceBillAmount);
+
+	iSaleTicketAmount = MapSaleTicket[200] + MapSaleTicket[300] +
+						MapSaleTicket[400] + MapSaleTicket[500] +
+				        MapSaleTicket[600] + MapSaleTicket[700] +
+						MapSaleTicket[800] + MapSaleTicket[900] +
+						MapSaleTicket[1000] + iBadTicketAmount;
+	
 	m_Scr1.clear();
 
 	m_Scr1.push_back( "打印收益报表" );
 
 	ShowCurrScr();
-	char str[1024] = {0};
-	sprintf(str,"\t上海地铁TVM每日收益报表\n\
-				车站                     %s\n\
-				线路                     轨道交通%d号线\n\
-				设备号                   %s\n\n\
-				操作员ID                 %d\n\
-				结算时间                 %s\n\n\
-				5元纸币收入张数          %d张\n\
-				10元纸币收入张数         %d张\n\
-				20元纸币收入张数         %d张\n\
-				50元纸币收入张数         %d张\n\
-				100元纸币收入张数        %d张\n\
-				1元硬币收入枚数          %d枚\n\
-				5角硬币收入枚数          %d枚\n\
-				合计纸币收入金额         %d元\n\
-				合计硬币收入金额         %d元\n\
-				合计现金收入金额         %d元\n\
-				硬币找零金额             %d元\n\
-				纸币找零金额             %d元\n\
-				总计找零金额             %d元\n\n\
-				硬币加币金额             %d元\n\
-				纸币加币金额             %d元\n\
-				硬币清币金额             %d元\n\
-				运营开始硬币找零箱金额   %d元\n\
-				运营开始纸币找零箱金额   %d元\n\
-				运营结束纸币找零箱金额   %d元\n\
-				超付金额                 %d元\n\n\
-				本日合计收入\n\n\
-				2元票出售张数            %d张\n\
-				3元票出售张数            %d张\n\
-				4元票出售张数            %d张\n\
-				5元票出售张数            %d张\n\
-				6元票出售张数            %d张\n\
-				7元票出售张数            %d张\n\
-				8元票出售张数            %d张\n\
-				9元票出售张数            %d张\n\
-				10元票出售张数           %d张\n\
-				废票张数                 %d张\n\
-				出票合计张数             %d张\n",gp_db->GetMyStaName().c_str(),lineNum,m_Ra3009.m_lOperatorNum,\
-				SDte::GetNow().ReadString().c_str(),0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0			
+	char str[4096] = {0};
+	sprintf(str,"    上海地铁TVM每日收益报表\n"
+				"车站                     %s\n"
+				"线路                     轨道交通%d号线\n"
+				"设备号                   \n\n"
+				"操作员ID                 %d\n"
+				"结算时间              %s\n\n"
+				"5元纸币收入张数          %d张\n"
+				"10元纸币收入张数         %d张\n"
+				"20元纸币收入张数         %d张\n"
+				"50元纸币收入张数         %d张\n"
+				"100元纸币收入张数        %d张\n"
+				"1元硬币收入枚数          %d枚\n"
+				"5角硬币收入枚数          %d枚\n"
+				"合计纸币收入金额         %d元\n"
+				"合计硬币收入金额         %d元\n"
+				"合计现金收入金额         %d元\n"
+				"硬币找零金额             %d元\n"
+				"纸币找零金额             %d元\n"
+				"总计找零金额             %d元\n\n"
+				"硬币加币金额             %d元\n"
+				"纸币加币金额             %d元\n"
+				"硬币清币金额             %d元\n"
+				"运营开始硬币找零箱金额   %d元\n"
+				"运营开始纸币找零箱金额   %d元\n"
+				"运营结束纸币找零箱金额   %d元\n"
+				"超付金额                 %d元\n\n"
+				"本日合计收入             %d元\n"
+				"2元票出售张数            %d张\n"
+				"3元票出售张数            %d张\n"
+				"4元票出售张数            %d张\n"
+				"5元票出售张数            %d张\n"
+				"6元票出售张数            %d张\n"
+				"7元票出售张数            %d张\n"
+				"8元票出售张数            %d张\n"
+				"9元票出售张数            %d张\n"
+				"10元票出售张数           %d张\n"
+				"废票张数                 %d张\n"
+				"出票合计张数             %d张\n",
+				gp_db->GetMyStaName().c_str(),
+				lineNum,
+				m_Ra3009.m_lOperatorNum,
+				SDte::GetNow().ReadString().c_str(),
+				MapReceiveBill[5],
+				MapReceiveBill[10],
+				MapReceiveBill[20],
+				MapReceiveBill[50],
+				MapReceiveBill[100],
+				ReceiveCoin[0],
+				ReceiveCoin[1],
+				lReceivceBillAmount,
+				lReceiveCoinAmount,
+				lReceivceBillAmount + lReceiveCoinAmount,
+				lCoinChgAmount,
+				lBillChgAmount,
+				lCoinChgAmount + lBillChgAmount,
+				lCoinAddAmount,
+				lBillAddAmount,
+				lCoinCleanAmount,
+				iYunYingStartCoinChgBoxAmount,
+				iYunYingStartBillChgBoxAmount,
+				iYunYingEndBillChgBoxAmount,
+				lOverPayAmount,
+				lTodayProfileAmount,
+				MapSaleTicket[200],
+				MapSaleTicket[300],
+				MapSaleTicket[400],
+				MapSaleTicket[500],
+				MapSaleTicket[600],
+				MapSaleTicket[700],
+				MapSaleTicket[800],
+				MapSaleTicket[900],
+				MapSaleTicket[1000],
+				iBadTicketAmount,
+				iSaleTicketAmount
+
 			);
 
 	//gp_printer->PrintStr( str );
@@ -1720,7 +1880,7 @@ void bu_backman_ele_t::f_Print_Ticket_Report()
 
 	ShowCurrScr();
 
-	m_Scr1.push_back( "打印报表成功" );
+	m_Scr1.push_back( "没有票卡报表可打印" );
 }
 
 void bu_backman_ele_t::f_Print_Trade_Report()
@@ -1735,13 +1895,13 @@ void bu_backman_ele_t::f_Print_Trade_Report()
 
 	if( gp_db->m_a_waiter_t.GetRowCount() -1  < 0 )
 	{
-		m_Scr1.push_back( "目前没有购票交易" );
+		m_Scr1.push_back( "没有购票交易可打印" );
 		return ;
 	}
 
 	a_waiter_t::ROWTYPE row( gp_db->m_a_waiter_t.GetRow( gp_db->m_a_waiter_t.GetRowCount() -1 ) );
 	
-	char cc[1024] = {0};
+	char cc[2048] = {0};
 	sprintf(cc,"	上海地铁TVM交通卡购票故障记录单\n"
 			   "车站	    \n"
 			   "线路	   轨道交通   号线\n"
@@ -2259,7 +2419,8 @@ void bu_backman_ele_t::f_ClearingCoin()
 
 	Rb8701.m_A5MaoStoreBox += Rb8701.m_A5MaoCycleChg;
 	Rb8701.m_A5MaoCycleChg = 0;
-	char buffer[1024]={0};
+
+	
 	// 3.清除1元专用找零
 	gp_coin->dCoin_Clean( 0x04 );		
 	gp_coin->dCoin_End_Clean( 0x04 );
@@ -2272,6 +2433,7 @@ void bu_backman_ele_t::f_ClearingCoin()
 	iYuan1SpecialChg = Rb8701.m_CoinCleanCount;
 	Rb8701.m_A1YuanStoreBox += Rb8701.m_CoinCleanCount;
 	Rb8701.m_A1YuanSpecialChg = 0;
+
 
 	// 2.清除5角专用找零
 	gp_coin->dCoin_Clean( 0x08 );		
@@ -2287,6 +2449,9 @@ void bu_backman_ele_t::f_ClearingCoin()
 	Rb8701.m_A5MaoSpecialChg = 0;
 	
 
+	char buffer[1024]={0};
+
+
 	sprintf(buffer, "\t上海地铁TVM硬币清币记录单\n \
 车站                  %s\n \
 线路                  轨道交通%d号线\n \
@@ -2299,10 +2464,17 @@ void bu_backman_ele_t::f_ClearingCoin()
 5角循环找零斗内硬币   %d枚\n \
 清币总额              %.2f元\n \
 清币前硬币回收箱金额  %.2f元\n \
-清币后硬币回收箱金额  %.2f元\n",gp_db->GetMyStaName().c_str(),lineNum,m_Ra3009.m_lOperatorNum,\
-				SDte::GetNow().ReadString().c_str(),iYuan1SpecialChg,iJiao5SpecialChg,yuan1cyclechg,jiao5cyclechg,\
-				(yuan1cyclechg + (((float)jiao5cyclechg)/2)),(yuan1box + (((float)jiao5box)/2)),\
-				(Rb8701.m_A1YuanStoreBox + ((float)Rb8701.m_A5MaoStoreBox)/2)			
+清币后硬币回收箱金额  %.2f元\n",
+				gp_db->GetMyStaName().c_str(),
+				lineNum,
+				m_Ra3009.m_lOperatorNum,
+				SDte::GetNow().ReadString().c_str(),
+				iYuan1SpecialChg,
+				iJiao5SpecialChg,
+				yuan1cyclechg,jiao5cyclechg,
+				(Rb8701.m_A1YuanStoreBox + ((float)Rb8701.m_A5MaoStoreBox)/2) - (yuan1box + (((float)jiao5box)/2)) ,
+				(yuan1box + (((float)jiao5box)/2)),
+				(Rb8701.m_A1YuanStoreBox + ((float)Rb8701.m_A5MaoStoreBox)/2  )			
 			);
 
 	//gp_printer->PrintStr( str );
@@ -2748,15 +2920,19 @@ void bu_backman_ele_t::f_Reset()
 	int irc = 0;
 	m_Scr1.clear();
 
-	//m_Scr1.push_back( "复位开始" );
-
-	//ShowCurrScr();
 
 	//1.纸币复位
 	m_Scr1.push_back( "正在复位纸币模块..." );
 	ShowCurrScr();
-	gp_bill->RecoverErr();
-	m_Scr1.push_back( "纸币模块复位完成" );
+	irc = gp_bill->RecoverErr();
+	if( irc )
+	{
+		m_Scr1.push_back( "纸币模块复位成功" );
+	}
+	else
+	{
+		m_Scr1.push_back( "纸币模块复位失败" );
+	}
 	ShowCurrScr();
 
 	//2.硬币复位
@@ -2772,7 +2948,7 @@ void bu_backman_ele_t::f_Reset()
 		gp_coin->dCoin2StoreBox(); 
 		gp_coin->dCoinHold();
 
-		m_Scr1.push_back( "硬币模块复位完成" );
+		m_Scr1.push_back( "硬币模块复位成功" );
 	}
 	else
 	{
@@ -2783,16 +2959,39 @@ void bu_backman_ele_t::f_Reset()
 	//3.发卡复位
 	m_Scr1.push_back( "正在复位发卡模块..." );
 	ShowCurrScr();
-	gp_emitticket->RecoverErr();
-	m_Scr1.push_back( "发卡模块复位完成" );
+	irc = gp_emitticket->RecoverErr();
+	if( irc )
+	{
+		m_Scr1.push_back( "发卡模块复位成功" );
+	}
+	else
+	{
+		m_Scr1.push_back( "发卡模块复位失败" );
+	}
 	ShowCurrScr();
 
 	//4.读写器复位
 	m_Scr1.push_back( "正在复位读写器模块..." );
 	ShowCurrScr();
-	gp_reader1->rReset();
-	gp_reader1->rInit2();
-	m_Scr1.push_back( "读写器模块复位完成" );
+
+	irc = gp_reader1->rReset();
+	if( 0 == irc )
+	{
+		irc = gp_reader1->rInit2();
+		if( 0 == irc )
+		{
+			m_Scr1.push_back( "读写器模块复位成功" );
+		}
+		else
+		{
+			m_Scr1.push_back( "读写器模块复位失败" );
+		}
+	}
+	else
+	{
+		m_Scr1.push_back( "读写器模块复位失败" );
+	}
+	
 	ShowCurrScr();
 
 	//消除一些错误码
@@ -2814,7 +3013,11 @@ void bu_backman_ele_t::f_Reset()
 	// 复位消除故障码
 	//gp_db->m_a5041.Clear();
 
-	m_Scr1.push_back( "复位成功" );
+	memset( gp_coin->m_iIsRepCoinOk, 1, sizeof(BYTE)*2 );  //清除掉补币箱补币错误
+	gp_bill->m_iIsRepBillOk = 1;                           ////清除掉补币箱补币错误
+
+
+	m_Scr1.push_back( "复位完成" );
 
 
 }

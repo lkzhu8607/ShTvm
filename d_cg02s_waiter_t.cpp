@@ -79,16 +79,6 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 		//return Coin And Bill
 		ReturnCoinAndBill( WR );
 
-		////退硬币
-		//gp_coin->returnCoin();
-
-		////退纸币
-		//if(WR.m_ReceiveBill >0)
-		//{
-		//	gp_bill->dBill_Refund();
-		//	WR.m_ReceiveBill = 0;
-		//	WR.m_ReceiveTotal = WR.m_ReceiveCoin;
-		//}
 		return irc;
 	}
 
@@ -124,7 +114,7 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 	//出一张车票 
 	if(WR.m_TicketingFirstFlag == 0)//进行第一次发卡
 	{
-		
+		b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
 		while( ticketbad < 3 )
 		{
 			//wl::WThrd::tr_sleepu(0.5);
@@ -134,7 +124,7 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 				//
 				int ret = 0;
 				//2.读卡
-				ret  = gp_reader1->rReadCard();
+				ret = gp_reader1->rReadCard();
 				if( ret == 0 )
 				{
 					//成功
@@ -162,14 +152,14 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 					else
 					{
 						//写卡失败
-						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "rSaleCard2 Error ret= "<<ret);
+						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "rSaleCard2 Error ret= "<<ret );
 						WR.m_TicketoutOk = 0;  WR.m_TicketoutErrReason = -1;
 					}
 				}
 				else
 				{
 					//读卡失败
-					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "rReadCard Error ret = "<<ret );
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "rReadCard Error ret = "<< ret );
 					WR.m_TicketoutOk = 0;  WR.m_TicketoutErrReason = -3;
 				}
 				
@@ -212,22 +202,24 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 		{
 			WR.m_TicketoutOk = WR.m_TicketoutDone = 0;
 			WR.m_TicketoutErrReason = 0;
+			WThrd::tr_sleepu( 0.1 );
 			SStrf::newobjptr<TicketoutPlan_t>()->MyInit(pwaiterdata);
 		}
 
 		//等待压箱和出票。
 		while(1)
 		{
-			WThrd::tr_sleepu( 0.8 );
-
+			
 			LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"while wait allwork");
 
-			if( WR.m_MoneyStoreDone && 
+			if( /*WR.m_MoneyStoreDone &&  */
 				WR.m_TicketoutDone )
 			{
+				WThrd::tr_sleepu( 0.4 );
 				//gp_emitticket->eTicket_CleanTemp();
 				break;
 			}
+			
 
 		}
 
@@ -241,36 +233,6 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 			{
 				//暂停服务
 				//列印异常数据
-				a1040_t::ROWTYPE & Ra1040(gp_db->m_a1040.GetRow(0));
-				BYTE t_line = 0x0F;	t_line &= (Ra1040.m_CcNode.a[0] >> 4);	
-				int lineNum = (t_line * 10);	
-				t_line = Ra1040.m_CcNode.a[0] & 0x0F;	
-				lineNum += t_line;
-				char str[1024] = {0};
-				sprintf(str,"\t上海地铁TVM现金购票故障记录单\n\
-				            车站            %s\n\
-							线路	        轨道交通%d号线\n\
-							设备号	        V001\n\n\
-							交易时间        %s\n\
-				            交易类型        现金购票\n\n \	
-				            车票单价        %d元\n\
-							张数            %d张\n\
-							应付金额        %.2f元\n\n\
-				            实收硬币	    %.2f元\n\
-				            实收纸币	    %.2f元\n\	
-				            应找金额	    %.2f元\n\
-				            实际出票	    %d张\n\
-				            实际找零	    %d元\n\
-				            少出票	        %d张\n\
-				            少找零	        %2.f元\n",\
-				            gp_db->GetMyStaName().c_str(),lineNum,WR.m_begin_time.ReadString().c_str(),\
-				            (WR.m_TickePrice1/100),WR.m_TicketoutPlan,(float)WR.m_TickePriceTotal,\
-				            (((float)WR.m_ReceiveCoin)/100),(((float)WR.m_ReceiveBill)/100),\
-				            (((float)WR.m_ShouldChgTotal)/100),WR.m_TicketoutActual,\
-				            (WR.m_TicketoutPlan - WR.m_TicketoutActual),\
-				            (((float)WR.m_ShouldChgTotal)/100 - (WR.m_CoinRecycleChgActual + WR.m_BilchgActual))							
-						);	
-				gp_printer->PrintStrAsync( str );
 			}
 			else
 			{
@@ -313,17 +275,18 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 	//等以上工作完成 
 	while(1)
 	{
-		WThrd::tr_sleepu( 0.8 );
 
 		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"while wait allwork");
 
-		if( WR.m_MoneyStoreDone && 
+		if( /*WR.m_MoneyStoreDone && */
 			WR.m_TicketoutDone && 
 			WR.m_CoinRecycleChgDone && 
 			WR.m_BilchgDone		)
 		{
 			break;
 		}
+
+		WThrd::tr_sleepu( 0.8 );
 
 	}
 
@@ -349,17 +312,26 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 				//交易数据记录
 				//先有票出都记着
 				gp_db->m_a_waiter_t.Add( WR );
+				gp_db->RiseSaveFlag( gp_db->m_a_waiter_t );
+
 				AddTransDataTo6000( WR );
+				gp_db->RiseSaveFlag( gp_db->m_a6000 );
+
 				break;
 			}
 			
 		}
 	}
 
-	
+	//连续三次出票失败
+	if( WR.m_TicketoutOk == 0 )
+	{
+		gp_db->m_a5041.GetRow(0).m_e.a[60] = 1;
+		irc = 1;
+	}
 
 	//if 票少出/票多出-> event 180
-	if( WR.m_TicketoutOk == 0 )
+	if( WR.m_TicketoutActual != WR.m_TicketoutPlan )
 	{
 		gp_db->m_a5041.GetRow(0).m_e.a[180] = 1;
 		irc = 1;

@@ -42,6 +42,8 @@ public:
 	static tbool SendTrade6002_1(); //发若干条未发过的 ， 发出了几条看config     应和db-purge串行运行 。高频度调用，自管理。 
 	static tbool SendTrade6002_range( long lSeri1, long lSeri2 );
 
+	static wl::tbool SendAns6005( wl::tuint16 uiMsgType );
+
 };
 
 

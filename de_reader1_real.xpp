@@ -70,8 +70,9 @@ void de_reader1_t::Reader1Advice()
 
 
 // 
-void de_reader1_t::Reader1Init()
+int de_reader1_t::Reader1Init()
 {
+	int irc = 0;
 	b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
 
 	if(!rw.OpenComm())
@@ -92,10 +93,13 @@ void de_reader1_t::Reader1Init()
 		Rb8704.m_RtnVal = this->rInit2();
 
 		this->Reader1Advice();
+		irc = 1;
 		
 	}
 
 	this->tr_open();
+
+	return irc;
 }
 
 

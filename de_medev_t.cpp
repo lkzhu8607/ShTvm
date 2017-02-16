@@ -28,6 +28,12 @@ de_medev_t::de_medev_t()
 	m_legal_authority = 0;
 	m_IsLegalLoginMaintenance = 0;
 	m_outofservicestatus = 12;
+
+	m_IsOpenDoorSellModule = 0;
+
+	m_IsYunYingEnd = 0;
+
+	m_IsEmergeModel = 0;
 }
 
 
@@ -281,7 +287,7 @@ tbool de_medev_t::Refresh5041_dev( std::string strinput )
 	else if( ( gp_db->m_b8701.GetRow(0).m_CoinStopUseFlag == 1 ) ||
 	    ( gp_db->m_b8701.GetRow(0).m_BigErr == 1 || gp_db->m_b8701.GetRow(0).m_ConnState == 0 ) ||
 		( gp_coin->IsVaultFull() ) || 
-		( gp_db->m_a5041.GetRow(0).m_e.a[137] == 1 ) )
+		( gp_db->m_a5041.GetRow(0).m_e.a[137] == 1 ) )    //137 硬币回收箱不在位 
 	{
 		// 135	只收纸币
 		EVT_CHG(135,1);
@@ -416,7 +422,7 @@ tbool de_medev_t::IntegratedStateGood()
 	// m_e.a[4]		参数未初始化
 	if( Ra5041.m_e.a[4] == 1 )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[4] = "<< Ra5041.m_e.a[4] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[4] = " );
 		this->m_outofservicestatus = 13;
 		m_devstatus = 4;
 		gp_topscr->DispStr( strshow );
@@ -426,10 +432,19 @@ tbool de_medev_t::IntegratedStateGood()
 	// s0.a[0]		0	开(1)/关(0)
 	if( Ra5041.m_s0.a[0] == 0 )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s0.a[0] = "<< Ra5041.m_s0.a[0] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s0.a[0] = " );
 		m_devstatus = 7;
 		gp_topscr->DispStr( strshow );
 		return -1;
+	}
+
+
+	if( Ra5041.m_e.a[62] == 1 )     //62 紧急模式
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[62] = ");
+		m_devstatus = 7;
+		gp_topscr->DispStr( strshow );
+		return 0;
 	}
 
 	// s0.a[1]		1	停止服务(1)/无故障(0)
@@ -438,44 +453,50 @@ tbool de_medev_t::IntegratedStateGood()
 		 strshow = "      关闭服务      "
 			       "    Stop Service   ";
 
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s0.a[1] = "<< Ra5041.m_s0.a[1] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s0.a[1] = " );
 		m_devstatus = 9;
 		gp_topscr->DispStr( strshow );
+
 		return -1;
 	}
-	
-	// s1.a[0]		门开(1)  //维护门到位信号
-	if( Ra5041.m_s1.a[0] == 1 )
+	if( 0 == gp_medev->m_IsOpenDoorSellModule )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s1.a[0] = "<< Ra5041.m_s1.a[0] );
+		// s1.a[0]		门开(1)  //维护门到位信号
+		if( Ra5041.m_s1.a[0] == 1 || m_IsLegalLoginMaintenance == 1 )
+		{
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s1.a[0] = " );
 
-		if( 1 == this->m_IsLegalLoginMaintenance )
-		{
-			//进入维护
-			LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"m_IsLegalLoginMaintenance =1 " );
-			m_devstatus = 7;
-			gp_topscr->DispStr( strshow );
-			return -1;
-			
+			if( 1 == this->m_IsLegalLoginMaintenance )
+			{
+				//进入维护
+				gp_db->m_a5041.GetRow(0).m_e.a[59] = 1;   //TVM维护面板登录的事件代码（59）
+
+				LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"m_IsLegalLoginMaintenance =1 " );
+				m_devstatus = 7;
+				gp_topscr->DispStr( strshow );
+				return -1;
+				
+			}
+			else
+			{
+				//只是门开
+				gp_db->m_a5041.GetRow(0).m_e.a[59] = 0;
+				this->m_outofservicestatus = 12;
+				m_devstatus = 4;
+				gp_topscr->DispStr( strshow );
+				return 0;
+			}
 		}
-		else
+
+		// s1.a[1]		门被开锁(1)
+		if( Ra5041.m_s1.a[1] == 1 )
 		{
-			//只是门开
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s1.a[1] = ");
 			this->m_outofservicestatus = 12;
 			m_devstatus = 4;
 			gp_topscr->DispStr( strshow );
 			return 0;
 		}
-	}
-
-	// s1.a[1]		门被开锁(1)
-	if( Ra5041.m_s1.a[1] == 1 )
-	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s1.a[1] = "<< Ra5041.m_s1.a[1] );
-		this->m_outofservicestatus = 12;
-		m_devstatus = 4;
-		gp_topscr->DispStr( strshow );
-		return 0;
 	}
 
 	// 130 发卡模块坏
@@ -491,7 +512,7 @@ tbool de_medev_t::IntegratedStateGood()
 	// 11 供票口卡票 
 	if( Ra5041.m_e.a[11] )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[11] = "<<Ra5041.m_e.a[11] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[11] = " );
 		m_devstatus = 4;
 		this->m_outofservicestatus = 12;
 		gp_topscr->DispStr( strshow );
@@ -501,7 +522,7 @@ tbool de_medev_t::IntegratedStateGood()
 	// 12 传输通道卡票 
 	if( Ra5041.m_e.a[12] )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[12] = "<<Ra5041.m_e.a[12] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[12] = " );
 		m_devstatus = 4;
 		this->m_outofservicestatus = 12;
 		gp_topscr->DispStr( strshow );
@@ -513,7 +534,7 @@ tbool de_medev_t::IntegratedStateGood()
 	    Ra5041.m_e.a[115] 	&& 
 		SStrf::readbit( gp_db->m_b8703.GetRow(0).m_SensorStatus.a[0], 4 ) == 0 )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041 = "<<Ra5041.m_e.a[113] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041 = " );
 		m_devstatus = 4;
 		this->m_outofservicestatus = 11;
 		gp_topscr->DispStr("      暂停服务");
@@ -531,20 +552,20 @@ tbool de_medev_t::IntegratedStateGood()
 		return 0;
 	}
 
-	////303 硬币处理单元不再位
-	//if(Ra5041.m_e.a[303])
-	//{
-	//	LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[303] = "<<Ra5041.m_e.a[303] );
-	//	m_devstatus = 4;
-	//	this->m_outofservicestatus = 12;
-	//	gp_topscr->DispStr( strshow );
-	//	return 0;
-	//}
+	//303 硬币处理单元不再位
+	if(Ra5041.m_e.a[303])
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[303] = " );
+		m_devstatus = 4;
+		this->m_outofservicestatus = 12;
+		gp_topscr->DispStr( strshow );
+		return 0;
+	}
 
 	// 179 少找零/多找零
 	if(Ra5041.m_e.a[179])
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[179] = "<<Ra5041.m_e.a[179] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[179] = " );
 		m_devstatus = 4;
 		this->m_outofservicestatus = 12;
 		gp_topscr->DispStr( strshow );
@@ -554,7 +575,7 @@ tbool de_medev_t::IntegratedStateGood()
 	// 180 票少出/票多出
 	if(Ra5041.m_e.a[180])
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[180] = "<<Ra5041.m_e.a[180] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[180] = " );
 		m_devstatus = 4;
 		this->m_outofservicestatus = 12;
 		gp_topscr->DispStr( strshow );
@@ -564,7 +585,7 @@ tbool de_medev_t::IntegratedStateGood()
 	// 120 TVM读卡器1故障 
 	if( Ra5041.m_e.a[120] )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[120] = "<<Ra5041.m_e.a[120] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[120] = " );
 		m_devstatus = 4;
 		this->m_outofservicestatus = 12;
 		gp_topscr->DispStr( strshow );
@@ -574,7 +595,7 @@ tbool de_medev_t::IntegratedStateGood()
 	// 116 废票箱满 
 	if( Ra5041.m_e.a[116] )
 	{
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[116] = "<<Ra5041.m_e.a[116] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[116] = " );
 		m_devstatus = 4;
 		this->m_outofservicestatus = 12;
 		gp_topscr->DispStr( strshow );
@@ -587,7 +608,7 @@ tbool de_medev_t::IntegratedStateGood()
 	{
 		strshow = "      只收纸币      "
 			      "      Note Only    ";
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[135] = "<<Ra5041.m_e.a[135] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[135] = " );
 		m_devstatus = 6;
 		gp_topscr->DispStr( strshow );
 		if(1)
@@ -603,7 +624,7 @@ tbool de_medev_t::IntegratedStateGood()
 	{
 		strshow =  "      只收硬币      "
 			       "      Coin Only    ";
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[136] = "<<Ra5041.m_e.a[136] );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_e.a[136] = " );
 		m_devstatus = 5;
 		gp_topscr->DispStr( strshow );
 		if(1)

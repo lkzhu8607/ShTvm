@@ -120,7 +120,7 @@ void de_bill_t::billAdvice()
 
 
 // 
-void de_bill_t::billInit()
+int de_bill_t::billInit()
 {
 	using namespace std;
 	using namespace BillMEI;
@@ -150,6 +150,8 @@ void de_bill_t::billInit()
 	m_de_state = 2;
 
 	this->tr_open();
+
+	return 1;
 }
 
 

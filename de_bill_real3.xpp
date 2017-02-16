@@ -26,6 +26,7 @@ de_bill_t::de_bill_t()
 	this->SetShouldReset();
 
 	m_iIsNotBillChange = 0;
+	m_iIsRepBillOk = 0;
 }
 
 
@@ -147,10 +148,11 @@ void de_bill_t::billAdvice()
 
 
 // 
-void de_bill_t::billInit()
+int de_bill_t::billInit()
 {
 	using namespace std;
 	using namespace BillBNR;
+	int irc = 0;
 	MYAUTOLOCK( m_DevLck );
 	b8702_t::ROWTYPE &Rb8702(gp_db->GetTheRowb8702());
 	
@@ -173,6 +175,7 @@ void de_bill_t::billInit()
 		Rb8702.m_RtnVal = this->dBill_Reset(true);
 		Rb8702.m_RtnVal = dBill_QueryCashUint();
 
+		dBill_SetReCBPositionNum(g_ConfigInfo.ReBoxFulls,g_ConfigInfo.ReBoxHighs,g_ConfigInfo.ReBoxLows,g_ConfigInfo.ReBoxEmptys);
 		int yuan_amount[5]={0,};
 		int yuan_countmax[5]={0,};
 		int i=0;
@@ -188,11 +191,15 @@ void de_bill_t::billInit()
 
 		this->billAdvice();
 
+		irc = 1;
+
 	}
 	
 	m_de_state = 0;
 
 	this->tr_open();
+
+	return irc;
 }
 
 
@@ -352,7 +359,21 @@ int de_bill_t::dBill_State()
 	//extern T_XfsCashUnit g_CashUnit;
 	int i=0;
 	//0:代表锁住 箱子到位  1:代表没锁住 没到位
-	if(g_BNRStatus.cCBSafedoor==1 || g_BNRStatus.cCBBOX==1 )
+	if(g_BNRStatus.cCBSafedoor==1)
+	{
+		m_safeunlock=1;
+	}
+	else
+	{
+		m_safeunlock=0;
+	}
+	//锁到位 但是offline需要复位
+	if(g_BNRStatus.cCBSafedoor==0 && g_BNRStatus.dwErrorCode==6179)
+	{
+		ret = bnr_demo.CBNR_ResetInit(true);	
+		m_resetok=1;
+	}
+	if( g_BNRStatus.cCBBOX==1 )
 	{	
 		
 		//前一刻到位，现在不到位，即卸载
@@ -363,10 +384,7 @@ int de_bill_t::dBill_State()
 			m_uninstall_boxflag=1;
 		}
 		R8702.m_boxExist.a[4]=0;
-		if(g_BNRStatus.cCBSafedoor==0 && g_BNRStatus.cCBBOX==1)
-		{
-			ret = bnr_demo.CBNR_ResetInit(true);
-		}
+		
 	}
 	else
 	{
@@ -379,8 +397,11 @@ int de_bill_t::dBill_State()
 		if(tmp_int != R8702.m_boxExist.a[4] )
 			ret  = 1;
 		R8702.m_boxExist.a[4]=1;
+		
+		
 	}
-	if(g_BNRStatus.cLOSafedoor==1 || g_BNRStatus.cLOBOX==1 )
+	
+	if(g_BNRStatus.cLOBOX==1 )
 	{	
 		tmp_int = 0;
 		if(tmp_int != R8702.m_boxExist.a[5] )
@@ -393,6 +414,15 @@ int de_bill_t::dBill_State()
 		if(tmp_int != R8702.m_boxExist.a[5] )
 			ret  = 1;
 		R8702.m_boxExist.a[5]=1;
+	}
+
+	//循环箱存在状态
+	for(i=0;i<4;i++)
+	{
+		if(g_BNRStatus.cREBOX[i]==0)
+			R8702.m_boxExist.a[i]=1;
+		if(g_BNRStatus.cREBOX[i]==1)
+			R8702.m_boxExist.a[i]=0;
 	}
 
 	if(g_BNRStatus.wInShutter!= R8702.m_wInShutter || \
@@ -665,7 +695,7 @@ int de_bill_t::dBill_Add(unsigned int LOAdd_Num[8] )
 //打开投币口
 int de_bill_t::dBill_Work()
 {
-	if( gp_medev->IsOnlyCoin() ) return 0;
+	//if( gp_medev->IsOnlyCoin() ) return 0;
 
 	using namespace BillBNR;
 	int ret = bnr_demo.CBNR_Enable();
@@ -674,7 +704,7 @@ int de_bill_t::dBill_Work()
  //关闭投币口
 int de_bill_t::dBill_Stop()
 {
-	if( gp_medev->IsOnlyCoin() ) return 0;
+	//if( gp_medev->IsOnlyCoin() ) return 0;
 
 	using namespace BillBNR;
 	int ret = bnr_demo.CBNR_Disable();
@@ -932,3 +962,60 @@ int de_bill_t::dBill_GetSerialNums(char ModuleSerialNums[6][10])  //获取各模块序
 	
 }
 
+int de_bill_t::RepBillStock()
+{
+	int irc = 1;   
+	unsigned int LOAdd_Num[8]={0,};
+	int i10YuanStockNeedRepNum = 4;
+	int iShouldRepNum = g_ConfigInfo.ReBoxHighs[1];
+
+	//检查是否需要补充硬币   //补充条件-> 1. 初始化界面 2.是否需要补币 3.补币箱中是否有币
+	
+
+	// 10 Yuan 
+	if( ( 4 != gp_medev->m_devstatus ) &&
+		( gp_db->m_b8702.GetRow(0).m_ReNumber.a[1] < i10YuanStockNeedRepNum ) &&
+		( 0 != gp_bill->m_iIsRepBillOk ) )
+	{
+		if( gp_bill->dBill_Add( LOAdd_Num ) != 0 )
+		{
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "补币失败");
+			if( 1 )
+			{
+				MYAUTOLOCK( gp_bill->m_DevLck );
+				gp_bill->m_iIsRepBillOk = 0;
+				irc = 0;
+			}
+		}
+		else
+		{
+			if( LOAdd_Num[3] < iShouldRepNum  )
+			{
+				if( 1 )
+				{
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "LOAdd_Num[3]="<< LOAdd_Num[3]<<" < iShouldRepNum="<< iShouldRepNum );
+					MYAUTOLOCK( gp_bill->m_DevLck );
+					gp_bill->m_iIsRepBillOk = 0;
+					irc = 0;
+				}
+			}
+			else
+			{
+				if( 1 )
+				{
+					MYAUTOLOCK( gp_bill->m_DevLck );
+					gp_bill->m_iIsRepBillOk = 1;
+				}
+			}
+			
+		}
+
+		irc = gp_bill->dBill_LockBox("LO1",true);
+		irc = gp_bill->dBill_Reset(true);
+
+		UINT32 ReDeno[4]={0,0,0,0};
+		UINT32 ReCount[4]={0,0,0,0};
+		gp_bill->dBill_GetRecycleDenomination(ReDeno,ReCount);
+	}
+	return irc;
+}

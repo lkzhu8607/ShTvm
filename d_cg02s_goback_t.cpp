@@ -77,12 +77,27 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 		if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) ){
 			for(int i=0;i<row.size();i++){
 				if(row[i].m_name == "CN_page2Goback--hot"){
-					plocalcg01->displayFlag = 0;
-					plocalcg01->langFlag = 0;	
-					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
-					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
-					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
+					if(gp_frontman_mgr->m_cg03.m_iLineCode <= 10){
+						plocalcg01->pageFlag = 1;
+					}
+					else 
+						plocalcg01->pageFlag = 0;
 					plocalcg02->m_iPieceNum = 1;
+					if(plocalcg01->isFastFlag ==1){
+						//plocalcg02->gobackFlag = 1;
+						plocalcg03->displayFlag = 0;
+						plocalcg03->langFlag = 0;	
+						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;	
+					}
+					else{
+						plocalcg01->displayFlag = 0;
+						plocalcg01->langFlag = 0;	
+						plocalcg01->errorFlag = 0;
+						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;	
+					}
+					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
+					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;					
+					
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 					return 1;
 				}
@@ -93,18 +108,34 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 		if( this->LocateHot( plocalcg02->graphElementsEN, strinput, row ) ){
 			for(int i=0;i<row.size();i++){
 				if(row[i].m_name == "EN_page2Goback--hot"){
-					plocalcg01->displayFlag = 0;
-					plocalcg01->langFlag = 0;	
-					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
+					if(gp_frontman_mgr->m_cg03.m_iLineCode <= 10){
+						plocalcg01->pageFlag = 1;
+					}
+					else 
+						plocalcg01->pageFlag = 0;
+					plocalcg02->m_iPieceNum = 1;
+					if(plocalcg01->isFastFlag ==1){
+						//plocalcg02->gobackFlag = 1;
+						plocalcg03->displayFlag = 0;
+						plocalcg03->langFlag = 1;	
+						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg03;	
+					}
+					else{
+						plocalcg01->displayFlag = 0;
+						plocalcg01->langFlag = 0;	
+						plocalcg01->errorFlag = 0;
+						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+					}						
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
-					plocalcg02->m_iPieceNum = 1;
+
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 					return 1;
 				}
 			}
 		}
 	}
+	//plocalcg01->isFastFlag = 1;
 	return 0;
 }
 

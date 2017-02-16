@@ -1,4 +1,4 @@
-
+﻿
 #ifndef K1_de_reader1_t_H
 #define K1_de_reader1_t_H
 
@@ -29,7 +29,7 @@ public:
 
 	//
 	void Reader1Advice();
-	void Reader1Init();
+	int Reader1Init();
 
 	//设备对外接口 
 	bool rCommOpen();

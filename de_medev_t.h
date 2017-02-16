@@ -1,4 +1,4 @@
-
+﻿
 //代表了本设备自身 
 #ifndef K1_de_medev_t_H
 #define K1_de_medev_t_H
@@ -17,10 +17,16 @@ public:
 	de_medev_t();
 	virtual ~de_medev_t();
 	int     m_devstatus;                      //对应显示屏显示  3-正常售票   4-故障暂停服务   5-只收硬币 6-只收纸币 7-进入暂停 9 - 关闭服务
-	int     m_legal_authority;                //是否合法权限  如:取钱箱是否登录或者维护
+	int     m_legal_authority;                //是否合法权限  如:取钱箱是否登录或者维护  0-非法 1-维护  2-结算
 	int     m_IsLegalLoginMaintenance;        // 是否合法登入维护   0: 没有，1：合法登入   目前用做切换模式
 
 	int     m_outofservicestatus;             // 11-票卡已售完   12-暂停售票(default) 13-系统未被初始化
+
+	int     m_IsOpenDoorSellModule;           //开门售票模式  1：开启   0：关闭    //该标志未来加到a9999中，方便统一管理
+
+	int     m_IsYunYingEnd;                   //是否运营结束  1：结束 0：开启  
+    
+	int     m_IsEmergeModel;                  //是否是紧急模式 1：是  0：正常   
 
 public:
 	virtual void OnRunTask( std::string t );

@@ -22,6 +22,7 @@
 #include "de_reader1_t.h"
 #include "de_bill_t.h"
 #include <iostream>
+#include "g06.h"
 
 using namespace std;
 //
@@ -45,6 +46,8 @@ d_cg02_t::d_cg02_t()
 	//exceptNoteIndex = 0;
 	notesIndex = 0;
 	pageGraphElementsFlags = 0;
+	disableDisplayFlag = 0;
+	gobackFlag = 0;
 	//coinIndex = 0;
 
 }
@@ -85,7 +88,7 @@ void d_cg02_t::cg02_graphElementsHide(int langFlag)
 			}
 		}
 	}
-	plocalcg01->isFastFlag = 0;
+	//plocalcg01->isFastFlag = 0;
 }
 
 //
@@ -151,11 +154,14 @@ void d_cg02_t::Proc()
 						continue;
 					}					
 					if(plocalcg02->graphElementsCN[i].m_name == "choicePieceNum"){
+						gp_ui->updateLabel(plocalcg02->graphElementsCN[i],SStrf::sltoa( plocalcg02->m_iPieceNum));
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphElementsCN[i].m_name == "shouldPay"){
+						gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+						gp_ui->updateLabel(plocalcg02->graphElementsCN[i],SStrf::sltoa( plocalcg02->m_iPieceNum * plocalcg02->m_iPrice ));
 						gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
@@ -260,11 +266,14 @@ void d_cg02_t::Proc()
 						continue;
 					}					
 					if(plocalcg02->graphElementsEN[i].m_name == "choicePieceNum"){
+						gp_ui->updateLabel(plocalcg02->graphElementsEN[i],SStrf::sltoa( plocalcg02->m_iPieceNum));
 						gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
 					}
 					if(plocalcg02->graphElementsEN[i].m_name == "shouldPay"){
+						gp_ui->hideLabel(plocalcg02->graphElementsEN[i]);
+						gp_ui->updateLabel(plocalcg02->graphElementsEN[i],SStrf::sltoa( plocalcg02->m_iPieceNum * plocalcg02->m_iPrice ));
 						gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
@@ -370,7 +379,7 @@ void d_cg02_t::Proc()
 		//d_cg01s_evtcodes_t  cg01s_evtcodes;
 		//d_cg02s_goodbillcoin_t cg02s_goodbillcoin;
 
-// show about piece 
+		// show about piece 
 		//d_cg02s_pieceshow_t  cg02s_pieceshow;
 
 		//cg02s_pieceshow.ShowPieceButtBoard();
@@ -390,14 +399,13 @@ L_GETINPUT:
 			gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
 			gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex]);
 			plocalcg02->graphElementsCN[plocalcg02->notesIndex].m_iShouldShow = 1;
-
 		}
-		else if(plocalcg02->langFlag == 0){
+		else if(plocalcg02->langFlag == 1){
+			SetLanguageEn();
 			gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex]);
 			gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
 			gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex]);
 			plocalcg02->graphElementsEN[plocalcg02->notesIndex].m_iShouldShow = 1; 
-
 		}
 
 		//cg01s_evtcodes.ShowEvtCodes();
@@ -412,25 +420,15 @@ L_GETINPUT:
 			{
 				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << " Throw  timeout ");
 
+				gp_qf->GetQf( iQf1_user_idle );
 				//关闭纸币硬币投币口
 				cg02s_pieceshow.StopCoinAndBill();
 
 				//超时，有钱则退钱，没钱也退出
-				gp_qf->GetQf( iQf1_user_idle );
-				//add by jfren @20161122
-				if(waiter_data.m_ReceiveBill >0)
-				{
-					gp_bill->dBill_Refund();//add by jfren @20161122
-					waiter_data.m_ReceiveBill = 0;
-					waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveCoin;
-				}
-				if(waiter_data.m_ReceiveCoin >0)
-				{
-					gp_coin->returnCoin();//退硬币
-					waiter_data.m_ReceiveCoin = 0;
-					waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveBill;
-				}
-				
+				//return Coin And Bill
+				ReturnCoinAndBill( waiter_data );
+				plocalcg02->disableDisplayFlag = 0;
+				plocalcg01->errorFlag = 0;
 				plocalcg01->displayFlag = 0;
 				if(plocalcg02->langFlag == 0){
 					plocalcg01->langFlag = 0;
@@ -460,42 +458,22 @@ L_GETINPUT:
 			//关闭纸币硬币投币口
 			cg02s_pieceshow.StopCoinAndBill();
 
-			//add by jfren @20161122
-			if(waiter_data.m_ReceiveBill >0)
-			{
-				gp_bill->dBill_Refund();
-				waiter_data.m_ReceiveBill = 0;
-				waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveCoin;
-			}
+			//return Coin And Bill
+			ReturnCoinAndBill( waiter_data );
 
-			if(waiter_data.m_ReceiveCoin >0)
-			{
-				gp_coin->returnCoin();//退硬币
-				waiter_data.m_ReceiveCoin = 0;
-				waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveBill;
-			}
-			//如果有投钱，则需要退钱，返回上一层界面	
+			//如果有投钱，则需要退钱，返回上一层界面
 			return;
 		}
 
-		if( cg02s_cancel.Find_n_do_Showcancel( gp_frontinput->GetFrontCurrentKey() ) ) 
+		if( cg02s_cancel.Find_n_do_Showcancel( gp_frontinput->GetFrontCurrentKey() ) )
 		{
 			//关闭纸币硬币投币口
 			cg02s_pieceshow.StopCoinAndBill();
 
 			//add by jfren @20161122
-			if(waiter_data.m_ReceiveBill >0)
-			{
-				gp_bill->dBill_Refund();//add by jfren @20161122
-				waiter_data.m_ReceiveBill = 0;
-				waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveCoin;
-			}
-			if(waiter_data.m_ReceiveCoin >0)
-			{
-				gp_coin->returnCoin();//退硬币
-				waiter_data.m_ReceiveCoin = 0;
-				waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveBill;
-			}
+			//return Coin And Bill
+			ReturnCoinAndBill( waiter_data );
+			
 			return;
 		}
 
@@ -508,7 +486,6 @@ L_GETINPUT:
 
 	
 		irc = cg02s_pieceshow.FnD_ShowNewValue( gp_frontinput->GetFrontCurrentKey() , &waiter_data ); //1=钱已够 
-
 		if( irc == 2 )
 		{
 			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "FnD_ShowNewValue irc = 2");
@@ -518,7 +495,7 @@ L_GETINPUT:
 		if( irc == 1 )
 		{
 			//d_cg02s_waiter_t  cg02s_waiter;
-			plocalcg01->isFastFlag = 0;
+			//plocalcg01->isFastFlag = 0;
 			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "处理找零和出票");
 
 			//钱足够，开始关闭纸币、硬币投币口
@@ -529,9 +506,11 @@ L_GETINPUT:
 			{
 				//交易失败，暂停服务
 
-				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+				plocalcg02->m_iPieceNum = 1;
+				plocalcg01->errorFlag = 0;
 				plocalcg01->displayFlag = 0;
 				plocalcg01->langFlag = 0;
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 				gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 				
@@ -543,6 +522,37 @@ L_GETINPUT:
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 				}
 				SetLanguageCh();
+			}
+			else
+			{
+				plocalcg02->disableDisplayFlag = 0;
+				plocalcg06->displayFlag = 0;
+				if(plocalcg02->langFlag == 0){
+					plocalcg06->langFlag = 0;
+					//plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+				}
+				else if(plocalcg02->langFlag == 1){
+					//TODO
+					plocalcg06->langFlag = 1;
+					//plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+				}				
+				
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg06;			
+				gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;	
+				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
+
+				if(plocalcg02->langFlag == 0){
+					//plocalcg06->langFlag = 0;
+					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+				}
+				else if(plocalcg02->langFlag == 1){
+					//TODO
+					//plocalcg06->langFlag = 1;
+					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+				}	
+
+				SetLanguageCh();
+				
 			}
 			return;
 		}
@@ -575,5 +585,8 @@ L_GETINPUT:
 		goto L_GETINPUT;
 	}
 
+			
 	return;
 }
+
+

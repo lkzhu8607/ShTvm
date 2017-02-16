@@ -1,4 +1,4 @@
-
+﻿
 #ifndef K1__bu_backman_ele_t_H
 #define K1__bu_backman_ele_t_H
 
@@ -54,7 +54,7 @@ public:
 	void f_show_ver();			// 2 版本信息 
 	void f_show_err_codes();	// 3 设备当前故障
 	void f_dev_id();			// 4 设备模块ID 
-	void f_emitticket_sense();	// 5 发卡模块光感状态
+	void f_coincontrol_sense();	// 5 控制板光感状态
 	void f_eod_ver();			// 6 当前参数版本	
 
 	//1_7

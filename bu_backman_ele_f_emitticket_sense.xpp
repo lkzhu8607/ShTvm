@@ -1,8 +1,8 @@
-
+﻿
 
 
 //
-void bu_backman_ele_t::f_emitticket_sense() 
+void bu_backman_ele_t::f_coincontrol_sense() 
 {
 	m_Scr1.clear();
 	

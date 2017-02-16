@@ -36,7 +36,7 @@ public:
 
 	//
 	void PrinterAdvice();
-	void PrinterInit();
+	int PrinterInit();
 
 	//设备对外接口 
 	int PrinterReset();

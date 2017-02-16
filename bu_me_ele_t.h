@@ -1,4 +1,6 @@
 
+
+//接受SC服务器下发的参数 和 bu_me_mgr_t 共同使用
 #ifndef K1__bu_me_ele_t_H
 #define K1__bu_me_ele_t_H
 

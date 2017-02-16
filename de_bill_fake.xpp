@@ -112,7 +112,7 @@ void de_bill_t::billAdvice()
 
 
 // 
-void de_bill_t::billInit()
+int de_bill_t::billInit()
 {
 	this->tr_open();
 
@@ -120,6 +120,7 @@ void de_bill_t::billInit()
 	Rb8702.m_RtnVal = 0;
 	Rb8702.m_ConnState = 1;
 	Rb8702.m_BigErr = 0;
+	return 1;
 }
 
 

@@ -48,6 +48,10 @@ void test_emt_ticket1();
 void test_read_card();
 
 
+int IsYunYingDT( wl::SDte dtnow ,wl::SDte *pdtstart = NULL );
+void GetYunYingDT( wl::SDte &YunYingStartDt,wl::SDte &YunYingEndDt );
+SDte GetOperationDate( SDte dt ); // ??：：??：2?┷?：o?┐??：：?0 
+
 bool isChangeOK( int iToBeChange, int iRMB50, int iRMB100, int iRMB500, int iRMB1000, int iRMB2000,int iRMB5000 ,long *iChangeCoin = NULL ,long *iChangeBill = NULL );
 
 bool CanChange( int iChangeLimit = 4900 ,long *iChangeCoin = NULL ,long *iChangeBill = NULL );
@@ -59,6 +63,8 @@ void AddMachineDataTo6000();
 
 
 int ReturnCoinAndBill( a_waiter_t_rowtype&  waiter_data );
+
+
 
 
 

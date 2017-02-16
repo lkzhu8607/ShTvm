@@ -201,8 +201,9 @@ void de_topscr_t::TopscrAdvice()
 
 
 // 
-void de_topscr_t::TopscrInit()
+int de_topscr_t::TopscrInit()
 {
+	int irc = 0;
 	MYAUTOLOCK( m_DevLck );
 	b8706_t::ROWTYPE &Rb8706(gp_db->GetTheRowb8706());
 
@@ -219,12 +220,16 @@ void de_topscr_t::TopscrInit()
 		Rb8706.m_BigErr = 0;
 
 		Rb8706.m_RtnVal = this->TopscrReset();
+
+		irc = 1;
 	}
 
 
 	this->m_de_state = 1;
 
 	this->tr_open();
+
+	return irc;
 }
 
 

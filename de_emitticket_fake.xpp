@@ -49,7 +49,7 @@ void de_emitticket_t::EmttAdvice()
 
 
 // 
-void de_emitticket_t::EmttInit()
+int de_emitticket_t::EmttInit()
 {
 	//´ò¿ª´®¿Ú
 	this->CommOpen();
@@ -60,6 +60,8 @@ void de_emitticket_t::EmttInit()
 	Rb8703.m_ConnState = 1;
 	Rb8703.m_BigErr = 0;
 	Rb8703.m_RtnVal =0;
+
+	return 1;
 }
 
 

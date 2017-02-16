@@ -22,7 +22,7 @@ public:
 
 	//
 	void TopscrAdvice();
-	void TopscrInit();
+	int TopscrInit();
 
 	//设备对外接口 
 	int TopscrReset();

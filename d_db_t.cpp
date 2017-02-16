@@ -118,7 +118,7 @@ d_db_t::~d_db_t()
 //template < class T >
 //void lf_LasyRiseSaveFlag_( T T2 )
 //{
-//	// ¼ì²â±¾±íÒª²»Òª´æÅÌ 
+//	// æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 //	static T T1;
 //	if( T1.Serialize() != T2.Serialize() )
 //	{
@@ -131,7 +131,7 @@ d_db_t::~d_db_t()
 //
 void d_db_t::LasyRiseSaveFlag_a5041( a5041_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static a5041_t::ROWTYPE R1;
@@ -147,7 +147,7 @@ void d_db_t::LasyRiseSaveFlag_a5041( a5041_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8701( b8701_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8701_t::ROWTYPE R1;
@@ -163,7 +163,7 @@ void d_db_t::LasyRiseSaveFlag_b8701( b8701_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8702( b8702_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8702_t::ROWTYPE R1;
@@ -180,7 +180,7 @@ void d_db_t::LasyRiseSaveFlag_b8702( b8702_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8703( b8703_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8703_t::ROWTYPE R1;
@@ -195,7 +195,7 @@ void d_db_t::LasyRiseSaveFlag_b8703( b8703_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8704( b8704_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8704_t::ROWTYPE R1;
@@ -211,7 +211,7 @@ void d_db_t::LasyRiseSaveFlag_b8704( b8704_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8705( b8705_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8705_t::ROWTYPE R1;
@@ -227,7 +227,7 @@ void d_db_t::LasyRiseSaveFlag_b8705( b8705_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8706( b8706_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8706_t::ROWTYPE R1;
@@ -244,7 +244,7 @@ void d_db_t::LasyRiseSaveFlag_b8706( b8706_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8707( b8707_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8707_t::ROWTYPE R1;
@@ -261,7 +261,7 @@ void d_db_t::LasyRiseSaveFlag_b8707( b8707_t::ROWTYPE R2 )
 //
 void d_db_t::LasyRiseSaveFlag_b8708( b8708_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static b8708_t::ROWTYPE R1;
@@ -276,7 +276,7 @@ void d_db_t::LasyRiseSaveFlag_b8708( b8708_t::ROWTYPE R2 )
 
 void d_db_t::LasyRiseSaveFlag_a_waiter( a_waiter_t::ROWTYPE R2 )
 {
-	//¸ôÒ»¶ÎÊ±¼ä¼ì²â±¾±íÒª²»Òª´æÅÌ 
+	//éš”ä¸€æ®µæ—¶é—´æ£€æµ‹æœ¬è¡¨è¦ä¸è¦å­˜ç›˜ 
 	if( SStrf::rand1() < 0.33 && time(0) % 6 == 0 )
 	{
 		static a_waiter_t::ROWTYPE R1;
@@ -350,7 +350,7 @@ void d_db_t::fLOADTBLFILE_a3014( WFile &fl, std::string &strDbSavePath )
 }
 
 
-//
+//åœ¨è¿™é‡Œæ¸…é™¤æ‰é‡å¯å¯ä»¥æ¶ˆé™¤çš„é”™è¯¯ç 
 void d_db_t::fLOADTBLFILE_a5041( WFile &fl, std::string &strDbSavePath )
 {
 	LOADTBLFILE(m_a5041);
@@ -359,48 +359,48 @@ void d_db_t::fLOADTBLFILE_a5041( WFile &fl, std::string &strDbSavePath )
 		MYAUTOLOCK( m_a5041.m_ut_tbl_lck );
 		m_a5041.Clear();
 		m_a5041.Add( a5041_t::ROWTYPE() );
-		//¼ÓÄ¬ÈÏÖµ 
+		//åŠ é»˜è®¤å€¼ 
 		a5041_t::ROWTYPE &row( m_a5041.GetRow(0) );
-		row.m_s0.a[	0	] = 	1	;	//	//	¿ª(1)/¹Ø(0)
-		row.m_s0.a[	1	] = 	1	;	//	//	Í£Ö¹·şÎñ(1)/ÎŞ¹ÊÕÏ(0)
-		row.m_s0.a[	2	] = 	0	;	//	//	²âÊÔ(1)/Éú²ú(0)
-		row.m_s0.a[	3	] = 	0	;	//	//	Ö½±ÒÏä±»È¡³ö(1)
-		row.m_s0.a[	4	] = 	0	;	//	//	Ö½±ÒÏä½«Âú(1)
-		row.m_s0.a[	5	] = 	0	;	//	//	Ó²±ÒÏä±»È¡³ö(1)
-		row.m_s0.a[	6	] = 	0	;	//	//	Ó²±ÒÏä½«Âú(1)
-		row.m_s0.a[	7	] = 	0	;	//	//	Ó²±ÒÕÒÁãÉÙ(1)
+		row.m_s0.a[	0	] = 	1	;	//	//	å¼€(1)/å…³(0)
+		row.m_s0.a[	1	] = 	1	;	//	//	åœæ­¢æœåŠ¡(1)/æ— æ•…éšœ(0)
+		row.m_s0.a[	2	] = 	0	;	//	//	æµ‹è¯•(1)/ç”Ÿäº§(0)
+		row.m_s0.a[	3	] = 	0	;	//	//	çº¸å¸ç®±è¢«å–å‡º(1)
+		row.m_s0.a[	4	] = 	0	;	//	//	çº¸å¸ç®±å°†æ»¡(1)
+		row.m_s0.a[	5	] = 	0	;	//	//	ç¡¬å¸ç®±è¢«å–å‡º(1)
+		row.m_s0.a[	6	] = 	0	;	//	//	ç¡¬å¸ç®±å°†æ»¡(1)
+		row.m_s0.a[	7	] = 	0	;	//	//	ç¡¬å¸æ‰¾é›¶å°‘(1)
 	
-		row.m_s1.a[	0	] = 	0	;	//		ÃÅ¿ª(1)
-		row.m_s1.a[	1	] = 	0	;	//		ÃÅ±»¿ªËø(1)
-		row.m_s1.a[	2	] = 	0	;	//		Æ±ÉÙ(1)
-		row.m_s1.a[	3	] = 	0	;	//		Ö½±ÒÕÒÁãÉÙ(1)
-		row.m_s1.a[	4	] = 	0	;	//		ÎŞÕÒÁãÄ£Ê½(1)/ÕÒÁãÄ£Ê½(0)
-		row.m_s1.a[	5	] = 	0	;	//		Ç®ÏäÎ´Ëø¶¨(1)
-		row.m_s1.a[	6	] = 	0	;	//		Î¬»¤¼üÅÌÍ¨ĞÅ¹ÊÕÏ(1)
-		row.m_s1.a[	7	] = 	0	;	//		[±£Áô]
+		row.m_s1.a[	0	] = 	0	;	//		é—¨å¼€(1)
+		row.m_s1.a[	1	] = 	0	;	//		é—¨è¢«å¼€é”(1)
+		row.m_s1.a[	2	] = 	0	;	//		ç¥¨å°‘(1)
+		row.m_s1.a[	3	] = 	0	;	//		çº¸å¸æ‰¾é›¶å°‘(1)
+		row.m_s1.a[	4	] = 	0	;	//		æ— æ‰¾é›¶æ¨¡å¼(1)/æ‰¾é›¶æ¨¡å¼(0)
+		row.m_s1.a[	5	] = 	0	;	//		é’±ç®±æœªé”å®š(1)
+		row.m_s1.a[	6	] = 	0	;	//		ç»´æŠ¤é”®ç›˜é€šä¿¡æ•…éšœ(1)
+		row.m_s1.a[	7	] = 	0	;	//		[ä¿ç•™]
 
-		row.m_e = a5041_t::ROWTYPE().m_e; //ÊÂ¼şÈ«Çå0 
+		row.m_e = a5041_t::ROWTYPE().m_e; //äº‹ä»¶å…¨æ¸…0 
 	}
 	
 	a5041_t::ROWTYPE &row2( m_a5041.GetRow(0) );
 
-	//Çå³ıÊÂ¼ş´íÎóÂë
+	//æ¸…é™¤äº‹ä»¶é”™è¯¯ç 
 	row2.m_e_old = a5041_t::ROWTYPE().m_e_old;
 	row2.m_e = a5041_t::ROWTYPE().m_e;
-	////4ºÍ71´¦Àí
+	////4å’Œ71å¤„ç†
 	//row2.m_e_old.a[4 ] = 0;
 	//row2.m_e.    a[4 ] = 0;
 	//row2.m_e_old.a[71] = 0;
 	//row2.m_e.    a[71] = 0;
 
-	////179 ºÍ 180 ´¦Àí
+	////179 å’Œ 180 å¤„ç†
 	//row2.m_e_old.a[179 ] = 0;
 	//row2.m_e.    a[179 ] = 0;
 	//row2.m_e_old.a[180 ] = 0;
 	//row2.m_e.    a[180 ] = 0;
 
-	//ËùÓĞÊÂ¼ş¶¼Ã»·¢Éú¹ı:
-	row2.m_e_flag = a5041_t::ROWTYPE().m_e_flag; //ÊÂ¼şflag
+	//æ‰€æœ‰äº‹ä»¶éƒ½æ²¡å‘ç”Ÿè¿‡:
+	row2.m_e_flag = a5041_t::ROWTYPE().m_e_flag; //äº‹ä»¶flag
 }
 
 
@@ -934,25 +934,25 @@ std::string d_db_t::GetVaildNotesType(int iShouldPayAmount){
 		//a_label_t::ROWTYPE  row;
 		if(GetLanguageState() == 0)
 		{
-			std::string strVal = "5Ôª 10Ôª 20Ôª 50Ôª";
+			strVal = "5å…ƒ 10å…ƒ 20å…ƒ 50å…ƒ";
 			//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 			if( gp_bill->m_iIsNotBillChange == 1 )
 			{
 				if( 5000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5Ôª 10Ôª 20Ôª 50Ôª";
+					strVal = "5å…ƒ 10å…ƒ 20å…ƒ 50å…ƒ";
 				}
 				else if( 2000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5Ôª 10Ôª 20Ôª";
+					strVal = "5å…ƒ 10å…ƒ 20å…ƒ";
 				}
 				else if( 1000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5Ôª 10Ôª";
+					strVal = "5å…ƒ 10å…ƒ";
 				}
 				else if( 500 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5Ôª";
+					strVal = "5å…ƒ";
 				}
 				//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 			}			
@@ -960,25 +960,25 @@ std::string d_db_t::GetVaildNotesType(int iShouldPayAmount){
 		}
 		else
 		{
-			std::string strVal = "£¤5 £¤10 £¤20 £¤50";
+			strVal = "ï¿¥5 ï¿¥10 ï¿¥20 ï¿¥50";
 			//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 			if( gp_bill->m_iIsNotBillChange == 1 )
 			{
 				if( 5000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "£¤5 £¤10 £¤20 £¤50";
+					strVal = "ï¿¥5 ï¿¥10 ï¿¥20 ï¿¥50";
 				}
 				else if( 2000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "£¤5 £¤10 £¤20";
+					strVal = "ï¿¥5 ï¿¥10 ï¿¥20";
 				}
 				else if( 1000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "£¤5 £¤10";
+					strVal = "ï¿¥5 ï¿¥10";
 				}
 				else if( 500 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "£¤5";
+					strVal = "ï¿¥5";
 				}
 				//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 			}				
@@ -1003,7 +1003,7 @@ tbool d_db_t::GetPossiblePrices( std::vector< int > & pricesout , u8arr_t<4> aCo
 		my_r3014 = this->m_a3014.GetRow(0);
 	}
 
-	//Çó³örow4002
+	//æ±‚å‡ºrow4002
 	a4002_t::ROWTYPE  row4002;
 
 	if(1)
@@ -1025,7 +1025,7 @@ tbool d_db_t::GetPossiblePrices( std::vector< int > & pricesout , u8arr_t<4> aCo
 		row4002 = gp_db->m_a4002.GetRow( rps[4], 0 );
 	}
 
-	//Çó³örow4003
+	//æ±‚å‡ºrow4003
 	a4003_t::ROWTYPE  row4003;
 
 	if(1)
@@ -1045,7 +1045,7 @@ tbool d_db_t::GetPossiblePrices( std::vector< int > & pricesout , u8arr_t<4> aCo
 		row4003 = gp_db->m_a4003.GetRow( rps[4], 0 );
 	}
 
-	//±éÀú4004£¬¸ù¾İzoneÇó³ö4003ÖĞµÄ¼Û¸ñ,ÔÙgroup
+	//éå†4004ï¼Œæ ¹æ®zoneæ±‚å‡º4003ä¸­çš„ä»·æ ¼,å†group
 	if(1)
 	{
 		MYAUTOLOCK( gp_db->m_a4004.m_ut_tbl_lck );
@@ -1145,7 +1145,7 @@ tuint32 d_db_t::GetSendConversationFlow()
 		MYAUTOLOCK(this->m_a9999.m_ut_tbl_lck);
 		tuint32 & l(this->m_a9999.GetRow(0).m_SendConversationFlow);
 		l++;
-		//l &= 0x7FffFFff;
+		l &= 0x7FffFFff;
 		j = l;
 	}
 	this->RiseSaveFlag( this->m_a9999 );

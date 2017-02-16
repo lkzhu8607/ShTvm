@@ -1,4 +1,4 @@
-
+﻿
 #include "bu_backupg_t.h"
 #include "bu_asynwork_t.h"
 #include "de_ui_t.h"
@@ -83,6 +83,9 @@ int bu_backupg_t::tr_on_user_run()
 	sprintf( s1, "发现 %s", szUDiskname ); 
 	gp_ui->LineScrPrintA( s1 );
 
+	sprintf( sCmd, "umount %s ", szUDiskname ); //可能已经自动挂载到某个目录，先卸载
+	system( sCmd );
+	WThrd::tr_sleep(1);
 	sprintf( sCmd, "mount %s /mnt2", szUDiskname );
 	rc = system( sCmd );
 	sprintf( s1, "执行%s,结果%d", sCmd, rc );

@@ -9,6 +9,7 @@
 #include "d_db_t.h"
 #include "d_cg01_t.h"
 #include "d_cg03_t.h"
+#include "bu_frontman_mgr_t.h"
 
 
 
@@ -73,7 +74,9 @@ tbool d_cg03s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 			for(int i=0;i<row.size();i++){
 				if( row[i].m_funcname == "CN_LangButt"){
 					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
+					gp_frontman_mgr->graphLastPageElementsCN.clear();
 					plocalcg03->langFlag = 1;
+					plocalcg01->isFastFlag = 1;
 					return 1;
 				}
 
@@ -85,7 +88,9 @@ tbool d_cg03s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 			for(int i=0;i<row.size();i++){
 				if( row[i].m_funcname == "EN_LangButt"){
 					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
+					gp_frontman_mgr->graphLastPageElementsEN.clear();
 					plocalcg03->langFlag = 0;
+					plocalcg01->isFastFlag = 1;
 					return 1;
 				}
 			}

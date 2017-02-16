@@ -122,7 +122,7 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 					u8arr_t<4>	ScNode;
 					std::vector< int >	v;
 				
-					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)plocalcg03->m_iLineCode );
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)gp_frontman_mgr->m_cg03.m_iLineCode );
 					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)row[i].m_funcvalue );
 			
 					if( !gp_db->GetPossiblePrices(v,ScNode) )
@@ -134,10 +134,12 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 					plocalcg02->displayFlag = 0;
 					plocalcg02->langFlag = 0;
 					plocalcg01->isFastFlag = 1;
-			
-					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
-					gp_frontman_mgr->m_cg02.m_iPrice = v[0]; // 
+					plocalcg02->m_iPieceNum = 1;
 					gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;
+					gp_frontman_mgr->m_cg02.m_iPrice = v[0];
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
+					 // 
+					//gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;
 					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 					//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg03;		
 					return 1;
@@ -154,7 +156,7 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 					u8arr_t<4>	ScNode;
 					std::vector< int >	v;
 				
-					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)plocalcg03->m_iLineCode );
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)gp_frontman_mgr->m_cg03.m_iLineCode );
 					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)row[i].m_funcvalue );
 			
 					if( !gp_db->GetPossiblePrices(v,ScNode) )
@@ -166,9 +168,12 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 					plocalcg02->displayFlag = 0;
 					plocalcg02->langFlag = 1;
 					plocalcg01->isFastFlag = 1;
-					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
-					gp_frontman_mgr->m_cg02.m_iPrice = v[0]; // 
+					plocalcg02->m_iPieceNum = 1;
+					gp_frontman_mgr->m_cg02.m_iPrice = v[0];
 					gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;
+					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
+					// 
+					//gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;
 					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 					//gp_frontman_mgr->m_cg02.m_pLastCg = plocalcg03;		
 					return 1;

@@ -36,7 +36,7 @@ public:
 	{
 		b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
 		b8702_t::ROWTYPE & Rb8702(gp_db->GetTheRowb8702());
-		int coinCycleBoxRatedCapacity = 100;
+		//int coinCycleBoxRatedCapacity = 100;
 
 		//纸币压箱	
 		if( m_pWR->m_ReceiveBill )
@@ -72,12 +72,16 @@ public:
 		if( m_pWR->m_ReceiveCoin )
 		{
 			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A1YuanCycleChg="<<Rb8701.m_A1YuanCycleChg );
-			if(Rb8701.m_A1YuanCycleChg < coinCycleBoxRatedCapacity)//循环箱中的硬币大于100个的时候，钱币直接进入回收箱
+			//if(Rb8701.m_A1YuanCycleChg < coinCycleBoxRatedCapacity)//循环箱中的硬币大于100个的时候，钱币直接进入回收箱
 			{
 				//如果进循环箱未完成则错 
+				int irc = gp_coin->dCoin2CircleChg();
+				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Con Store Circle Chg Error irc="<<irc );
 				if( gp_coin->dCoin2CircleChg() != 0 )
 				{
 					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Con Store Circle Chg Error");
+					Rb8701.m_A1YuanCycleChg += m_pWR->m_Coin1;
+					Rb8701.m_A5MaoCycleChg += m_pWR->m_Coin5;
 					m_pWR->m_MoneyStoreOk = 0;
 					//THREAD_END;
 				}
@@ -90,24 +94,7 @@ public:
 					//flow down
 				}
 			}
-			else
-			{
-				//如果进回收箱未完成则错 
-				if( gp_coin->dCoin2StoreBox() != 0 )
-				{
-					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin StotrBox Error");
-					m_pWR->m_MoneyStoreOk = 0;
-					//THREAD_END;
-				}
-				else
-				{
-					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "dCoin2StoreBox ok");
-					Rb8701.m_A1YuanStoreBox += m_pWR->m_Coin1;
-					Rb8701.m_A5MaoStoreBox += m_pWR->m_Coin5;
-					m_pWR->m_MoneyStoreOk = 1;
-					//flow down
-				}
-			}
+			
 		}
 
 		
@@ -148,6 +135,8 @@ public:
 					THREAD_END;
 				}
 				int ticketbadcount = 0;
+				b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
+
 				while( ticketbadcount < 3 )
 				{
 					//WThrd::tr_sleepu( 0.5 );
@@ -157,7 +146,7 @@ public:
 						int ret = 0;
 					
 						//2.读卡
-						ret  = gp_reader1->rReadCard();
+						ret = gp_reader1->rReadCard();
 						if( ret == 0 )
 						{
 							//成功
@@ -183,7 +172,7 @@ public:
 							else
 							{
 								//写卡失败
-								LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "rSaleCard2 Error ret= "<<ret);
+								LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "rSaleCard2 Error ret= "<<ret );
 								m_pWR->m_TicketoutOk = 0;  
 								m_pWR->m_TicketoutErrReason = -1;
 							}
@@ -250,21 +239,6 @@ public:
 	virtual int tr_on_user_run()
 	{
 		b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
-		//int coinCycleAddCurrency = gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum;
-
-		//if(Rb8701.m_A1YuanCycleChg < coinCycleAddCurrency)
-		//{
-		//	if(gp_coin->SupplementaryYuan1Coins(coinCycleAddCurrency - Rb8701.m_A1YuanCycleChg) != 0)
-		//	{
-		//		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "补币失败");
-		//		THREAD_END;
-		//	}
-		//	else
-		//	{
-		//		Rb8701.m_A1YuanCycleChg = coinCycleAddCurrency;
-		//		Rb8701.m_A1YuanSpecialChg -= ( coinCycleAddCurrency - Rb8701.m_A1YuanCycleChg );
-		//	}			
-		//}
 
 		if(m_pWR->m_Coin5 && (m_pWR->m_Coin5 % 2))
 		{
@@ -423,6 +397,7 @@ public:
 		WThrd::tr_sleep( 1 );
 		gp_bill->dBill_Change(1,&act1,&act2,&act3,&act4);
 		
+		
 		if(m_SmallBoxNum==0)
 		{
 			m_pWR->m_BilchgActual = act1*m_SmallDenomination + act2*m_BigDenomination;
@@ -439,6 +414,8 @@ public:
 		}
 		else
 		{
+			//找零失败
+			gp_db->m_a5041.GetRow(0).m_e.a[178] = 1;
 			m_pWR->m_BilchgOk = 0;
 		}
 		Rb8702.m_OutNumber.a[0] += act1;

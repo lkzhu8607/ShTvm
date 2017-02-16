@@ -5,6 +5,7 @@ OBJS    := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE)))
   
 #target you can change test to what you want
 #目标文件名，输入任意你想要的执行文件名
+BIN_PATH:= bin
 TARGET  := shtvm
   
 #compile and lib parameter

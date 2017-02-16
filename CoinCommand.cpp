@@ -1127,7 +1127,7 @@ int CCoin::Coin_Change( BYTE Box[2],BYTE Data[3])
 }
 
 //”≤±“ƒ£øÈ«Â±“√¸¡Ó0x02-----------------------------
-int CCoin::Coin_Clean(BYTE Box,BYTE Data[2], int &count)
+int CCoin::Coin_Clean(BYTE Box,BYTE Data[2] ,int iNeedCleanCount,int &count)
 {
     const int nLen = 6;
 	int ret = COIN_DLL_RES_SENDFAIL;
@@ -1151,7 +1151,7 @@ int CCoin::Coin_Clean(BYTE Box,BYTE Data[2], int &count)
 	szBuf[2] = (BYTE)iSeq;
 	szBuf[3] = Box;
 	szBuf[4] = 0xBC;
-	szBuf[5] = 0x00;
+	szBuf[5] = iNeedCleanCount;
 	//pthread_mutex_lock(&mySerialPort.coinMutex);
 	do
 	{
@@ -1165,6 +1165,9 @@ int CCoin::Coin_Clean(BYTE Box,BYTE Data[2], int &count)
 				memset(szRecv, 0, sizeof(szRecv));
 				if (RecvCommand(szRecv, nRecvLen))
 				{
+					wl::SCake ck;
+					ck.let( (char*)szRecv,nRecvLen );
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << ck.Seri_S());
 					//cWriteLog.Trace(_T("Recv Success1: "),szRecv,nRecvLen);
 					if(szRecv[2]== COIN_CMD_RES_CLEAN && szRecv[3]==iSeq  && szRecv[1]==0x05)
 					{
@@ -1424,6 +1427,7 @@ int CCoin::Coin_Add(BYTE Box,BYTE Data[2],int & count)
     do
     {	if ( SendCommand( szBuf, nLen) )
 		{
+		
 			int nRecvLen = 0;
 			isProc=true;
 			while( isProc )

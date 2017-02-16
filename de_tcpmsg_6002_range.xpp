@@ -1,4 +1,4 @@
-
+﻿
 // 
 tbool de_tcpmsg_t::SendTrade6002_range( long lSeri1, long lSeri2 )
 {
@@ -291,5 +291,4 @@ tbool de_tcpmsg_t::SendTrade6002_range( long lSeri1, long lSeri2 )
 }
 
 
-
-
+// 

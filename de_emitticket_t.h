@@ -1,4 +1,4 @@
-
+﻿
 //发卡模块 
 
 #ifndef K1_de_emitticket_t_H
@@ -34,7 +34,7 @@ public:
 
 	//
 	void EmttAdvice();
-	void EmttInit();
+	int EmttInit();
 
 	//设备对外接口 
 	bool CommOpen();
@@ -46,7 +46,7 @@ public:
 	int eTicket_PrepareCard();				//2.7发卡		总是票箱1发卡	功能：将卡发到读写位置
 	int eTicket_SendOutIn( BYTE Data1 );		//2.8读写结果	将卡发往乘客方向（Data1=1）， 发往废票箱（Data1=2
 	int eTicket_SendOut() ;
-	int eTicket_SendIn() { return eTicket_SendOutIn(2);  }		 
+	int eTicket_SendIn() ;		 
 	int eTicket_ExchangeBox();				//2.9卡箱换箱	
 
 	int eTicket_CleanEscrow(BYTE bTicketTowhere);

@@ -40,7 +40,7 @@ void de_reader1_t::Reader1Advice()
 }
 
 // 
-void de_reader1_t::Reader1Init()
+int de_reader1_t::Reader1Init()
 {
 	this->tr_open();
 
@@ -49,6 +49,8 @@ void de_reader1_t::Reader1Init()
 	Rb8704.m_BigErr = 0;
 
 	Rb8704.m_RtnVal = 0;
+
+	return 1;
 }
 
 

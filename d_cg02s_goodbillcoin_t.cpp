@@ -9,6 +9,7 @@
 #include "d_cg02_t.h"
 #include "bu_frontman_mgr_t.h"
 #include "de_bill_t.h"
+#include "de_medev_t.h"
 
 
 d_cg02s_goodbillcoin_t::d_cg02s_goodbillcoin_t()

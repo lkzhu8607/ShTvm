@@ -113,7 +113,7 @@ void de_coin_t::CoinAdvice()
 
 
 // 
-void de_coin_t::CoinInit()
+int de_coin_t::CoinInit()
 {
 	this->tr_open();
 
@@ -121,6 +121,8 @@ void de_coin_t::CoinInit()
 	R8701.m_ConnState = 1;
 	R8701.m_BigErr = 0;
 	R8701.m_RtnVal =0;
+
+	return 1;
 }
 
 
@@ -185,7 +187,7 @@ int de_coin_t::dCoin_End_Change( BYTE Data )
 }
 
 //
-int de_coin_t::dCoin_Clean( BYTE Box )
+int de_coin_t::dCoin_Clean( BYTE Box ,int iCleanCount /*= 0*/ )
 {
 	return 0;
 }
@@ -244,7 +246,7 @@ void de_coin_t::returnCoin()
 }
 
 //
-int de_coin_t::dCoin_Stop()
+int de_coin_t::dCoin_Stop( int iIsCleanReg /*= 1*/  )
 {
 	return 0;
 	

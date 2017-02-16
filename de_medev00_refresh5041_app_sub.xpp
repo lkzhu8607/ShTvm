@@ -68,26 +68,39 @@ tbool de_medev_t::Refresh5041_app_sub()
 
 
 		// s0.a[1]		1	Í£Ö¹·þÎñ(1)/ÎÞ¹ÊÕÏ(0)
-		if( Ra9999.m_tvm_big_err_flag )
+		if( Ra9999.m_tvm_big_err_flag ||  
+			Ra9999.m_stopservice_sc_flag || 
+			gp_conf->m_biSOPMode ||  
+			gp_medev->m_IsYunYingEnd == 1 )
+		{
 			S0_CHG(1,1);
-		else if( Ra9999.m_stopservice_sc_flag )
-			S0_CHG(1,1);
-		else if( gp_conf->m_biSOPMode )
-			S0_CHG(1,1);
-		////else if( Rb8701.m_BigErr && Rb8702.m_BigErr	||	Rb8702.m_ConnState == 0 && Rb8701.m_ConnState == 0	)
-		//else if( ( Rb8701.m_BigErr || Rb8701.m_ConnState == 0 ) && ( Rb8702.m_BigErr ||	Rb8702.m_ConnState == 0 ) )     // Ö½±ÒÓ²±ÒÒ»Æð»µ
-		//	S0_CHG(1,1);
-		//else if( Rb8703.m_BigErr ||	Rb8703.m_ConnState == 0 )    //·¢¿¨»µ
-		//	S0_CHG(1,1);
-		//else if( Rb8704.m_BigErr ||	Rb8704.m_ConnState == 0 )    //¶ÁÐ´Æ÷»µ
-		//	S0_CHG(1,1);
-		////else if( ( Rb8701.m_BigErr || Rb8701.m_ConnState == 0 ) && ( Rb8705.m_BigErr || Rb8705.m_ConnState == 0 ) )
-		////	S0_CHG(1,1);
-		//else if( !this->IsEODComplete() )
-		//	S0_CHG(1,1);
+			
+		}
 		else
+		{
 			S0_CHG(1,0);
-	
+			
+		}
+
+		if( Ra9999.m_tvm_big_err_flag ||  
+			Ra9999.m_stopservice_sc_flag || 
+			gp_conf->m_biSOPMode )
+		{
+			EVT_CHG(55,1);
+		}
+		else
+		{
+			EVT_CHG(55,0);
+		}
+
+		if( gp_medev->m_IsYunYingEnd == 1 )
+		{
+			EVT_CHG(67,1);
+		}
+		else
+		{
+			EVT_CHG(67,0);
+		}
 
 		// s0.a[2]		2	²âÊÔ(1)/Éú²ú(0)
 		S0_CHG(2,0);
@@ -185,6 +198,15 @@ tbool de_medev_t::Refresh5041_app_sub()
 
 		// s1.a[6]		Î¬»¤¼üÅÌÍ¨ÐÅ¹ÊÕÏ(1)
 		// s1.a[7]		[±£Áô]	
+
+		if( gp_medev->m_IsEmergeModel == 1 )     // 62 ½ô¼±Ä£Ê½
+		{
+			EVT_CHG(62,1);
+		}
+		else
+		{
+			EVT_CHG(62,0);
+		}
 
 
 

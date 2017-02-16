@@ -71,7 +71,6 @@ void d_cg02s_cancel_t::Showcancel()
 //
 tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 {
-
 	std::vector<a_label_t::ROWTYPE>  row;
 	if(plocalcg02->langFlag == 0){
 		if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) ){
@@ -79,11 +78,15 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 				if(row[i].m_name == "CN_page2Cancel--hot"){
 					plocalcg01->displayFlag = 0;
 					plocalcg01->langFlag = 0;	
+					plocalcg02->m_iPieceNum = 1;
+					plocalcg01->errorFlag = 0;
+					plocalcg02->disableDisplayFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
-					plocalcg02->m_iPieceNum = 1;
+					
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+					plocalcg01->isFastFlag = 0;
 					return 1;
 				}
 			}
@@ -95,15 +98,20 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 				if(row[i].m_name == "EN_page2Cancel--hot"){
 					plocalcg01->displayFlag = 0;
 					plocalcg01->langFlag = 0;	
+					plocalcg02->m_iPieceNum = 1;
+					plocalcg01->errorFlag = 0;
+					plocalcg02->disableDisplayFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
-					plocalcg02->m_iPieceNum = 1;
+					
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
+					plocalcg01->isFastFlag = 0;
 					return 1;
 				}
 			}
 		}
 	}
+	
 	return 0;
 }

@@ -1,4 +1,4 @@
-//前端操作对象管理者类 
+//?????????? 
 #ifndef K1__bu_frontman_mgr_t_H
 #define K1__bu_frontman_mgr_t_H
 
@@ -12,6 +12,7 @@
 #include "d_cg03_t.h"
 #include "d_cg04_t.h"
 #include "d_cg05_t.h"
+#include "d_cg06_t.h"
 
 
 
@@ -25,8 +26,9 @@ public:
 	d_cg03_t   m_cg03;
 	d_cg04_t   m_cg04;
 	d_cg05_t   m_cg05;
-	std::vector<a_label_t::ROWTYPE> graphLastPageElements;
-
+	d_cg06_t   m_cg06;
+	std::vector<a_label_t::ROWTYPE> graphLastPageElementsCN;
+	std::vector<a_label_t::ROWTYPE> graphLastPageElementsEN;
 public:
 	bu_frontman_mgr_t();
 	virtual ~bu_frontman_mgr_t();

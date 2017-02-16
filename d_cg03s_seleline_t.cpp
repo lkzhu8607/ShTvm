@@ -29,6 +29,7 @@ tbool d_cg03s_seleline_t::Find_n_do_seleline( std::string strinput )
 {
 	std::vector<a_label_t::ROWTYPE>  row;
 	plocalcg01->isFastFlag = 1;
+	int line = gp_frontman_mgr->m_cg03.m_iLineCode;
 	if(plocalcg03->langFlag == 0){
 		if( this->LocateHot( plocalcg01->graphLineButtonCN, strinput, row ) )
 		{
@@ -46,7 +47,7 @@ tbool d_cg03s_seleline_t::Find_n_do_seleline( std::string strinput )
 							gp_frontman_mgr->m_cg03.m_iLineCode = row[j].m_funcvalue;
 							return 1;
 						}
-					}
+					}			
 				}
 			}
 		}

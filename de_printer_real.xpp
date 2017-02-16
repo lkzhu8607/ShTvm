@@ -1,7 +1,7 @@
 
 
 static tuint16 X, Y;
-static SCake v_ckbuf; // Y??,X???
+static SCake v_ckbuf; // Y点高，X字节宽
 static	wl::SBmp v_sb;
 
 #include "w_SBmp.xpp"
@@ -109,8 +109,9 @@ void de_printer_t::PrinterAdvice()
 
 
 // 
-void de_printer_t::PrinterInit()
+int de_printer_t::PrinterInit()
 {
+	int irc = 0;
 	MYAUTOLOCK( m_DevLck );
 	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
 
@@ -128,11 +129,14 @@ void de_printer_t::PrinterInit()
 
 		Rb8707.m_RtnVal = this->PrinterReset();
 
+		irc = 1;
 	}
 	
 	this->m_de_state = 1;
 
 	this->tr_open();
+	
+	return irc;
 }
 
 
@@ -145,10 +149,10 @@ int de_printer_t::PrinterReset()
 	SCake ck;
 
 	//s1 = "0A "
-	//	 "1B 40 "		// ???
-	//	 "1D 61 00 "	// ?????? ??? GS a n
+	//	 "1B 40 "		// 初始化
+	//	 "1D 61 00 "	// 自动状态返回 全禁止 GS a n
 	//	 ;
-	s1 = "1B 40 ";		// ??? 
+	s1 = "1B 40 ";		// 初始化 
 	ck.UnSeri_S( s1 );
 	
 	printercomm.m_aCom.send_bin( ck );
@@ -177,7 +181,7 @@ bool de_printer_t::PrinterCommOpen()
 }
 
 
-//????
+//关闭端口
 void de_printer_t::PrinterCommClose()
 {
 	LOGSTREAM( gp_log[LOGPRINTER], LOGPOSI << "com close:" << gp_conf->Get_printer_com_port() );
@@ -198,7 +202,7 @@ void de_printer_t::HalfCut()
 	std::string s1;
 	SCake ck;
 
-	s1 = "0A 0A 0A 1B 69 "		// ?? 
+	s1 = "0A 0A 0A 1B 69 "		// 半切 
 		 ;
 	ck.UnSeri_S( s1 );
 	
@@ -257,10 +261,12 @@ void de_printer_t::PrintStr(std::string str)
 
 		this->PrintStr( ckstr );
 
-		this->Query();
+		
 	}
 
 	this->HalfCut();
+
+	this->Query();
 
 
 }
@@ -270,7 +276,7 @@ void de_printer_t::PrintPic( SCake ckPic )
 {
 	// GS v 0 m xL xH yL yH d1....dk 
 
-	// 1D 76 30 00 X?? Y?? DATA
+	// 1D 76 30 00 X字节 Y点数 DATA
 
 	//MYAUTOLOCK( m_DevLck );
 	b8707_t::ROWTYPE &Rb8707(gp_db->GetTheRowb8707());
@@ -301,7 +307,7 @@ void de_printer_t::PrintPic( SCake ckPic )
 		SStrf::writebit_r( ck2.buf(), i, (*p ? 1 : 0) );
 	}
 
-	for( int i = 0; i < (int)ck2.len(); i++ )	//	????	
+	for( int i = 0; i < (int)ck2.len(); i++ )	//	保护指令	
 	{
 		p = ck2.buf() + i;
 		if( *p == 0x1D ) *p = 0x2d;
@@ -367,13 +373,13 @@ void de_printer_t::Query()
 	SCake ck;
 	tuint8  ui1;
 
-	s1 = "1D 72 01 ";	// GS r n	????
+	s1 = "1D 72 01 ";	// GS r n	返回状态
 		 
 	ck.UnSeri_S( s1 );
 	
 	printercomm.m_aCom.send_bin( ck );
 
-	//	??	
+	//	应答	
 	printercomm.m_aCom.recv_len( ck , 1 );
 
 	if( ck.len() )
@@ -436,36 +442,36 @@ void de_printer_t::PrintStrAsync( std::string str )
 void de_printer_t::PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata )
 {
 
-	long lActualChg = pwaiterdata.m_BilchgActual + pwaiterdata.m_CoinRecycleChgActual + pwaiterdata.m_CoinSpecialChgActual;
+	long lActualChg = pwaiterdata.m_BilchgActual + pwaiterdata.m_CoinRecycleChgActual /*+ pwaiterdata.m_CoinSpecialChgActual*/;
 	long lNotChg = pwaiterdata.m_TickePriceTotal - pwaiterdata.m_TicketoutActual * pwaiterdata.m_TickePrice1 - lActualChg;
 
 	char cc[1024] = {0};
-	sprintf(cc,"	????TVM?????????\n"
-               "??\n"	
-               "??	 ???? ??\n"
-               "???V001\n"
+	sprintf(cc,"	上海地铁TVM现金购票故障记录单\n"
+               "车站\n"	
+               "线路	 轨道交通 号线\n"
+               "设备号       V001\n"
 			   "\n"
-				"????	%s\n"
-				"????	????\n"
+				"交易时间	%s\n"
+				"交易类型	现金购票\n"
 				"\n"
-				"????	%d?\n"
-				"??	    %d?\n"
-				"????	%d?\n"
+				"车票单价	%d元\n"
+				"张数       %d张\n"
+				"应付金额	%d元\n"
 				"\n"
-				"????	%d?\n"
-				"????	%d?\n"
-				"????	%d?\n"
-				"????	%d?\n"
-				"????	%d?\n"
-				"???   %d?\n"
-				"???   %d?\n",
+				"实收硬币	%d元\n"
+				"实收纸币	%d元\n"
+				"应找金额	%d元\n"
+				"实际出票	%d张\n"
+				"实际找零	%d元\n"
+				"少出票      %d张\n"
+				"少找零      %d元\n",
 				pwaiterdata.m_end_time.ReadStringPack().c_str() ,
 				pwaiterdata.m_TickePrice1 ,
 				pwaiterdata.m_TicketoutPlan ,
 				pwaiterdata.m_TickePriceTotal / 100 ,
 				pwaiterdata.m_ReceiveCoin / 100,
 				pwaiterdata.m_ReceiveBill / 100 ,
-				pwaiterdata.m_ShouldChgTotal ,
+				pwaiterdata.m_ShouldChgTotal/100 ,
 				pwaiterdata.m_TicketoutActual ,
 				lActualChg / 100,
 				pwaiterdata.m_TicketoutPlan - pwaiterdata.m_TicketoutActual  ,

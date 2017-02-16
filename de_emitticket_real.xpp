@@ -94,8 +94,9 @@ void de_emitticket_t::EmttAdvice()
 
 
 // 
-void de_emitticket_t::EmttInit()
+int de_emitticket_t::EmttInit()
 {
+	int irc = 0;
 	MYAUTOLOCK( m_DevLck );
 	b8703_t::ROWTYPE &Rb8703(gp_db->GetTheRowb8703());
 	//′ò?a′??ú
@@ -115,12 +116,16 @@ void de_emitticket_t::EmttInit()
 		Rb8703.m_RtnVal = this->eTicket_GetVersion();
 		
 		this->EmttAdvice();
+
+		irc = 1;
 		
 	}
 
 	m_de_state = 2;
 
 	this->tr_open();
+
+	return irc;
 }
 
 
@@ -179,13 +184,13 @@ int de_emitticket_t::eTicket_Poll()
 				irc ++, Rb8703.m_SensorStatus.a[i] = SensorStatus[i];
 		}
 
-		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "eTicket_Poll Result="<<iResult<<"SensorStatus="
-		                               <<wl::SStrf::sltoa(SensorStatus[0])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[1])<<" " 
-									   <<wl::SStrf::sltoa(SensorStatus[2])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[3])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[4])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[5]) );
+		//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "eTicket_Poll Result="<<iResult<<"SensorStatus="
+		//                               <<wl::SStrf::sltoa(SensorStatus[0])<<" "
+		//							   <<wl::SStrf::sltoa(SensorStatus[1])<<" " 
+		//							   <<wl::SStrf::sltoa(SensorStatus[2])<<" "
+		//							   <<wl::SStrf::sltoa(SensorStatus[3])<<" "
+		//							   <<wl::SStrf::sltoa(SensorStatus[4])<<" "
+		//							   <<wl::SStrf::sltoa(SensorStatus[5]) );
 
 		Rb8703.m_ConnState = 1;    //清除错误标记
 		this->EmttAdvice();
@@ -312,6 +317,25 @@ int de_emitticket_t::eTicket_SendOut()
 		return iResult;
 	}
 	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Clean Escrow ="<<iResult);*/
+
+	return iResult;
+}
+
+
+int de_emitticket_t::eTicket_SendIn()
+{
+	MYAUTOLOCK( m_DevLck );
+	int iResult;
+	BYTE Data = 0x02;
+	iResult = eTicket_SendOutIn(Data); 
+
+	if(iResult != 0)
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Prepar Ticket fail");
+		return iResult;
+	}
+
+	gp_db->m_b8703.GetRow(0).m_BadTotal ++;   //进回收箱成功，则记录+1
 
 	return iResult;
 }
@@ -446,6 +470,11 @@ int de_emitticket_t::eTicket_CleanEscrow(BYTE bTicketTowhere)
 		}
 		
 	}while(1);
+
+	if( iResult != 0 )
+	{
+		gp_db->m_a5041.GetRow(0).m_e.a[11] = 1;    // TVM发票口卡票的事件代码（11）
+	}
 
 	return iResult;
 }

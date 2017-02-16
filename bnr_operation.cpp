@@ -210,14 +210,14 @@ int CBNROperation::print_BNRStatus(BNRStatus_t* bnrstatus)
 	{
 		return -1;
 	}
-	xx1_log_debug(LOG_LEVEL_MUST,"»Î≥Æø⁄:%d\tÕÀ≥Æø⁄:%d\t‘›¥Ê◊¥Ã¨:%d\tªÿ ’œ‰À¯:%d\t≤π±“œ‰À¯:%d\nªÿ ’œ‰◊¥Ã¨:%d\t≤π±“œ‰◊¥Ã¨:%d\t÷Ω±“ƒ£øÈπ ’œ:%d, «∑Ò’˝Ωª“◊◊¥Ã¨:%d\n",\
+	xx1_log_debug(LOG_LEVEL_MUST,"»Î≥Æø⁄:%d\tÕÀ≥Æø⁄:%d\t‘›¥Ê◊¥Ã¨:%d\tªÿ ’œ‰À¯:%d\t≤π±“œ‰À¯:%d\nªÿ ’œ‰◊¥Ã¨:%d\t≤π±“œ‰◊¥Ã¨:%d\t÷Ω±“ƒ£øÈπ ’œ:%d, «∑Ò’˝Ωª“◊◊¥Ã¨:%d\t—≠ª∑œ‰À¯:%d\tRE3-RE4:%d\n",\
 		bnrstatus->wInShutter,bnrstatus->wReturnShutter,bnrstatus->wStacker,\
 		bnrstatus->cCBSafedoor,bnrstatus->cLOSafedoor,bnrstatus->cCBBOX,\
-		bnrstatus->cLOBOX,bnrstatus->dwErrorCode,IsCashInStarted());
-	printf("»Î≥Æø⁄:%d\tÕÀ≥Æø⁄:%d\t‘›¥Ê◊¥Ã¨:%d\tªÿ ’œ‰À¯:%d\t≤π±“œ‰À¯:%d\tªÿ ’œ‰◊¥Ã¨:%d\n≤π±“œ‰◊¥Ã¨:%d\t÷Ω±“ƒ£øÈπ ’œ:%d, «∑Ò’˝Ωª“◊◊¥Ã¨:%d\n",\
+		bnrstatus->cLOBOX,bnrstatus->dwErrorCode,IsCashInStarted(),bnrstatus->cRESafedoor,bnrstatus->cREBOX[0]);
+	printf("»Î≥Æø⁄:%d\tÕÀ≥Æø⁄:%d\t‘›¥Ê◊¥Ã¨:%d\tªÿ ’œ‰À¯:%d\t≤π±“œ‰À¯:%d\tªÿ ’œ‰◊¥Ã¨:%d\n≤π±“œ‰◊¥Ã¨:%d\t÷Ω±“ƒ£øÈπ ’œ:%d, «∑Ò’˝Ωª“◊◊¥Ã¨:%d\t—≠ª∑œ‰À¯:%d\tRE3-RE4:%d\n",\
 		bnrstatus->wInShutter,bnrstatus->wReturnShutter,bnrstatus->wStacker,\
 		bnrstatus->cCBSafedoor,bnrstatus->cLOSafedoor,bnrstatus->cCBBOX,\
-		bnrstatus->cLOBOX,bnrstatus->dwErrorCode,IsCashInStarted());
+		bnrstatus->cLOBOX,bnrstatus->dwErrorCode,IsCashInStarted(),bnrstatus->cRESafedoor,bnrstatus->cREBOX[0]);
 	return 0;
 }
 int print_CashUnit(T_XfsCashUnit *CashUnit)
@@ -607,7 +607,8 @@ static void __stdcall statusOccured(
 					{
 						if (memcmp("CB", g_CashUnit.physicalCashUnitList.items[i].name, 2)==0)
 						{
-							if (g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_OK)
+							if (g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_OK||
+								g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_INOP)
 							{
 								g_BNRStatus.cCBBOX = 0;
 								g_BNRStatus.dwErrorCode = 0;
@@ -624,8 +625,54 @@ static void __stdcall statusOccured(
 							}
 							break;
 						}
-					}
 
+						
+					}
+					//RE—≠ª∑œ‰ «∑Ò‘⁄Œª
+					for (i=0; i<g_CashUnit.physicalCashUnitList.size; i++)
+					{
+						if (memcmp("RE3", g_CashUnit.physicalCashUnitList.items[i].name, 2)==0)
+						{
+							if (g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_OK||
+								g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_INOP)
+							{
+								g_BNRStatus.cREBOX[0]=0;
+								g_BNRStatus.cREBOX[1]=0;
+								g_BNRStatus.dwErrorCode = 0;
+							}
+							else if(g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_MISSING)
+							{
+								g_BNRStatus.cREBOX[0]=1;
+								g_BNRStatus.cREBOX[1]=1;
+								g_BNRStatus.dwErrorCode = g_CashUnit.physicalCashUnitList.items[i].status;
+							}
+							else
+							{
+								
+							}	
+						}
+						if (memcmp("RE5", g_CashUnit.physicalCashUnitList.items[i].name, 2)==0)
+						{
+							if (g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_OK||
+								g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_INOP)
+							{
+								g_BNRStatus.cREBOX[2]=0;
+								g_BNRStatus.cREBOX[3]=0;
+								g_BNRStatus.dwErrorCode = 0;
+							}
+							else if(g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_MISSING)
+							{
+								g_BNRStatus.cREBOX[2]=1;
+								g_BNRStatus.cREBOX[3]=1;
+								g_BNRStatus.dwErrorCode = g_CashUnit.physicalCashUnitList.items[i].status;
+							}
+							else
+							{
+							
+							}	
+						}
+					}
+					
 					if (g_ModuleList.iloboxexist)
 					{
 						for (i=0; i<g_CashUnit.physicalCashUnitList.size; i++)
@@ -633,7 +680,8 @@ static void __stdcall statusOccured(
 							if (memcmp("LO", g_CashUnit.physicalCashUnitList.items[i].name, 2)==0)
 							{
 								//≤π±“œ‰‘⁄Œª◊¥Ã¨:‘⁄Œª,ø’ªÚ∑«ø’
-								if (g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_OK)
+								if (g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_OK||
+									g_CashUnit.physicalCashUnitList.items[i].status == XFS_C_CDR_LCU_INOP)
 								{
 									if (g_CashUnit.physicalCashUnitList.items[i].thresholdStatus == XFS_S_BIN_EMPTY)
 									{
@@ -686,6 +734,7 @@ static void __stdcall statusOccured(
 					{
 						g_BNRStatus.cCBSafedoor = 1;
 						g_BNRStatus.cLOSafedoor = 1;
+						g_BNRStatus.cRESafedoor = 1;
 						g_BNRStatus.dwErrorCode = g_XFS;
 			
 						//CBNR_ClearCashUnit("CB");
@@ -697,6 +746,7 @@ static void __stdcall statusOccured(
 					{
 						g_BNRStatus.cCBSafedoor = 0;
 						g_BNRStatus.cLOSafedoor = 0;
+						g_BNRStatus.cRESafedoor = 0;
 						g_BNRStatus.dwErrorCode = g_XFS;
 						//CBNR_ClearCashUnit("CB");
 						//CBNR_ClearCashUnit("LO");
@@ -706,8 +756,13 @@ static void __stdcall statusOccured(
 					{
 						g_BNRStatus.cCBSafedoor = 0;
 						g_BNRStatus.cLOSafedoor = 0;
+						g_BNRStatus.cRESafedoor = 0;
 						g_BNRStatus.cCBBOX = 0;
 						g_BNRStatus.cLOBOX=0;
+						g_BNRStatus.cREBOX[0]=0;
+						g_BNRStatus.cREBOX[1]=0;
+						g_BNRStatus.cREBOX[2]=0;
+						g_BNRStatus.cREBOX[3]=0;
  						g_BNRStatus.dwErrorCode = 0;
 					}
 					break;
@@ -3137,7 +3192,8 @@ T_BnrXfsResult CBNROperation::CBNR_LoadBanknotes()
 				tresult = CBNR_SetCapabilities(&capabilities);
 		}
 	}
-	result = CBNR_SetReCBPositionNum(g_ConfigInfo.ReBoxFulls,g_ConfigInfo.ReBoxHighs,g_ConfigInfo.ReBoxLows,g_ConfigInfo.ReBoxEmptys);
+	//≤π±“µΩ∏ﬂŒª Õ£÷π 
+	result = CBNR_SetReCBPositionNum(g_ConfigInfo.ReBoxFulls,g_ConfigInfo.ReBoxHighs,g_ConfigInfo.ReBoxHighs,g_ConfigInfo.ReBoxEmptys);
 	result = CBNR_LockCashBox(g_ModuleList.loname,false);
 	result = CBNR_Reset();
 
@@ -3260,6 +3316,7 @@ T_BnrXfsResult CBNROperation::CBNR_LoadBanknotes()
 			}
 		}
 	}
+	result = CBNR_SetReCBPositionNum(g_ConfigInfo.ReBoxFulls,g_ConfigInfo.ReBoxHighs,g_ConfigInfo.ReBoxLows,g_ConfigInfo.ReBoxEmptys);
 	
 	return result;
 }
@@ -3336,7 +3393,7 @@ int new_test(int argc, char* argv[])
 		int quit_flag = 0;
 		int number=0;
 		char input_str[32]={0,};
-		UINT32 reone=1;
+		UINT32 reone=0;
 		UINT32 retwo=1;
 		UINT32 rethree=0;
 		UINT32 refour=0;
@@ -3362,6 +3419,7 @@ int new_test(int argc, char* argv[])
 		int ret = -1;
 		//BOOL bcashenable[7]={TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE}; //1‘™,2‘™,5‘™,10‘™,20‘™,50‘™,100‘™
 		BOOL bcashenable[7]={FALSE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE}; //1‘™,2‘™,5‘™,10‘™,20‘™,50‘™,100‘™
+		
 		T_XfsCashUnit cashunit;
 		switch (number)
 		{

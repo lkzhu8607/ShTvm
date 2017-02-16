@@ -41,7 +41,7 @@ void de_printer_t::PrinterAdvice()
 
 
 // 
-void de_printer_t::PrinterInit()
+int de_printer_t::PrinterInit()
 {
 	this->tr_open();
 
@@ -51,6 +51,7 @@ void de_printer_t::PrinterInit()
 	Rb8707.m_BigErr = 0;
 
 	Rb8707.m_RtnVal = 0;
+	return 1;
 }
 
 //

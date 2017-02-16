@@ -6,6 +6,7 @@
 #include "d_config_t.h"
 #include "d_paratime_t.h"
 #include "de_medev_t.h"
+#include "FTPManager.h" 
 
 
 
@@ -510,7 +511,7 @@ tbool bu_me_ele_t::do_a3000()
 		
 		if( row.m_uiCmdCode == 0x61 )	//	61h	COC、SOC	SLE	上传寄存器数据–审计		6000
 		{
-			gp_tcpmsg->SendReg6000( 1 );
+			gp_tcpmsg->SendReg6000( 0x01 );
 			rc = 0;
 		}
 
@@ -542,27 +543,35 @@ tbool bu_me_ele_t::do_a3000()
 		
 		if( row.m_uiCmdCode == 0x80 )	//	80h	COC、SOC	SLE	设备能使用主IP与所属SC通信
 		{
-
+			rc = 0;
 		}
 
 		if( row.m_uiCmdCode == 0x81 )	//	81h	COC、SOC	SLE	设备能使用备份IP与所属SC通信
 		{
-
+			rc = 0;
 		}
 
 		if( row.m_uiCmdCode == 0x90 )	//	90h	COC、SOC	SLE	设备立即更新软件版本
 		{
-
+			rc = 0;
+			if(-1==update_software_by_ftp())
+            {
+               	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "update software failed ..." );
+            }
+            else
+            {
+                LOGSTREAM( gp_log[LOGSC], LOGPOSI << "update software success ..." );
+            }
 		}
 
 		if( row.m_uiCmdCode == 0x91 )	//	91h	COC、SOC	SLE	设备立即更新纸币设别器识别参数
 		{
-
+			rc = 0;
 		}
 
 		if( row.m_uiCmdCode == 0x92 )	//	92h	COC、SOC	SLE	设备立即更新硬币设别器识别参数
 		{
-
+			rc = 0;
 		}
 
 		//
@@ -605,6 +614,16 @@ tbool bu_me_ele_t::do_a3001()
 		deat.eat_bin( row.m_ModeCode );
 		row.m_lOperatorNum = deat.eat_data<long>();
 		
+		if( ( row.m_ModeCode.a[0] == 0x00 ) && 
+			( row.m_ModeCode.a[1] == 0x00 ) )    //正常模式
+		{
+			gp_medev->m_IsEmergeModel = 0;
+		}
+		if( ( row.m_ModeCode.a[0] == 0x00 ) && 
+			( row.m_ModeCode.a[1] == 0x01 ) )    //紧急模式
+		{
+			gp_medev->m_IsEmergeModel = 1;
+		}
 		
 		gp_db->m_a3001.Add(row);
 	}
@@ -2218,8 +2237,14 @@ tbool bu_me_ele_t::do_a6005()
 		return 0;
 	}
 	
+	S_dataeater_t deat(m_ckWholeMsg);
+
+	deat.eat_skip( 4 );
+
 	//send ack
 	//做设备最新交易流水号
+
+	de_tcpmsg_t::SendAns6005(m_uiMsgType);
 
 	return 1;
 }

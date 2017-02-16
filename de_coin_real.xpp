@@ -15,7 +15,8 @@ static tbool IsCoinStopUse()
 //
 de_coin_t::de_coin_t()
 {
-	m_iIsRepCoinOk = 1;
+	//m_iIsRepCoinOk = 1;
+	memset( m_iIsRepCoinOk, 1, sizeof(BYTE)*2 );
 	this->SetShouldReset();
 }
 
@@ -138,11 +139,12 @@ void de_coin_t::CoinAdvice()
 }
 
 
-// 
-void de_coin_t::CoinInit()
+// return value : 0 :失败 1:成功
+int de_coin_t::CoinInit()
 {
 	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
 
+	int irc = 0;
 	//if ( IsCoinStopUse() ) return ;
 
 	if( !dCommOpen() )
@@ -171,12 +173,16 @@ void de_coin_t::CoinInit()
 			dCoinHold(); dCoin2CircleChg(); dCoin2StoreBox(); dCoinHold();	
 		}
 
+		irc = 1;
+
 	}
 
 	
 	m_de_state = 2;
 
 	this->tr_open();
+
+	return irc;
 }
 
 
@@ -314,16 +320,17 @@ int de_coin_t::dCoin_End_Change( BYTE Data )
 
 
 //硬币模块清币命令0x02
-int de_coin_t::dCoin_Clean( BYTE Box )
+int de_coin_t::dCoin_Clean( BYTE Box ,int iCleanCount /*= 0*/ )
 {
 	MYAUTOLOCK( m_DevLck );
 	b8701_t::ROWTYPE &R8701(gp_db->GetTheRowb8701());
 	int iResult;
 	BYTE Clean2[2];
-	int count=0;
+	int iNeedCleanCount = iCleanCount;
+	int count = 0;
 
 	//if ( IsCoinStopUse() ) return 0;
-	iResult=m_coinmodule.Coin_Clean(Box,Clean2,count);
+	iResult=m_coinmodule.Coin_Clean(Box,Clean2,iNeedCleanCount,count);
 
 	if( iResult == 0 )
 	{
@@ -333,7 +340,11 @@ int de_coin_t::dCoin_Clean( BYTE Box )
 		R8701.m_CoinCleanCount = count;
 	}
 	else 
+	{
 		R8701.m_CoinCleanCount = 0;
+	}
+
+	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI <<"iResult="<<iResult<< "m_CoinCleanCount = "<< R8701.m_CoinCleanCount );
 
 	return iResult;
 }
@@ -444,7 +455,7 @@ int de_coin_t::dCoin_Work( tbool enable_mao5, tbool enable_yuan1 )
 {
 	//if ( IsCoinStopUse() ) return 0;
 
-	if( gp_medev->IsOnlyBill() ) return 0;
+	//if( gp_medev->IsOnlyBill() ) return 0;
 
 	m_de_state = 3 ;
 
@@ -466,7 +477,7 @@ int de_coin_t::dCoin_Work()
 	//后续work钱数不要清0
 	//if ( IsCoinStopUse() ) return 0;
 
-	if( gp_medev->IsOnlyBill() ) return 0;
+	//if( gp_medev->IsOnlyBill() ) return 0;
 
 	m_de_state = 3 ;
 	
@@ -475,7 +486,7 @@ int de_coin_t::dCoin_Work()
 
 
 //
-int de_coin_t::dCoin_Stop()
+int de_coin_t::dCoin_Stop( int iIsCleanReg /*= 1*/ )
 {
 
 	//if ( IsCoinStopUse() ) return 0;
@@ -491,7 +502,7 @@ int de_coin_t::dCoin_Stop()
 	//Bit0:=1/0  1 禁止1元， 0接受1元 
 
 	SStrf::writebit( &Data1, 3, 0 );
-	SStrf::writebit( &Data1, 2, 1 );
+	SStrf::writebit( &Data1, 2, iIsCleanReg );
 
 	v_Data1 = Data1;
 
@@ -549,19 +560,19 @@ int de_coin_t::dCoin_Query()
 		this->CoinAdvice();
 	}
 
-	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_Poll Result="<<iResult<<"m_CoinPollData="<< R8701.m_CoinPollData.a[2] );
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_Poll Result="<<iResult<<"m_CoinPollData="<< wl::SStrf::sltoa( R8701.m_CoinPollData.a[2] ) );
 
 	iResult=m_coinmodule.Coin_State(SensorStatus);
 
-	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_State Result="<<iResult<<"SensorStatus="
-		                               <<wl::SStrf::sltoa(SensorStatus[0])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[1])<<" " 
-									   <<wl::SStrf::sltoa(SensorStatus[2])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[3])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[4])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[5])<<" " 
-									   <<wl::SStrf::sltoa(SensorStatus[6])<<" "
-									   <<wl::SStrf::sltoa(SensorStatus[7]) );
+	//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_State Result="<<iResult<<"SensorStatus="
+	//	                               <<wl::SStrf::sltoa(SensorStatus[0])<<" "
+	//								   <<wl::SStrf::sltoa(SensorStatus[1])<<" " 
+	//								   <<wl::SStrf::sltoa(SensorStatus[2])<<" "
+	//								   <<wl::SStrf::sltoa(SensorStatus[3])<<" "
+	//								   <<wl::SStrf::sltoa(SensorStatus[4])<<" "
+	//								   <<wl::SStrf::sltoa(SensorStatus[5])<<" " 
+	//								   <<wl::SStrf::sltoa(SensorStatus[6])<<" "
+	//								   <<wl::SStrf::sltoa(SensorStatus[7]) );
 
 	if( iResult == 0 )
 	{
@@ -1068,4 +1079,129 @@ void de_coin_t::padTriggerCancelKey()
 	this->dCoinBletRoll();
 }
 
+int de_coin_t::CleanCoinStock()
+{
+	//检查是否需要补充硬币   //补充条件-> 1. 初始化界面 2.是否需要补币 3.补币箱中是否有币
+	int iCoinCycleBoxRatedCapacity = 100;
 
+	// 1 Yuan 
+	if( ( 4 != gp_medev->m_devstatus ) &&
+		( gp_db->m_b8701.GetRow(0).m_A1YuanCycleChg > iCoinCycleBoxRatedCapacity ) )
+	{
+		int iNeedCleanCount = gp_db->m_b8701.GetRow(0).m_A1YuanCycleChg - iCoinCycleBoxRatedCapacity + 20;
+
+		//int i16NeedCleanCount = wl::SStrf::satol_16( wl::SStrf::sltoa( iNeedCleanCount ) );
+
+		LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << "m_A1YuanCycleChg iNeedCleanCount = "<< iNeedCleanCount );
+		gp_coin->dCoin_Clean( 0x01,iNeedCleanCount );		// 0x01：1元循环找零；0x02：5角循环找零；
+		gp_coin->dCoin_End_Clean( 0x01 );	                // 0x01：1元循环找零；0x02：5角循环找零；	
+
+		gp_db->m_b8701.GetRow(0).m_A1YuanStoreBox += gp_db->m_b8701.GetRow(0).m_CoinCleanCount;
+		gp_db->m_b8701.GetRow(0).m_A1YuanCycleChg -= gp_db->m_b8701.GetRow(0).m_CoinCleanCount;
+	}
+
+	// 5 Jiao
+	if( ( 4 != gp_medev->m_devstatus ) &&
+		( gp_db->m_b8701.GetRow(0).m_A5MaoCycleChg > iCoinCycleBoxRatedCapacity ) )
+	{
+		int iNeedCleanCount = gp_db->m_b8701.GetRow(0).m_A5MaoCycleChg - iCoinCycleBoxRatedCapacity + 20;
+
+		//int i16NeedCleanCount = wl::SStrf::satol_16( wl::SStrf::sltoa( iNeedCleanCount ) );
+
+		LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << "m_A5MaoCycleChg iNeedCleanCount = "<< iNeedCleanCount );
+		gp_coin->dCoin_Clean( 0x02,iNeedCleanCount );		// 0x01：1元循环找零；0x02：5角循环找零；
+		gp_coin->dCoin_End_Clean( 0x02 );	                // 0x01：1元循环找零；0x02：5角循环找零；	
+
+		gp_db->m_b8701.GetRow(0).m_A5MaoStoreBox += gp_db->m_b8701.GetRow(0).m_CoinCleanCount;
+		gp_db->m_b8701.GetRow(0).m_A5MaoCycleChg -= gp_db->m_b8701.GetRow(0).m_CoinCleanCount;
+	}
+	return 1;
+}
+
+int de_coin_t::RepCoinStock()
+{
+	int irc = 1;   
+	//检查是否需要补充硬币   //补充条件-> 1. 初始化界面 2.是否需要补币 3.补币箱中是否有币
+
+	// 1 Yuan 
+	if( ( 4 != gp_medev->m_devstatus ) &&
+		( gp_db->m_b8701.GetRow(0).m_A1YuanCycleChg < gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum ) &&
+		( 0 != gp_coin->m_iIsRepCoinOk[0] ) )
+	{
+		if( gp_coin->SupplementaryYuan1Coins( gp_conf->m_coin_rep_num ) != 0 )
+		{
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "补币失败");
+			if( 1 )
+			{
+				MYAUTOLOCK( gp_coin->m_DevLck );
+				gp_coin->m_iIsRepCoinOk[0] = 0;
+				irc = 0;
+			}
+		}
+		else
+		{
+			if( gp_db->m_b8701.GetRow(0).m_A1YuanSpecialChg < gp_conf->m_coin_rep_num  )
+			{
+				if( 1 )
+				{
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A1YuanSpecialChg < m_coin_rep_num");
+					MYAUTOLOCK( gp_coin->m_DevLck );
+					gp_coin->m_iIsRepCoinOk[0] = 0;
+					irc = 0;
+				}
+			}
+			else
+			{
+				if( 1 )
+				{
+					MYAUTOLOCK( gp_coin->m_DevLck );
+					gp_coin->m_iIsRepCoinOk[0] = 1;
+				}
+			}
+			
+		}			
+	}
+
+	// 5 Jiao
+	if( ( 4 != gp_medev->m_devstatus ) &&
+		( gp_db->m_b8701.GetRow(0).m_A5MaoCycleChg < gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum ) &&
+		( 0 != gp_coin->m_iIsRepCoinOk[1] ) )
+	{
+		if( gp_coin->SupplementaryJiao5Coins( gp_conf->m_coin_rep_num ) != 0 )
+		{
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "补币失败");
+			if( 1 )
+			{
+				MYAUTOLOCK( gp_coin->m_DevLck );
+				gp_coin->m_iIsRepCoinOk[0] = 0;
+				irc = 0;
+			}
+		}
+		else
+		{
+			if( gp_db->m_b8701.GetRow(0).m_A5MaoSpecialChg < gp_conf->m_coin_rep_num  )
+			{
+				if( 1 )
+				{
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A5MaoSpecialChg < m_coin_rep_num");
+					MYAUTOLOCK( gp_coin->m_DevLck );
+					gp_coin->m_iIsRepCoinOk[0] = 0;
+					irc = 0;
+				}
+			}
+			else
+			{
+				if( 1 )
+				{
+					MYAUTOLOCK( gp_coin->m_DevLck );
+					gp_coin->m_iIsRepCoinOk[0] = 1;
+				}
+			}
+			
+		}
+
+	}
+
+	return irc;
+
+}

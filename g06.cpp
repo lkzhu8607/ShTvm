@@ -1292,7 +1292,7 @@ int test_coin()
 			    cout<<"请选清币操作：";
 			    cin>>hex>>index;
 			    Clean1=(BYTE)index;
-			    iResult=coinmodule.Coin_Clean(Clean1,Clean2,count);
+			    iResult=coinmodule.Coin_Clean(Clean1,Clean2,0,count);
 				if(iResult==0)
 				{
 					//...............0
@@ -3170,6 +3170,77 @@ void test_read_card()
 		WThrd::tr_sleep(3);
 }
 
+void GetYunYingDT( wl::SDte &YunYingStartDt,wl::SDte &YunYingEndDt )
+{
+	YunYingStartDt.m_hour = YunYingStartDt.m_min = YunYingStartDt.m_sec = 0;
+	YunYingEndDt.m_hour = YunYingEndDt.m_min = YunYingEndDt.m_sec = 0; 
+
+	YunYingStartDt.RelativeSec( (tint32)gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0]*15*60 );    //运营开始时间
+
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"YunYingStartDt="<<wl::SStrf::sltoa(gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0]*15 ) );
+
+	if( gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0] >= gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1] )
+	{
+		YunYingEndDt.RelativeDay(1);
+	}
+	
+	YunYingEndDt.RelativeSec( (tint32)gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1]*15*60 );    //运营结束时间
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"YunYingEndDt="<<wl::SStrf::sltoa( gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1]*15 ) );
+}
+
+// 是否处于运营时间段  1表示在
+int IsYunYingDT( wl::SDte dtnow ,wl::SDte *pdtstart /*= NULL*/ )
+{
+	wl::SDte dtstart,dtend;
+	wl::SDte dtTemp;
+
+	dtstart = dtnow;
+	dtend = dtnow;
+
+	GetYunYingDT( dtstart,dtend );
+
+	if( dtstart <= dtnow &&
+		dtnow <= dtend )
+	{
+		if(pdtstart)  *pdtstart = dtstart;
+		return 1;
+	}
+
+	dtstart.RelativeDay(-1);
+	dtend.RelativeDay(-1);
+	GetYunYingDT( dtstart,dtend );
+
+	if( dtstart <= dtnow &&
+		dtnow <= dtend )
+	{
+		if(pdtstart)  *pdtstart = dtstart;
+		return 1;
+	}
+
+	return 0;
+
+}
+
+SDte GetOperationDate( SDte dt )
+{
+	SDte dtOut;
+
+	for( int i = 0; i < 24; i++ )
+	{
+		SDte dt1 = dt;
+		if( IsYunYingDT( dt, &dtOut ) )
+		{
+			dtOut.m_hour = dtOut.m_min = dtOut.m_sec = 0;
+			return dtOut;
+		}
+		dt.RelativeSec( -3600 );
+	}
+	
+	dtOut = dt;
+	dtOut.m_hour = dtOut.m_min = dtOut.m_sec = 0;
+	return dtOut;
+}
+
 // [in]  iToBeChange 找零金额 (以分为单位)
 // [in]  iRMB50 硬币循环箱中5角个数
 // [in]  iRMB100 硬币循环箱中1元个数
@@ -3189,77 +3260,99 @@ bool isChangeOK( int iToBeChange, int iRMB50, int iRMB100, int iRMB500, int iRMB
 	n50 = n100 = n500 = n1000 = n2000 = n5000 = 0;
 	if( 1 != gp_bill->m_iIsNotBillChange )
 	{
-		//判断50元
-		n5000 = iToBeChange/5000;
-		if( iRMB5000 < n5000 )
+		if( SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[1], 3 ) == 1 ||
+			SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[1], 2 ) == 1 )
 		{
-			iToBeChange -= 5000 *  iRMB5000;
-			n5000 = iRMB5000;
-		}
-		else
-		{
-			iToBeChange -= 5000 * n5000;
-		}
-
-		//判断20元
-		n2000 = iToBeChange/2000;
-		if( iRMB2000 < n2000 )
-		{
-			iToBeChange -= 2000 *  iRMB2000;
-			n2000 = iRMB2000;
-		}
-		else
-		{
-			iToBeChange -= 2000 * n2000;
+			//判断50元
+			n5000 = iToBeChange/5000;
+			if( iRMB5000 < n5000 )
+			{
+				iToBeChange -= 5000 *  iRMB5000;
+				n5000 = iRMB5000;
+			}
+			else
+			{
+				iToBeChange -= 5000 * n5000;
+			}
 		}
 
-		//判断10元
-		n1000 = iToBeChange/1000;
-		if( iRMB1000 < n1000 )
+		if( SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[1], 1 ) == 1 ||
+			SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[1], 0 ) == 1 )
 		{
-			iToBeChange -= 1000 *  iRMB1000;
-			n1000 = iRMB1000;
-		}
-		else
-		{
-			iToBeChange -= 1000 * n1000;
+			//判断20元
+			n2000 = iToBeChange/2000;
+			if( iRMB2000 < n2000 )
+			{
+				iToBeChange -= 2000 *  iRMB2000;
+				n2000 = iRMB2000;
+			}
+			else
+			{
+				iToBeChange -= 2000 * n2000;
+			}
 		}
 
-		//判断5元
-		n500 = iToBeChange/500;
-		if( iRMB500 < n500 )
+		if( SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[0], 7 ) == 1 ||
+			SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[0], 6 ) == 1 )
 		{
-			iToBeChange -= 500 *  iRMB500;
-			n500 = iRMB500;
+			//判断10元
+			n1000 = iToBeChange/1000;
+			if( iRMB1000 < n1000 )
+			{
+				iToBeChange -= 1000 *  iRMB1000;
+				n1000 = iRMB1000;
+			}
+			else
+			{
+				iToBeChange -= 1000 * n1000;
+			}
 		}
-		else
+
+		if( SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[0], 5 ) == 1 ||
+			SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[0], 4 ) == 1 )
 		{
-			iToBeChange -= 500 * n500;
+			//判断5元
+			n500 = iToBeChange/500;
+			if( iRMB500 < n500 )
+			{
+				iToBeChange -= 500 *  iRMB500;
+				n500 = iRMB500;
+			}
+			else
+			{
+				iToBeChange -= 500 * n500;
+			}
 		}
 	}
 
-	//判断1元
-	n100 = iToBeChange/100;
-	if( iRMB100 < n100 )
+	if( SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinChgType, 2 ) == 1 )
 	{
-		iToBeChange -= 100 *  iRMB100;
-		n100 = iRMB100;
-	}
-	else
-	{
-		iToBeChange -= 100 * n100;
+		//判断1元
+		n100 = iToBeChange/100;
+		if( iRMB100 < n100 )
+		{
+			iToBeChange -= 100 *  iRMB100;
+			n100 = iRMB100;
+		}
+		else
+		{
+			iToBeChange -= 100 * n100;
+		}
 	}
 
-	//判断5角
-	n50 = iToBeChange/50;
-	if( iRMB50 < n50 )
+	if( SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinChgType, 1 ) == 1 )
 	{
-		iToBeChange -= 50 *  iRMB50;
-		n50 = iRMB50;
-	}
-	else
-	{
-		iToBeChange -= 50 * n50;
+		//判断5角
+		n50 = iToBeChange/50;
+		if( iRMB50 < n50 )
+		{
+			iToBeChange -= 50 *  iRMB50;
+			n50 = iRMB50;
+		}
+		else
+		{
+			iToBeChange -= 50 * n50;
+		}
 	}
 
 	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "iToBeChange=" << iToBeChange <<" coinnum="<<n100 + n50 <<" m_CoinChgMaxNum="<<wl::SStrf::sltoa(gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum)<<
@@ -3418,7 +3511,7 @@ void AddTransDataTo6000( a_waiter_t_rowtype & pwaiterdata )
 					//找到区域，将6000中对应区域填值
 
 					gp_db->m_a6000.GetRow(0).m_Reg.a[ row4004.m_lZone ] += pwaiterdata.m_TicketoutActual;
-					gp_db->m_a6000.GetRow(0).m_Reg.a[ 21 + row4004.m_lZone ] += ( pwaiterdata.m_TicketoutActual* pwaiterdata.m_TickePrice1 / 100 );
+					gp_db->m_a6000.GetRow(0).m_Reg.a[ 21 + row4004.m_lZone ] += ( pwaiterdata.m_TicketoutActual* pwaiterdata.m_TickePrice1 );
 					gp_db->m_a6000.GetRow(0).m_Reg.a[ 42 ] += pwaiterdata.m_ReceiveCoin / 100;
 					gp_db->m_a6000.GetRow(0).m_Reg.a[ 43 ] += pwaiterdata.m_ReceiveBill / 100;
 					gp_db->m_a6000.GetRow(0).m_Reg.a[ 44 ] += pwaiterdata.m_CoinRecycleChgActual /*+ pwaiterdata.m_CoinSpecialChgActual*/;
@@ -3429,6 +3522,8 @@ void AddTransDataTo6000( a_waiter_t_rowtype & pwaiterdata )
 
 		}
 
+
+		AddMachineDataTo6000();
 	}
 
 
@@ -3442,7 +3537,7 @@ void AddMachineDataTo6000()
 	long lBillVaultAmount = 0;
 	long lBillChgBoxAmount = 0;
 
-	gp_bill->dBill_QueryCashUint();
+	//gp_bill->dBill_QueryCashUint();
 
 	b8702_t::ROWTYPE rbill;
 	if(1)
@@ -3450,6 +3545,10 @@ void AddMachineDataTo6000()
 		MYAUTOLOCK( gp_db->m_b8702.m_ut_tbl_lck );
 		rbill = gp_db->m_b8702.GetRow(0);
 	}
+
+	UINT32 ReDeno[4]={0,0,0,0};
+	UINT32 ReCount[4]={0,0,0,0};
+	gp_bill->dBill_GetRecycleDenomination(ReDeno,ReCount);
 
 	for(int i=0;i<4;i++)
 	{
@@ -3465,7 +3564,7 @@ void AddMachineDataTo6000()
 
 
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 46 ] = gp_db->m_b8701.GetRow(0).m_A1YuanStoreBox;
-	gp_db->m_a6000.GetRow(0).m_Reg.a[ 47 ] = gp_db->m_b8701.GetRow(0).m_A1YuanStoreBox / 2;
+	gp_db->m_a6000.GetRow(0).m_Reg.a[ 47 ] = gp_db->m_b8701.GetRow(0).m_A5MaoStoreBox / 2 ;
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 48 ] = 0;
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 49 ] = gp_db->m_b8701.GetRow(0).m_A1YuanCycleChg;
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 50 ] = gp_db->m_b8701.GetRow(0).m_A5MaoCycleChg / 2;
@@ -3513,3 +3612,5 @@ int ReturnCoinAndBill( a_waiter_t_rowtype&  waiter_data )
 
 	
 }
+
+

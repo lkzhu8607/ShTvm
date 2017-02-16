@@ -79,6 +79,13 @@ tbool de_tcpmsg_t::SendMACK( WTcpCell &tc, tuint16 uiMsgType, tuint8 ui1Answer )
 	tuint16 ui2;
 	tuint32 ui4;
 
+	WTcpCellc  tc2;
+	if( !ConnSc(tc2) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
+
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
 	SStrf::chgendian(ui2);
@@ -139,7 +146,7 @@ tbool de_tcpmsg_t::SendMACK( WTcpCell &tc, tuint16 uiMsgType, tuint8 ui1Answer )
 	//gp_log[LOGSC].LogPrintf( 999 + ck2.len() * 3 , "%s|通信原始数据data=%s", LOGPOSI, ck2.Seri_S().c_str() );
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck2.Seri_S() );
 
-	if( !tc.send_bin( ck2 ) )
+	if( !tc2.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -154,6 +161,13 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
 	tuint8  ui1;
 	tuint16 ui2;
 	tuint32 ui4;
+
+	WTcpCellc  tc2;
+	if( !ConnSc(tc2) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
 
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
@@ -216,7 +230,7 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
 	//gp_log[LOGSC].LogPrintf( 999 + ck2.len() * 3 , "%s|通信原始数据data=%s", LOGPOSI, ck2.Seri_S().c_str() );
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck2.Seri_S() );
 
-	if( !tc.send_bin( ck2 ) )
+	if( !tc2.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -226,12 +240,19 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
 //
 tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer )
 {
+	
 	SCake ck;
 	SCake ck2;
 	tuint8  ui1;
 	tuint16 ui2;
 	tuint32 ui4;
 
+	WTcpCellc  tc2;
+	if( !ConnSc(tc2) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
 	SStrf::chgendian(ui2);
@@ -302,7 +323,7 @@ tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	//
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data=" << ck2.Seri_S() );
 
-	if( !tc.send_bin( ck2 ) )
+	if( !tc2.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -317,6 +338,13 @@ tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	tuint8  ui1;
 	tuint16 ui2;
 	tuint32 ui4;
+
+	WTcpCellc  tc2;
+	if( !ConnSc(tc2) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
 
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
@@ -393,7 +421,7 @@ tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	//
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data=" << ck2.Seri_S() );
 
-	if( !tc.send_bin( ck2 ) )
+	if( !tc2.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -408,6 +436,13 @@ tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
 	tuint8  ui1;
 	tuint16 ui2;
 	tuint32 ui4;
+
+	WTcpCellc  tc2;
+	if( !ConnSc(tc2) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
 
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
@@ -448,6 +483,7 @@ tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
 
 
 	//send 应答
+	ck.append( (wl::tchar)0 ); 	//应答码 
 
 	for( int i1 = 0; i1 <= 9; i1++ )
 	{
@@ -482,7 +518,7 @@ tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
 	//gp_log[LOGSC].LogPrintf( 999 + ck2.len() * 3 , "%s|通信原始数据data=%s", LOGPOSI, ck2.Seri_S().c_str() );
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck2.Seri_S() );
 
-	if( !tc.send_bin( ck2 ) )
+	if( !tc2.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -831,7 +867,7 @@ tbool de_tcpmsg_t::SendReg6000( wl::tuint8 uiAuditType )
 	}
 	
 	//消息分类/类型码 
-	ui2 = (tuint16)0x5041;
+	ui2 = (tuint16)0x6000;
 	SStrf::chgendian(ui2);
 	ck.append( (tchar*)&ui2, 2 );
 	
@@ -933,6 +969,118 @@ tbool de_tcpmsg_t::SendReg6000( wl::tuint8 uiAuditType )
 
 	return RecvMACK(&tc);
 }
+
+wl::tbool de_tcpmsg_t::SendAns6005( wl::tuint16 uiMsgType )
+{
+	WTcpCellc  tc;
+	wl::SCake ck;
+	SCake ck2;
+	wl::tuint8  ui1;
+	wl::tuint16 ui2;
+	wl::tuint32 ui4;
+
+	if( !ConnSc(tc) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
+
+
+	//消息分类/类型码 
+	ui2 = (wl::tuint16)uiMsgType;
+	wl::SStrf::chgendian(ui2) ;
+	ck.append( (wl::tchar*)&ui2, 2 );
+
+	// 发送方标识码 
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode1 );
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode2 );
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode3 );
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode4 );
+
+	// 会话流水号  
+	ui4 = gp_db->GetSendConversationFlow() ;
+	SStrf::chgendian(ui4);
+	ck.append( (tchar*)&ui4, 4 );
+
+	//包序列号	0 ~ 65535，按包序递增	Word	2 
+	if( gp_conf->Get_pkg_seri_style() == 0 )
+		ui2 = 0;
+	else
+		ui2 = 0;
+	SStrf::chgendian(ui2);
+	ck.append( (tchar*)&ui2, 2 );
+
+	// 标志Bit1：0-请求消息1-应答消息Bit0：0-还有更大的包序列号的包1-这是本消息的最后一包 
+	ui1 = 3; 
+	ck.append( (wl::tchar)ui1 );
+
+	//	记录数0~65535，对于没有长度可变部分的包,填0，否则，为长度可变部分中包含的记录数	 
+	ui2 = (wl::tuint16)0;	
+	wl::SStrf::chgendian(ui2) ;
+	ck.append( (wl::tchar*)&ui2, 2 );
+
+	//压缩 
+	ui1 = 0;
+	ck.append( (wl::tchar)ui1 );
+
+	//send 应答 
+	if(1)
+	{
+		//应答码 
+		ck.append( (wl::tchar)0 ); 
+
+
+		// 一票通交易流水号	当前已分配的最后一笔一票通交易记录的终端流水号	Long	4
+		if( gp_db->m_a6002.GetRowCount() > 0 )
+		{
+			ui4 = gp_db->m_a6002.GetRow(gp_db->m_a6002.GetRowCount()-1).m_lTicketTradeTerminalFlow;
+		}
+		else
+		{
+			ui4 = 0;
+		}
+		//if(ui4>0) ui4 = ui4 - 1;
+		wl::SStrf::chgendian(ui4) ;
+		ck.append( (wl::tchar*)&ui4, 4 );
+
+		// 交通卡消费流水号	当前已分配的最后一笔一卡通消费交易记录的终端流水号	Long	4
+		ui4 = 0;
+		if(ui4>0) ui4 = ui4 - 1;
+		wl::SStrf::chgendian(ui4) ;
+		ck.append( (wl::tchar*)&ui4, 4 );
+
+		// 交通卡充值流水号	当前已分配的最后一笔一卡通充值交易记录的终端流水号	Long	4
+		ui4 = 0;
+		if(ui4>0) ui4 = ui4 - 1;
+		wl::SStrf::chgendian(ui4) ;
+		ck.append( (wl::tchar*)&ui4, 4 );
+
+		// 手机支付消费流水号	当前已分配的最后一笔手机支付消费交易记录的终端流水号	Long	4
+		ui4 = 0;
+		if(ui4>0) ui4 = ui4 - 1;
+		wl::SStrf::chgendian(ui4) ;
+		ck.append( (wl::tchar*)&ui4, 4 );
+	}
+
+	AppendMd5(ck);
+
+	//长度 
+	ui2 = (tuint16)ck.len();
+	SStrf::chgendian(ui2);
+
+	//组织全部数据为一个包  
+	ck2.append( (tchar*)&ui2, 2 );
+	ck2.append( ck );
+
+	///
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck2.Seri_S() );
+
+	if( !tc.send_bin( ck2 ) )
+		return 0;
+
+	return 1;
+}
+
 
 
 

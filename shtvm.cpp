@@ -66,6 +66,8 @@
 #include "d_cg04_t.h"
 #include "d_cg04s_backpic_t.h"
 #include "d_cg04s_stoppic_t.h"
+#include "d_cg06_backpic_t.h"
+#include "d_cg06_t.h"
 
 
 
@@ -118,10 +120,12 @@ int main( int argc, char *argv[] )
 	gp_conf = &conf1;
 	gp_conf->LoadConfFile();
 	gp_conf->MakeDiskEnv();
+	
 
 	bu_asynwork_t::DoSetThisIp();
 	bu_asynwork_t::DoTime1Server();
 	bu_asynwork_t::DoTime2Server();
+
 
 	gp_qf = &qf;
 	gp_qf->tr_open();
@@ -129,7 +133,7 @@ int main( int argc, char *argv[] )
 	//LOG;
 	gp_log = log;
 	LogInit();
-
+	
 	gp_moneylog = &moneylog;
 	gp_moneylog->Init();
 	TWO_REC( "tvm begin" );
@@ -139,9 +143,11 @@ int main( int argc, char *argv[] )
 	//test_double();
 	//return 0;
 
+
 	gp_db = &db;
 	gp_db->LoadDb();
 	gp_db->SaveDb();
+
 
 			//gp_bill = &bill;
 			//gp_bill->billInit();
@@ -158,6 +164,7 @@ int main( int argc, char *argv[] )
 			//gp_bilchg = &bilchg;
 			//gp_bilchg->bilchgInit();
 			//gp_bilchg->bilchgChangeOut( 0, 1 );
+
 
 	//test_send6002aa();
 	//return 0;
@@ -183,9 +190,9 @@ int main( int argc, char *argv[] )
 	sprintf( s, "%s %s", gp_conf->m_strSysVer.c_str(), gp_conf->m_strSysVerInternal.c_str() ); 
 	gp_ui->LineScrPrintA( s );
 
-	gp_ui->LineScrPrintA( "数据初始化" );
-	gp_ui->LineScrPrintA( "显示模块初始化" );
-	gp_ui->LineScrPrintA( "参数输入模块初始化" );
+	//gp_ui->LineScrPrintA( "数据初始化" );
+	//gp_ui->LineScrPrintA( "显示模块初始化" );
+	//gp_ui->LineScrPrintA( "参数输入模块初始化" );
 
 	//if( !SStrf::newobjptr<bu_comeag_mgr_t>()->MyInit() ) 模拟串口，不用了
 	//	return 0;
@@ -193,7 +200,7 @@ int main( int argc, char *argv[] )
 	if( !SStrf::newobjptr<bu_me_mgr_t>()->Init() ) // 接收参数	
 		return 0;
 	
-	gp_ui->LineScrPrintA( "用户输入处理模块的初始化" );
+	//gp_ui->LineScrPrintA( "用户输入处理模块的初始化" );
 
 	gp_frontinput = &frontinput;
 	if( !gp_frontinput->FrontInit(9999) )
@@ -210,13 +217,17 @@ int main( int argc, char *argv[] )
 	//
 	//working thread
 	//
-	gp_ui->LineScrPrintA( "事件模块初始化" );
+	//gp_ui->LineScrPrintA( "事件模块初始化" );
 	gp_medev = &medev;
 	gp_medev->MedevInit();
 
+	int rtn = 0;
+	char *sz1[] = { "异常", "正常" };
+	char s1[3333];
+
 	gp_ui->LineScrPrintA( "硬币模块初始化" );
 	gp_coin = &coin;
-	gp_coin->CoinInit();
+	rtn = gp_coin->CoinInit();
 	gp_coin->dCoinOpenUplight();
 	gp_coin->dCoinOpenDownlight();
 	gp_coin->dCoinOpenAlert();
@@ -225,24 +236,32 @@ int main( int argc, char *argv[] )
 	gp_coin->dCoinCloseDownlight();
 	gp_coin->dCoinCloseAlert();
 
+	sprintf( s1, "结果：%s", sz1[!!rtn] ); 
+	gp_ui->LineScrPrint( 0, s1, 1 );
+
 	//test_coin3();
 
 	gp_ui->LineScrPrintA( "纸币模块初始化" );
 	gp_bill = &bill;
-	gp_bill->billInit();
+	rtn = gp_bill->billInit();
+	sprintf( s1, "结果：%s", sz1[!!rtn] ); 
+	gp_ui->LineScrPrint( 0, s1, 1 );
 
 	
 
 	gp_ui->LineScrPrintA( "发卡模块初始化" );
 	gp_emitticket = &emitticket;
-	gp_emitticket->EmttInit();
+	rtn = gp_emitticket->EmttInit();
 	gp_emitticket->MkTicketReady();
-	//gp_emitticket->eTicket_ExchangeBox();
+	sprintf( s1, "结果：%s", sz1[!!rtn] ); 
+	gp_ui->LineScrPrint( 0, s1, 1 );
 
 
 	gp_ui->LineScrPrintA( "读写器模块初始化" );
 	gp_reader1 = &reader1;
-	gp_reader1->Reader1Init();
+	rtn = gp_reader1->Reader1Init();
+	sprintf( s1, "结果：%s", sz1[!!rtn] ); 
+	gp_ui->LineScrPrint( 0, s1, 1 );
 
 
 	/*gp_ui->LineScrPrintA( "纸币找零初始化" );
@@ -252,11 +271,15 @@ int main( int argc, char *argv[] )
 
 	gp_ui->LineScrPrintA( "滚动屏 初始化" );
 	gp_topscr = &topscr;
-	gp_topscr->TopscrInit();
+	rtn = gp_topscr->TopscrInit();
+	sprintf( s1, "结果：%s", sz1[!!rtn] ); 
+	gp_ui->LineScrPrint( 0, s1, 1 );
 
 	gp_ui->LineScrPrintA( "打印机 初始化" );
 	gp_printer = &printer;
-	gp_printer->PrinterInit();
+	rtn = gp_printer->PrinterInit();
+	sprintf( s1, "结果：%s", sz1[!!rtn] ); 
+	gp_ui->LineScrPrint( 0, s1, 1 );
 
 	//gp_ui->LineScrPrintA( "UPS初始化" );
 	//gp_upsdev = &upsdev;
@@ -290,10 +313,10 @@ int main( int argc, char *argv[] )
 
 
 	gp_ui->LineScrClearA();
-	
-
-
+ 
+	wl::SDte dtnow = wl::SDte::GetNow();
 	if(plocalcg01->pageGraphElementsFlags == 0){
+		bu_timeshower_t timeshower;
 		d_cg01s_backpic_t			cg01s_backpic;
 		d_cg01s_lang_t			cg01s_lang;
 		d_cg01s_rightupmsg_t	cg01s_rightupmsg;
@@ -304,6 +327,7 @@ int main( int argc, char *argv[] )
 		d_cg01s_linepic_t		cg01s_linepic;
 		d_cg01s_seleline_t	 cg01s_seleline;
 		d_cg01s_machinestate_t	cg01s_machinestate;
+		timeshower.timeLabel();
 		cg01s_backpic.ShowBack1();
 		cg01s_lang.ShowLangButt();
 		cg01s_rightupmsg.Showrightupmsg();
@@ -381,6 +405,16 @@ int main( int argc, char *argv[] )
 		plocalcg04->langFlag = 0;
 		//SetLanguageCh();
 	}
+	if(plocalcg06->pageGraphElementsFlags == 0){
+		d_cg06_backpic_t  cg06_backpic;
+		//d_cg06_showmess_t cg06_showmess;
+		cg06_backpic.ShowBack1();
+		plocalcg06->pageGraphElementsFlags = 1;
+		plocalcg06->displayFlag = 0;
+		plocalcg06->langFlag = 0;
+		//SetLanguageCh();
+	}
+
 	gp_frontman_mgr = &frontman;
 	gp_frontman_mgr->frontmanInit();
 
@@ -408,7 +442,27 @@ int main( int argc, char *argv[] )
 		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot )
 			break;
 
+		dtnow.MakeNow();
+
+		// 参数运营结束处理逻辑
+		if( gp_medev->m_IsYunYingEnd == 0 )
+		{
+			if( !IsYunYingDT(dtnow) )
+			{
+				//运营结束
+				gp_medev->m_IsYunYingEnd = 1;
+			}
 			
+		}
+		else
+		{
+			if( IsYunYingDT(dtnow) )
+			{
+				//运营开始
+				gp_medev->m_IsYunYingEnd = 0;
+			}
+		}
+
 		if( SStrf::rand1() < 0.1 ) 
 		{
 			gp_frontinput->input_KIN_APP();

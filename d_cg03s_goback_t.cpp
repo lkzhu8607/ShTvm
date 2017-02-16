@@ -78,6 +78,7 @@ tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 					//other process
 					plocalcg01->langFlag = 0;
 					plocalcg01->displayFlag = 0;
+					plocalcg01->errorFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 					return 1;
@@ -94,6 +95,7 @@ tbool d_cg03s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 					//other process
 					plocalcg01->langFlag = 0;
 					plocalcg01->displayFlag = 0;
+					plocalcg01->errorFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 					plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 					return 1;

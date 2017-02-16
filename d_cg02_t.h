@@ -21,6 +21,8 @@ public:
 	int shouldChangeIndex;
 	//int coinIndex;
 	int notesIndex;
+	int disableDisplayFlag;
+	int gobackFlag;//0,go back cg01;1,go back cg03
 	//int exceptNoteIndex;	
 
 public:

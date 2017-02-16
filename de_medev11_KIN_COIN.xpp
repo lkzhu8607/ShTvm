@@ -37,33 +37,89 @@
 
 
 		//137 硬币回收箱不在位 
+		// 169 非法操作硬币回收箱
 		//[out] SensorStatus[3] BYTE	硬币回收箱 Bit5:=1/0  硬币回收箱到位：0，到位；1，未到位 
 		if( SStrf::readbit( Rb8701.m_SensorStatus.a[2], 5 ) == 1 )			//	Bit3:=1/0  硬币回收箱到位：0，到位；1，未到 
+		{
 			EVT_CHG(137,1);
+			if( 0 == m_legal_authority )
+			{
+				EVT_CHG(169,1);
+			}
+		}
 		else
+		{
 			EVT_CHG(137,0);
+		}
 		
 
-
 		// 138 硬币回收箱将满 
-
 		// 139 硬币回收箱满 
 		if( SStrf::readbit( Rb8701.m_SensorStatus.a[2], 7 ) == 1 )			//	Bit7:=1/0  硬币回收箱：0，正常；1，满
+		{
 			EVT_CHG(139,1);
-		else
+			EVT_CHG(138,0);
+		}
+		else if( ( Rb8701.m_A1YuanStoreBox + Rb8701.m_A5MaoStoreBox ) >= 1800 )
+		{
 			EVT_CHG(139,0);
+			EVT_CHG(138,1);
+		}
+		else
+		{
+			EVT_CHG(139,0);
+			EVT_CHG(138,0);
+		}
 
+
+		
 		// 143 硬币找零箱1不在位
+		// 167 硬币补充箱1不在位
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[0], 7 ) == 1 )     // Data0  Bit7:=1/0  1元补币箱：0，到位；1，未到位
+		{
+			EVT_CHG(143,1);
+			EVT_CHG(167,1);
+		}
+		else
+		{
+			EVT_CHG(143,0);
+			EVT_CHG(167,0);
+		}
 
 		// 144 硬币找零箱1将空 
-
 		// 145 硬币找零箱1空 
+		if( gp_coin->m_iIsRepCoinOk[0] == 0 )
+		{
+			EVT_CHG(145,1);
+		}
+		else
+		{
+			EVT_CHG(145,0);
+		}
 
 		// 146 硬币找零箱2不在位
+		// 168  硬币补充箱2不在位
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[0], 6 ) == 1 )     // Data0  Bit6:=1/0  5角补币箱（保留）：0，到位；1，未到位
+		{
+			EVT_CHG(146,1);
+			EVT_CHG(168,1);
+		}
+		else
+		{
+			EVT_CHG(146,0);
+			EVT_CHG(168,0);
+		}
 
 		// 147 硬币找零箱2将空 
-
 		// 148 硬币找零箱2空
+		if( gp_coin->m_iIsRepCoinOk[1] == 0 )
+		{
+			EVT_CHG(148,1);
+		}
+		else
+		{
+			EVT_CHG(148,0);
+		}
 
 		// 157 硬币循环斗1不在位
 		// 162 硬币循环斗2不在位
@@ -78,40 +134,87 @@
 			EVT_CHG(162,0);
 		}
 
+
 		// 158 硬币循环斗1将空
 		// 159 硬币循环斗1空
-		if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 2 ) == 1 )			//	Bit2:=1/0  1找零器低币位没遮挡（空）0找零器低币位遮挡
-			EVT_CHG(159,1);
-		else
-			EVT_CHG(159,0);
-
 		// 160 硬币循环斗1将满
 		// 161 硬币循环斗1满
-		if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 3 ) == 0 )			//	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 3 ) == 0 )   //	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
+		{
 			EVT_CHG(161,1);
-		else
+			EVT_CHG(160,0);
+			EVT_CHG(159,0);
+			EVT_CHG(158,0);
+		}
+		else if( Rb8701.m_A1YuanCycleChg > 180 )
+		{
 			EVT_CHG(161,0);
-
+			EVT_CHG(160,1);
+			EVT_CHG(159,0);
+			EVT_CHG(158,0);
+		}
+		else if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 2 ) == 1 )   //	Bit2:=1/0  1找零器低币位没遮挡（空）0找零器低币位遮挡
+		{
+			EVT_CHG(161,0);
+			EVT_CHG(160,0);
+			EVT_CHG(159,1);
+			EVT_CHG(158,0);
+		}
+		else if( Rb8701.m_A1YuanCycleChg < 9 )
+		{
+			EVT_CHG(161,0);
+			EVT_CHG(160,0);
+			EVT_CHG(159,0);
+			EVT_CHG(158,1);
+		}
+		else
+		{
+			EVT_CHG(161,0);
+			EVT_CHG(160,0);
+			EVT_CHG(159,0);
+			EVT_CHG(158,0);
+		}
 
 		// 163 硬币循环斗2将空
 		// 164 硬币循环斗2空
-		if( SStrf::readbit( Rb8701.m_SensorStatus.a[4], 2 ) == 1 )			//	Bit2:=1/0  1找零器低币位没遮挡（空） 0找零器低币位遮挡
-			EVT_CHG(164,1);
-		else
-			EVT_CHG(164,0);
-
 		// 165 硬币循环斗2将满
 		// 166 硬币循环斗2满
-		if( SStrf::readbit( Rb8701.m_SensorStatus.a[4], 3 ) == 0 )			//	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[4], 3 ) == 0 )   //	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
+		{
 			EVT_CHG(166,1);
-		else
+			EVT_CHG(165,0);
+			EVT_CHG(164,0);
+			EVT_CHG(163,0);
+		}
+		else if( Rb8701.m_A5MaoCycleChg > 180 )
+		{
 			EVT_CHG(166,0);
+			EVT_CHG(165,1);
+			EVT_CHG(164,0);
+			EVT_CHG(163,0);
+		}
+		else if(  SStrf::readbit( Rb8701.m_SensorStatus.a[4], 2 ) == 1 )   //	Bit2:=1/0  1找零器低币位没遮挡（空） 0找零器低币位遮挡
+		{
+			EVT_CHG(166,0);
+			EVT_CHG(165,0);
+			EVT_CHG(164,1);
+			EVT_CHG(163,0);
+		}
+		else if( Rb8701.m_A1YuanCycleChg < 9 )
+		{
+			EVT_CHG(166,0);
+			EVT_CHG(165,0);
+			EVT_CHG(164,0);
+			EVT_CHG(163,1);
+		}
+		else
+		{
+			EVT_CHG(166,0);
+			EVT_CHG(165,0);
+			EVT_CHG(164,0);
+			EVT_CHG(163,0);
+		}
 
-		// 167 硬币补充箱1不在位
-
-		// 168  硬币补充箱2不在位
-
-		// 169 非法操作硬币回收箱
 
 		// 171 非法操作硬币找零箱1
 
@@ -128,7 +231,24 @@
 		}
 
 		// 176 硬币找零卡币
+		if( SStrf::readbit( Rb8701.m_CoinChangeData.a[2], 1 ) == 1 )  //Bit1:=1/0  1 (找零斗卡币)或(找零斗出币计数据传感器未插好和坏)或(找零斗出币通道卡币) 0 没有故障
+		{
+			EVT_CHG(176,1);
+		}
+		else
+		{
+			EVT_CHG(176,0);
+		}
 
+		//303 硬币处理单元不再位
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[0], 0 ) == 1 )  // SensorStatus.a[0]  Bit0:=1/0  硬币模块：0，到位；1，未到位
+		{
+			EVT_CHG(303,1);
+		}
+		else
+		{
+			EVT_CHG(303,0);
+		}
 	
 
 	}

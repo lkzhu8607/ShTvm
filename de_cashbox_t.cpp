@@ -44,20 +44,22 @@ int de_bill_cashbox_t::tr_on_user_run()
 	b8701_t::ROWTYPE &Rb8701(gp_db->GetTheRowb8701());
 	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
 
-/*
-	if(gp_medev->m_legal_authority==1)
-	{
-		gp_bill->m_install_boxflag=0; 
-		gp_bill->m_uninstall_boxflag=0;  
-	}
-	*/
+	// 未登陆，但打开纸币模块物理锁 则报警.   其他线程处登陆后会关闭报警
+    if(gp_bill->m_safeunlock==1 && gp_medev->m_IsLegalLoginMaintenance==0)
+    {
+    	gp_coin->dCoinOpenAlert();
+		LOGSTREAM( gp_log[LOGSOP], LOGPOSI<<"illegal Login Maintenance,but safedoor is unlock.....");
+    }
+
+	//有结算或者维护权限 关闭报警
 	if((gp_medev->m_legal_authority==1 ||gp_medev->m_legal_authority==2)&& m_already_alarmflag==1 )
 	{
 		gp_coin->dCoinCloseAlert();//关闭报警
 		LOGSTREAM( gp_log[LOGSOP], LOGPOSI<<"close alarm 1");
 		m_already_alarmflag=0;
 	}
-	if(gp_bill->m_install_boxflag==1 && gp_bill->m_uninstall_boxflag==1)
+	if(gp_bill->m_install_boxflag==1 && gp_bill->m_uninstall_boxflag==1 && gp_bill->m_safeunlock==0 
+		&& gp_bill->m_resetok==1)
 	{  //不是维护，都要清除数据
 		if(m_needclear==1)
 		{

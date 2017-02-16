@@ -17,78 +17,63 @@
 
 		// Data0	Bit1：1-卡箱前到位（靠近显示屏的到位开关）	
 		
-		ui1 = Rb8703.m_SensorStatus.a[0];
-		if( SStrf::readbit( ui1, 7 ) == 1 )
-		{
-			//	112 票箱1将空	
-			if( SStrf::readbit( Rb8703.m_SensorStatus.a[1], 7 ) == 0 )	// Bit4:1-卡将空光感被遮，0卡将空光感未	
-			{
-				EVT_CHG(112,1);
-			}
-			else
-			{
-				EVT_CHG(112,0);
-			}
-		}
-		else
-		{
-			EVT_CHG(112,0);
-		}
+		//ui1 = Rb8703.m_SensorStatus.a[0];
 
-		
-		ui1 = Rb8703.m_SensorStatus.a[0];
-		if( SStrf::readbit( ui1, 6 ) == 1 )
-		{
-			//	114 票箱2将空	
-			if( SStrf::readbit( Rb8703.m_SensorStatus.a[1], 7 ) == 0 )	// Bit4:1-卡将空光感被遮，0卡将空光感未	
-			{
-				EVT_CHG(114,1);
-			}
-			else
-			{
-				EVT_CHG(114,0);
-			}
-		}
-		else
-		{
-			EVT_CHG(114,0);
-		}
+		//
+		//ui1 = Rb8703.m_SensorStatus.a[0];
 
 
 		//	113 票箱1空	
 		//1=前卡箱空光感被遮 不空, 0=前卡箱空 
 		//Bit5：1-前卡箱空光感被遮,0前卡箱空光感未遮
 		ui1 = Rb8703.m_SensorStatus.a[0];
-		if( SStrf::readbit( ui1, 5 ) == 1 )
+		if( SStrf::readbit( ui1, 5 ) == 0 )
 		{
-			EVT_CHG(113,0);
-		}
-		else
-		{
+			//空
 			EVT_CHG(113,1);
 			//将票箱1将空去掉
 			EVT_CHG(112,0);
 		}
-
+		else if( SStrf::readbit( Rb8703.m_SensorStatus.a[1], 7 ) == 0 )   // Bit7:1-卡将空光感被遮，0卡将空光感未	
+		{
+			EVT_CHG(113,0);
+			EVT_CHG(112,1);
+		}
+		else
+		{
+			EVT_CHG(113,0);
+			EVT_CHG(112,0);
+		}
 
 		//	115 票箱2空	
 		//Bit3：1-后卡箱空光感被遮,0后卡箱空光感未遮
 		ui1 = Rb8703.m_SensorStatus.a[0];
-		if( SStrf::readbit( ui1, 3 ) == 1 )
+		if( SStrf::readbit( ui1, 3 ) == 0 )
+		{
+			EVT_CHG(115,1);
+			EVT_CHG(114,0);
+		}
+		else if( SStrf::readbit( Rb8703.m_SensorStatus.a[1], 7 ) == 0 )
 		{
 			EVT_CHG(115,0);
+			EVT_CHG(114,1);
 		}
 		else
 		{
-			EVT_CHG(115,1);
-			//将票箱1将空去掉
+			EVT_CHG(115,0);
 			EVT_CHG(114,0);
 		}
 
 
-
-
 		// 116 废票箱满 
+		if( Rb8703.m_BadTotal >= 50 )
+		{
+			EVT_CHG(116,1);
+		}
+		else
+		{
+			EVT_CHG(116,0);
+		}
 
 	
 

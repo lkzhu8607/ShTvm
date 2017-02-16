@@ -16,9 +16,9 @@ typedef unsigned char BYTE;
 class de_coin_t : public de_base_t 
 {
 public:
-	// m_de_state		  0= idle ;  1= reset & idle ; 2= loop query ; 3=?ì?ù2é?ˉó?óú?óêüí?±òê±	
+	// m_de_state		  0= idle ;  1= reset & idle ; 2= loop query ; 3=快速查询用于接受投币时	
 	CCoin m_coinmodule;
-	int   m_iIsRepCoinOk;      // 1:ok   0:fail
+	BYTE   m_iIsRepCoinOk[2];      // 1:ok   0:fail    index 0 : 1Yuan   1:5Jiao
 	 
 public:
 	de_coin_t();
@@ -30,46 +30,46 @@ public:
 
 	//
 	void CoinAdvice();
-	void CoinInit();
+	int CoinInit();
 
-	//éè±???ía?ó?ú 
+	//设备对外接口 
 	bool dCommOpen();
 	void dCommClose();
-	int dCoin_State();		//ó2±ò?￡?é×′ì?2é?ˉ0x31 
-	int dCoin_Test(BYTE Data[2]);		//2.4ó2±ò?￡?é2aê??üá?0x32
-	int dCoin_Reset();		//2.5ó2±ò?￡?é3ìDò?′??0x33
-	int dCoin_GetVersion();	//2.6ó2±ò?￡?é3ìDò°?±?2é?ˉ0x34
-	int dCoin_Change( BYTE Box[2] );	//2.7ó2±ò?￡?é?òá??üá?0x00
-	int dCoin_End_Change( BYTE Data);	//2.8?-?·?òá????￠×¨ó??òá????òá??áê??üá?0x01
-	int dCoin_Clean( BYTE Box );		//2.9ó2±ò?￡?é??±ò?üá?0x02
-	int dCoin_End_Clean( BYTE Data);	//2.10?-?·?òá????￠×¨ó??òá?????±ò?áê??üá?0x03
-	int dCoin_OpenClose( BYTE Data1[2] );//2.11ó2±ò?￡?éμ?′?ìú?a1??üá?0x04
-	int dCoin_Poll( BYTE Data1 );	//2.12ó2±òê?±e?÷???ˉ0x05
-	int dCoin_Add( BYTE Box );		//2.13ó2±ò?￡?é21±ò???ó±ò?üá?0x06
+	int dCoin_State();		//硬币模块状态查询0x31 
+	int dCoin_Test(BYTE Data[2]);		//2.4硬币模块测试命令0x32
+	int dCoin_Reset();		//2.5硬币模块程序复位0x33
+	int dCoin_GetVersion();	//2.6硬币模块程序版本查询0x34
+	int dCoin_Change( BYTE Box[2] );	//2.7硬币模块找零命令0x00
+	int dCoin_End_Change( BYTE Data);	//2.8循环找零箱、专用找零箱找零结束命令0x01
+	int dCoin_Clean( BYTE Box ,int iCleanCount = 0 );		//2.9硬币模块清币命令0x02   //iCleanCount需要清币的数量 0表示清空所有的硬币 1-255表示按照具体的数量清币
+	int dCoin_End_Clean( BYTE Data);	//2.10循环找零箱、专用找零箱清币结束命令0x03
+	int dCoin_OpenClose( BYTE Data1[2] );//2.11硬币模块电磁铁开关命令0x04
+	int dCoin_Poll( BYTE Data1 );	//2.12硬币识别器轮询0x05
+	int dCoin_Add( BYTE Box );		//2.13硬币模块补币箱加币命令0x06
 
 	//
 	int dCoin_Work( tbool enable_mao5, tbool enable_yuan1 );
 	int dCoin_Work(); //use last value to work.
-	int dCoin_Stop();
+	int dCoin_Stop( int iIsCleanReg = 1 );     //1 清除硬币计数寄存器，0不清除 
 	int dCoin_Query();
 
-	int dCoinHold(); // 1?μ?μ×2?±ò?ú
-	int dCoin2CircleChg(); // μ??-?·?òá??? 
-	int dCoin2StoreBox(); // μ?±ò?? 
-	int dCoin2CircleChg( long coin1, long coin5 = 0 ); // μ??-?·?òá??? 
-	int dCoin2StoreBox( long coin1, long coin5 = 0 ); // μ?±ò?? 
-	int dCoin2Return(); // í?±ò  
+	int dCoinHold(); // 关掉底部币口
+	int dCoin2CircleChg(); // 到循环找零箱 
+	int dCoin2StoreBox(); // 到币箱 
+	int dCoin2CircleChg( long coin1, long coin5 = 0 ); // 到循环找零箱 
+	int dCoin2StoreBox( long coin1, long coin5 = 0 ); // 到币箱 
+	int dCoin2Return(); // 退币  
 
-	int dCoinOpenUplight(); // 3??í??ê??÷???÷  
+	int dCoinOpenUplight(); // 乘客显示器照明  
 	int dCoinCloseUplight();
-	int dCoinOpenDownlight(); // è??±?ú???÷ 
+	int dCoinOpenDownlight(); // 取票口照明 
 	int dCoinCloseDownlight();
-	int dCoinOpenAlert(); // ±¨?ˉ?÷  
+	int dCoinOpenAlert(); // 报警器  
 	int dCoinCloseAlert();   
 	
-	//ò??a?-?·?ò3?X￡?·μ??ê?·?3é1|	
+	//一元循环找出X，返回是否成功	
 	int CircleChgOut( long PlanYuan1 );
-	//ò??a×¨ó??ò3?X￡?·μ??ê?·?3é1|	
+	//一元专用找出X，返回是否成功	
 	int SpecialChgOut( long PlanYuan1 );
 	int dCoinBletRoll();
 	int dCoin_Supplementary(BYTE Box[2]);
@@ -82,8 +82,13 @@ public:
 	void padTriggerCancelKey();
 	void returnCoin();
 
-	bool IsVaultFull();              //ó2±ò??ê?·??ú    true￡o±íê??ú￡? false ￡o?y3￡
+	bool IsVaultFull();              //硬币箱是否满    true：表示满， false ：正常
 	int  RecoverErr();
+
+	int CleanCoinStock();
+	int RepCoinStock();
+
+
 };
 
 

@@ -46,42 +46,63 @@ d_cg03_t::~d_cg03_t()
 
 void d_cg03_t::cg03_graphElementsHide(int langFlag)
 {
+
 	if(langFlag == 0){
+		/*if(gp_frontman_mgr->graphLastPageElementsCN.size()){
+			for(int j=0;j<gp_frontman_mgr->graphLastPageElementsCN.size();j++){
+				gp_ui->hideLabel(gp_frontman_mgr->graphLastPageElementsCN[j]);
+			}		
+			//gp_frontman_mgr->graphLastPageElementsCN.clear();
+
+		}*/		
 		for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
 			if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
+				//gp_frontman_mgr->graphLastPageElementsCN.push_back(plocalcg03->graphElementsCN[j]);
 				plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j=0;j<plocalcg01->graphLineButtonCN.size();j++){
 			if(plocalcg01->graphLineButtonCN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg01->graphLineButtonCN[j]);
+				//gp_frontman_mgr->graphLastPageElementsCN.push_back(plocalcg01->graphLineButtonCN[j]);
 				plocalcg01->graphLineButtonCN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j = 0;j<plocalcg03->lineCount;j++){
 			if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
 				gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
+				//gp_frontman_mgr->graphLastPageElementsCN.push_back(plocalcg03->graphLineStationCN[j][0]);
 				plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;				
 			}
 		}
 	}
 	else if(langFlag == 1){
+		/*if(gp_frontman_mgr->graphLastPageElementsCN.size()){
+			for(int j=0;j<gp_frontman_mgr->graphLastPageElementsEN.size();j++){
+				gp_ui->hideLabel(gp_frontman_mgr->graphLastPageElementsEN[j]);
+			}		
+			//gp_frontman_mgr->graphLastPageElementsCN.clear();
+
+		}*/
 		for(int j=0;j<plocalcg03->graphElementsEN.size();j++){
 			if(plocalcg03->graphElementsEN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg03->graphElementsEN[j]);
+				//gp_frontman_mgr->graphLastPageElementsEN.push_back(plocalcg03->graphElementsEN[j]);
 				plocalcg03->graphElementsEN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j=0;j<plocalcg01->graphLineButtonEN.size();j++){
 			if(plocalcg01->graphLineButtonEN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg01->graphLineButtonEN[j]);
+				//gp_frontman_mgr->graphLastPageElementsEN.push_back(plocalcg01->graphLineButtonEN[j]);
 				plocalcg01->graphLineButtonEN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j = 0;j<plocalcg03->lineCount;j++){
 			if(plocalcg03->graphLineStationEN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
 				gp_ui->hideLabel(plocalcg03->graphLineStationEN[j][0]);
+				//gp_frontman_mgr->graphLastPageElementsEN.push_back(plocalcg03->graphLineStationEN[j][0]);
 				plocalcg03->graphLineStationEN[j][0].m_iShouldShow = 0;				
 			}
 		}
@@ -89,6 +110,8 @@ void d_cg03_t::cg03_graphElementsHide(int langFlag)
 	for(int j=0;j<gp_timeshower->graphElements.size();j++){
 		if(gp_timeshower->graphElements[j].m_iShouldShow == 1){
 			gp_ui->hideLabel(gp_timeshower->graphElements[j]);
+			//gp_frontman_mgr->graphLastPageElementsCN.push_back(gp_timeshower->graphElements[j]);
+			//gp_frontman_mgr->graphLastPageElementsEN.push_back(gp_timeshower->graphElements[j]);
 			gp_timeshower->graphElements[j].m_iShouldShow = 0;
 		}
 	}
@@ -125,170 +148,192 @@ void d_cg03_t::Proc()
 
 	while(1)
 	{
-		if(plocalcg03->displayFlag == 0){
-			if(plocalcg03->langFlag == 0){//
-				SetLanguageCh();
-				for(int i=0;i<plocalcg03->graphElementsCN.size();i++){
-					if(plocalcg03->graphElementsCN[i].m_name == "CN_thirdBackPic"){
-						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
-						plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
-						continue;
-					}
-					if(plocalcg03->graphElementsCN[i].m_name == "CN_page3UpRightMsg"){
-						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
-						plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
-						continue;
-					}
-					/*if(plocalcg03->graphElementsCN[i].m_name == "CN_page3LangButton"){
-						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
-						plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
-						continue;
-					}
-					if(plocalcg03->graphElementsCN[i].m_name == "CN_page3GoBack"){
-						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
-						continue;
-					}*/		
-					if(plocalcg03->graphElementsCN[i].m_name == "CN_MachineState"){
-						SetLanguageCh();
-						gp_ui->hideLabel(plocalcg03->graphElementsCN[i]);
-						gp_ui->updateLabel(plocalcg03->graphElementsCN[i],GetStrRes(gp_medev->m_devstatus));
-						//gp_ui->str_task(plocalcg03->graphElementsCN[i]);
-						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
-						plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
-						plocalcg03->MachineStateIndex = i;
-						continue;
-					}							
-				}
-				
-				for(int i = 0;i<plocalcg03->lineCount;i++){
-					if(plocalcg03->graphLineStationCN[i][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
-						//gp_ui->pic_task(plocalcg03->graphLineStationCN[i][0]);
-						gp_ui->showLabel(plocalcg03->graphLineStationCN[i][0]);
-						plocalcg03->graphLineStationCN[i][0].m_iShouldShow = 1;
-						plocalcg03->lineIndex = i;
-						/*for(int j = 1;j <plocalcg03->graphLineStationCN[i].size(); j++){
-							;
-						}*/					
-					}
-				}
-				if(gp_frontman_mgr->m_cg03.m_iLineCode <= 10){
-					for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
-						if(plocalcg01->graphLineButtonCN[i].m_funcvalue <= 10){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
-							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
-							continue;
-						}
-						if(plocalcg01->graphLineButtonCN[i].m_funcname == "CN_NextButton"){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
-							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
-							continue;	
-						}
-					}
-				}
-				else if(gp_frontman_mgr->m_cg03.m_iLineCode > 10){
-					for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
-						if(plocalcg01->graphLineButtonCN[i].m_funcvalue > 10 && plocalcg01->graphLineButtonCN[i].m_funcname == "CN_SeleLine"){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
-							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
-							continue;
-						}
-						if(plocalcg01->graphLineButtonCN[i].m_funcname == "CN_PrevButton"){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
-							plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
-							continue;	
-						}
-					}
+		/*if(plocalcg02->gobackFlag == 1){
+			if(plocalcg03->langFlag == 0){
+				if(gp_frontman_mgr->graphLastPageElementsCN.size()){
+					for(int i=0;i<gp_frontman_mgr->graphLastPageElementsCN.size();i++){
+						gp_ui->showLabel(gp_frontman_mgr->graphLastPageElementsCN[i]);
+					}				
 				}
 			}
 			else if(plocalcg03->langFlag == 1){
-				SetLanguageEn();
-				for(int i=0;i<plocalcg03->graphElementsEN.size();i++){
-					if(plocalcg03->graphElementsEN[i].m_name == "EN_thirdBackPic"){
-						gp_ui->showLabel(plocalcg03->graphElementsEN[i]);
-						plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
-						continue;
-					}
-					if(plocalcg03->graphElementsEN[i].m_name == "EN_page3UpRightMsg"){
-						gp_ui->showLabel(plocalcg03->graphElementsEN[i]);
-						plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
-						continue;
-					}
-					/*if(plocalcg03->graphElementsEN[i].m_name == "EN_page3LangButton"){
-						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
-						plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
-						continue;
-					}
-					if(plocalcg03->graphElementsEN[i].m_name == "EN_page3GoBack"){
-						gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
-						continue;
-					}*/		
-					if(plocalcg03->graphElementsEN[i].m_name == "EN_MachineState"){
-						SetLanguageEn();
-						gp_ui->hideLabel(plocalcg03->graphElementsEN[i]);
-						gp_ui->updateLabel(plocalcg03->graphElementsEN[i],GetStrRes(gp_medev->m_devstatus));
-						//gp_ui->str_task(plocalcg03->graphElementsEN[i]);
-						gp_ui->showLabel(plocalcg03->graphElementsEN[i]);
-						plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
-						plocalcg03->MachineStateIndex = i;
-						continue;
-					}							
-				}
-				
-				for(int i = 0;i<plocalcg03->lineCount;i++){
-					if(plocalcg03->graphLineStationEN[i][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
-						//gp_ui->pic_task(plocalcg03->graphLineStationEN[i][0]);
-						gp_ui->showLabel(plocalcg03->graphLineStationEN[i][0]);
-						plocalcg03->graphLineStationEN[i][0].m_iShouldShow = 1;
-						plocalcg03->lineIndex = i;			
-					}
-				}
-				if(gp_frontman_mgr->m_cg03.m_iLineCode <= 10){
-					for(int i=0;i<plocalcg01->graphLineButtonEN.size();i++){
-						if(plocalcg01->graphLineButtonEN[i].m_funcvalue <= 10){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonEN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
-							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
-							continue;
-						}
-						if(plocalcg01->graphLineButtonEN[i].m_funcname == "EN_NextButton"){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
-							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
-							continue;	
-						}
-					}
-				}
-				else if(gp_frontman_mgr->m_cg03.m_iLineCode > 10){
-					for(int i=0;i<plocalcg01->graphLineButtonEN.size();i++){
-						if(plocalcg01->graphLineButtonEN[i].m_funcvalue > 10 && plocalcg01->graphLineButtonEN[i].m_funcname == "EN_SeleLine"){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
-							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
-							continue;
-						}
-						if(plocalcg01->graphLineButtonEN[i].m_funcname == "EN_PrevButton"){
-							//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
-							gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
-							gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
-							plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
-							continue;	
-						}
-					}
+				if(gp_frontman_mgr->graphLastPageElementsEN.size()){
+					for(int i=0;i<gp_frontman_mgr->graphLastPageElementsEN.size();i++){
+						gp_ui->showLabel(gp_frontman_mgr->graphLastPageElementsEN[i]);
+					}				
 				}
 			}
-			plocalcg03->displayFlag = 1;
+			plocalcg02->gobackFlag = 0;
 		}
+		else*/ if(1){
+			if(plocalcg03->displayFlag == 0){
+				if(plocalcg03->langFlag == 0){//
+				gp_frontman_mgr->graphLastPageElementsCN.clear();
+					SetLanguageCh();
+					for(int i=0;i<plocalcg03->graphElementsCN.size();i++){
+						if(plocalcg03->graphElementsCN[i].m_name == "CN_thirdBackPic"){
+							gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
+							plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg03->graphElementsCN[i].m_name == "CN_page3UpRightMsg"){
+							gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
+							plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
+							continue;
+						}
+						/*if(plocalcg03->graphElementsCN[i].m_name == "CN_page3LangButton"){
+							gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
+							plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg03->graphElementsCN[i].m_name == "CN_page3GoBack"){
+							gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
+							continue;
+						}*/ 	
+						if(plocalcg03->graphElementsCN[i].m_name == "CN_MachineState"){
+							SetLanguageCh();
+							gp_ui->hideLabel(plocalcg03->graphElementsCN[i]);
+							gp_ui->updateLabel(plocalcg03->graphElementsCN[i],GetStrRes(gp_medev->m_devstatus));
+							//gp_ui->str_task(plocalcg03->graphElementsCN[i]);
+							gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
+							plocalcg03->graphElementsCN[i].m_iShouldShow = 1;
+							plocalcg03->MachineStateIndex = i;
+							continue;
+						}							
+					}
+					
+					for(int i = 0;i<plocalcg03->lineCount;i++){
+						if(plocalcg03->graphLineStationCN[i][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
+							//gp_ui->pic_task(plocalcg03->graphLineStationCN[i][0]);
+							gp_ui->showLabel(plocalcg03->graphLineStationCN[i][0]);
+							plocalcg03->graphLineStationCN[i][0].m_iShouldShow = 1;
+							plocalcg03->lineIndex = i;
+							/*for(int j = 1;j <plocalcg03->graphLineStationCN[i].size(); j++){
+								;
+							}*/ 				
+						}
+					}
+					if(gp_frontman_mgr->m_cg03.m_iLineCode <= 10){
+						for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
+							if(plocalcg01->graphLineButtonCN[i].m_funcvalue <= 10){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+								plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+								continue;
+							}
+							if(plocalcg01->graphLineButtonCN[i].m_funcname == "CN_NextButton"){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+								plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+								continue;	
+							}
+						}
+					}
+					else if(gp_frontman_mgr->m_cg03.m_iLineCode > 10){
+						for(int i=0;i<plocalcg01->graphLineButtonCN.size();i++){
+							if(plocalcg01->graphLineButtonCN[i].m_funcvalue > 10 && plocalcg01->graphLineButtonCN[i].m_funcname == "CN_SeleLine"){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+								plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+								continue;
+							}
+							if(plocalcg01->graphLineButtonCN[i].m_funcname == "CN_PrevButton"){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonCN[i]);
+								plocalcg01->graphLineButtonCN[i].m_iShouldShow = 1;
+								continue;	
+							}
+						}
+					}
+				}
+				else if(plocalcg03->langFlag == 1){
+					gp_frontman_mgr->graphLastPageElementsEN.clear();
+					SetLanguageEn();
+					for(int i=0;i<plocalcg03->graphElementsEN.size();i++){
+						if(plocalcg03->graphElementsEN[i].m_name == "EN_thirdBackPic"){
+							gp_ui->showLabel(plocalcg03->graphElementsEN[i]);
+							plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg03->graphElementsEN[i].m_name == "EN_page3UpRightMsg"){
+							gp_ui->showLabel(plocalcg03->graphElementsEN[i]);
+							plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
+							continue;
+						}
+						/*if(plocalcg03->graphElementsEN[i].m_name == "EN_page3LangButton"){
+							gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
+							plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
+							continue;
+						}
+						if(plocalcg03->graphElementsEN[i].m_name == "EN_page3GoBack"){
+							gp_ui->showLabel(plocalcg03->graphElementsCN[i]);
+							continue;
+						}*/ 	
+						if(plocalcg03->graphElementsEN[i].m_name == "EN_MachineState"){
+							SetLanguageEn();
+							gp_ui->hideLabel(plocalcg03->graphElementsEN[i]);
+							gp_ui->updateLabel(plocalcg03->graphElementsEN[i],GetStrRes(gp_medev->m_devstatus));
+							//gp_ui->str_task(plocalcg03->graphElementsEN[i]);
+							gp_ui->showLabel(plocalcg03->graphElementsEN[i]);
+							plocalcg03->graphElementsEN[i].m_iShouldShow = 1;
+							plocalcg03->MachineStateIndex = i;
+							continue;
+						}							
+					}
+					
+					for(int i = 0;i<plocalcg03->lineCount;i++){
+						if(plocalcg03->graphLineStationEN[i][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
+							//gp_ui->pic_task(plocalcg03->graphLineStationEN[i][0]);
+							gp_ui->showLabel(plocalcg03->graphLineStationEN[i][0]);
+							plocalcg03->graphLineStationEN[i][0].m_iShouldShow = 1;
+							plocalcg03->lineIndex = i;			
+						}
+					}
+					if(gp_frontman_mgr->m_cg03.m_iLineCode <= 10){
+						for(int i=0;i<plocalcg01->graphLineButtonEN.size();i++){
+							if(plocalcg01->graphLineButtonEN[i].m_funcvalue <= 10){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonEN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
+								plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
+								continue;
+							}
+							if(plocalcg01->graphLineButtonEN[i].m_funcname == "EN_NextButton"){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
+								plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
+								continue;	
+							}
+						}
+					}
+					else if(gp_frontman_mgr->m_cg03.m_iLineCode > 10){
+						for(int i=0;i<plocalcg01->graphLineButtonEN.size();i++){
+							if(plocalcg01->graphLineButtonEN[i].m_funcvalue > 10 && plocalcg01->graphLineButtonEN[i].m_funcname == "EN_SeleLine"){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
+								plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
+								continue;
+							}
+							if(plocalcg01->graphLineButtonEN[i].m_funcname == "EN_PrevButton"){
+								//gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
+								gp_ui->pic_task(plocalcg01->graphLineButtonEN[i]);
+								gp_ui->showLabel(plocalcg01->graphLineButtonEN[i]);
+								plocalcg01->graphLineButtonEN[i].m_iShouldShow = 1;
+								continue;	
+							}
+						}
+					}
+				}
+				plocalcg03->displayFlag = 1;
+			}
+		}
+
 
 		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
 
@@ -393,7 +438,7 @@ L_GETINPUT:
 			return;
 		}
 
-		int ret = 0;
+		/*int ret = 0;
 		if( ret = cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
 		{
 			//如果有投钱，则退钱 或 列印异常交易
@@ -416,10 +461,8 @@ L_GETINPUT:
 				plocalcg03->cg03_graphElementsHide(plocalcg03->langFlag);
 			}
 			return;
-		}
+		}*/
 		goto L_GETINPUT;
 	}
 	return;
 }
-
-

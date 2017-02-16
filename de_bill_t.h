@@ -21,13 +21,16 @@ public:
 	int   m_iIsNotBillChange;      // 0 :normal   1:无纸币找零
 	int m_install_boxflag;     //安装上钱箱    0:没有变化  1:安装
 	int m_uninstall_boxflag;   //卸载下钱箱    0:没有变化  1:卸载下
+	int m_safeunlock;            //0:锁上     1:解锁
+    int m_iIsRepBillOk;          //1:ok   0:fail
+	int m_resetok;   //安装上箱子之后，自动复位完成1, 未完成自动复位0；
 public:
 	virtual void OnRunTask( std::string t );
 	virtual int tr_on_user_run();
 
 	//
 	void billAdvice();		//上报接收纸币信息
-	void billInit();		// 已改成mei
+	int billInit();		// 已改成mei
 	int Reset();
 	//设备对外接口 
 	int Work();			// 已改成mei 内部有state`	用法：只要work然后查寄存器就行了。
@@ -89,6 +92,8 @@ public:
 
 	bool IsVaultFull();        //纸币箱和循环找零箱是否满    true：表示满， false ：正常
 	int  RecoverErr();
+
+	int RepBillStock();
 
 };
 

@@ -1,4 +1,4 @@
-
+﻿
 // 
 tbool de_tcpmsg_t::SendTrade6002_1()
 {
@@ -22,8 +22,8 @@ tbool de_tcpmsg_t::SendTrade6002_1()
 			ShouldSec = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeTimesecTrigger;
 			ShouldNum = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeItemNumTrigger;
 		}
-		if( ShouldSec < 10 ) ShouldSec = 99;
-		if( ShouldNum < 10 ) ShouldNum = 22;
+		if( ShouldSec > 300 ) ShouldSec = 300;
+		if( ShouldNum >= 22 ) ShouldNum = 22;
 	}
 
 	WTcpCellc  tc;

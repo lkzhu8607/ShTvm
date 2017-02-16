@@ -174,7 +174,7 @@ tbool d_cg01s_linepic_t::Find_n_do_ShowDirButt( std::string strinput )
 				std::string strPic = "CN_MainPic_"+SStrf::sltoa((int)(i+1));
 				if(plocalcg01->graphMainInterfaceCN[i].m_name == strPic && plocalcg01->graphMainInterfaceCN[i].m_iShouldShow == 1){
 					//gp_ui->hideLabel(plocalcg01->graphMainInterfaceCN[i]);
-					plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
+					//plocalcg01->graphMainInterfaceCN[i].m_iShouldShow = 0;
 					continue;
 				}
 				else{
@@ -215,7 +215,7 @@ tbool d_cg01s_linepic_t::Find_n_do_ShowDirButt( std::string strinput )
 				std::string strPic = "EN_MainPic_"+SStrf::sltoa((int)(i+1));
 				if(plocalcg01->graphMainInterfaceEN[i].m_name == strPic && plocalcg01->graphMainInterfaceEN[i].m_iShouldShow == 1){
 					//gp_ui->hideLabel(plocalcg01->graphMainInterfaceCN[i]);
-					plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 0;
+					//plocalcg01->graphMainInterfaceEN[i].m_iShouldShow = 0;
 					continue;
 				}
 				else{
@@ -239,7 +239,7 @@ tbool d_cg01s_linepic_t::Find_n_do_ShowDirButt( std::string strinput )
 							continue;
 						}
 					}
-				}				
+				}
 			}
 			/*if( row.m_funcname == "ShowDirButt" )
 			{
