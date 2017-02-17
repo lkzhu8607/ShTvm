@@ -26,7 +26,7 @@ d_cg02s_goback_t::~d_cg02s_goback_t()
 //
 void d_cg02s_goback_t::ShowGoback()
 {
-	const char *s[] = { "cg02_goback_ch.png", "cg02_goback_en.png" };
+	const char *s[] = { "cg02_goback_ch.png", "cg02_goback_en.png" ,"goback_blank.jpg"};
 	a_label_t::ROWTYPE  row[2];
 	std::string picName;
 	std::string strName;
@@ -54,7 +54,7 @@ void d_cg02s_goback_t::ShowGoback()
 		//热点注册	
 		row[i].m_name += "--hot";
 		row[i].m_hot = 1;
-		this->AddLg( m_Lg, row[i] );
+		//this->AddLg( m_Lg, row[i] );
 		//gp_ui->LabelPrep(row[i]);
 		gp_ui->pic_task(row[i]);
 		if(i==0){
@@ -64,6 +64,28 @@ void d_cg02s_goback_t::ShowGoback()
 			plocalcg02->graphElementsEN.push_back(row[i]);
 		}		
 	}
+/*	if(1){
+		a_label_t::ROWTYPE	row;
+		gp_ui->LabelMkPic( row, 0, 
+							"coverGoback" , 
+							gp_ui->PicPFn( s[2] ),
+							gp_ui->X2dR( 0, 800 ) , 
+							gp_ui->Y2dR( 0, 915 ) , 
+							gp_ui->X2dR( 0, 200 ) , 
+							gp_ui->Y2dR( 0, 70 )   );
+		gp_ui->CalcPicX2Y2(row);
+		row.m_funcname = "page2CoverGoback";
+		row.m_funcvalue = 0;
+
+		//热点注册	
+		row.m_hot = 0;
+		//this->AddLg( m_Lg, row );
+		//gp_ui->LabelPrep(row[i]);
+		gp_ui->pic_task(row);
+		plocalcg02->graphElementsCN.push_back(row);
+		plocalcg02->graphElementsEN.push_back(row);
+
+	}*/
 
 	//gp_ui->LabelCommit();
 }
@@ -72,7 +94,12 @@ void d_cg02s_goback_t::ShowGoback()
 //
 tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 {
+	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	b8702_t::ROWTYPE & Rb8702(gp_db->GetTheRowb8702());
 	std::vector<a_label_t::ROWTYPE>  row;
+	if(Rb8701.m_CoinPollData.a[0] + Rb8701.m_CoinPollData.a[1] + Rb8702.m_cNoteNum != 0){
+		return 0;
+	}
 	if(plocalcg02->langFlag == 0){
 		if( this->LocateHot( plocalcg02->graphElementsCN, strinput, row ) ){
 			for(int i=0;i<row.size();i++){
@@ -128,7 +155,6 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 					}						
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
-
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 					return 1;
 				}

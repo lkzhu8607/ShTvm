@@ -366,7 +366,7 @@ static std::vector< std::string > v_lines[2];
 static size_t v_iMax[2] = {20,15};
 
 //
-void de_ui_t::LineScrPrint( int scrnum, const std::string & strLine, tbool IsContinue /*= 0*/, tbool HaveCommit /*= 1*/  )
+void de_ui_t::LineScrPrint( int scrnum, const std::string & strLine, tbool HaveCommit /*= 1*/ )
 {
 	//WThrd::tr_sleep( 2 );
 	double x, y , fontsize;
@@ -384,15 +384,7 @@ void de_ui_t::LineScrPrint( int scrnum, const std::string & strLine, tbool IsCon
 		fontsize = 0.04;
 	}
 
-	if( !IsContinue )
-	{
-		v_lines[scrnum].push_back( strLine );
-	}
-	else
-	{
-		std::string &s(	*( (v_lines[scrnum]).rbegin() ) );
-		s = s + " " + strLine;
-	}
+	v_lines[scrnum].push_back( strLine );
 
 	while( v_lines[scrnum].size() > v_iMax[scrnum] )
 		v_lines[scrnum].erase( v_lines[scrnum].begin() );
@@ -406,9 +398,11 @@ void de_ui_t::LineScrPrint( int scrnum, const std::string & strLine, tbool IsCon
 							v_lines[scrnum][i],
 							x, y + fontsize * i, fontsize, "brown" ); //也可以用LabelMkStrPrep 
 		this->LabelPrep(row);
+		//if( HaveCommit ) this->showLabel(row);
 	}
 	
 	if( HaveCommit ) this->LabelCommit();
+	//if( HaveCommit ) this->showLabel(row);
 }
 
 
@@ -427,7 +421,7 @@ void de_ui_t::LineScrClear( int scrnum, tbool HaveCommit /*= 1*/ )
 //
 void de_ui_t::LineScrPrintA( const std::string & strLine )
 {
-	LineScrPrint( 0, strLine, 0, 0 );
+	LineScrPrint( 0, strLine, 0 );
 	LineScrPrint( 1, strLine );
 }
 
@@ -520,7 +514,7 @@ void de_ui_t::str_task( a_label_t::ROWTYPE & row )
 		}
 
 		gdk_threads_enter();
-		lblTest = gtk_label_new("aa");
+		lblTest = gtk_label_new(" ");
 		//lblTest = (GtkWidget *)str_label_new( is_old_rc );
 		gdk_threads_leave();
 

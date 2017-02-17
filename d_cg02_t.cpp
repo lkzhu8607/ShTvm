@@ -48,6 +48,8 @@ d_cg02_t::d_cg02_t()
 	pageGraphElementsFlags = 0;
 	disableDisplayFlag = 0;
 	gobackFlag = 0;
+	MachineStateIndex = 0;
+	disGobackFlag = 0;
 	//coinIndex = 0;
 
 }
@@ -183,6 +185,16 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
 					}					
+					if( gp_bill->m_iIsNotBillChange == 1 )
+					{
+						if(plocalcg02->graphElementsCN[i].m_name == "CN_page2MachineState"){
+							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
+							plocalcg02->MachineStateIndex = i;
+							continue;
+						}
+					}
+
 					/*if(plocalcg02->graphElementsCN[i].m_name == "CN_exceptionNotesType"){
 						plocalcg02->exceptNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 && gp_bill->m_iIsNotBillChange == 1){
@@ -295,6 +307,16 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
 					}					
+					if( gp_bill->m_iIsNotBillChange == 1 )
+					{
+						if(plocalcg02->graphElementsEN[i].m_name == "EN_page2MachineState"){
+							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
+							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
+							plocalcg02->MachineStateIndex = i;
+							continue;
+						}
+					}
+
 					/*if(plocalcg02->graphElementsEN[i].m_name == "EN_exceptionNotesType"){
 						plocalcg02->exceptNoteIndex = i;
 						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 && gp_bill->m_iIsNotBillChange == 1){
@@ -310,7 +332,6 @@ void d_cg02_t::Proc()
 						gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
-
 					}
 					/*if(plocalcg02->graphElementsEN[i].m_name == "EN_NormalNotesType"){
 						plocalcg02->normalNoteIndex = i;
@@ -319,7 +340,7 @@ void d_cg02_t::Proc()
 							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 							continue;
 						}
-					}*/		
+					}*/	
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsEN[i].m_name == "EN_CoinType"){
 							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
@@ -371,10 +392,10 @@ void d_cg02_t::Proc()
 		//如果无纸币找零，则显示无纸币找零
 		//d_cg02s_machinestate_t cg02s_machinestate;
 
-		if( gp_bill->m_iIsNotBillChange == 1 )
+		/*if( gp_bill->m_iIsNotBillChange == 1 )
 		{
 			cg02s_machinestate.ShowStatus();
-		}
+		}*/
 
 		//d_cg01s_evtcodes_t  cg01s_evtcodes;
 		//d_cg02s_goodbillcoin_t cg02s_goodbillcoin;
@@ -399,6 +420,16 @@ L_GETINPUT:
 			gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
 			gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex]);
 			plocalcg02->graphElementsCN[plocalcg02->notesIndex].m_iShouldShow = 1;
+			if(gp_bill->m_iIsNotBillChange == 1){
+				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+				//gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
+				gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+				plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
+			}
+			else{
+				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+				plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 0;
+			}
 		}
 		else if(plocalcg02->langFlag == 1){
 			SetLanguageEn();
@@ -406,6 +437,16 @@ L_GETINPUT:
 			gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
 			gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex]);
 			plocalcg02->graphElementsEN[plocalcg02->notesIndex].m_iShouldShow = 1; 
+
+			if(gp_bill->m_iIsNotBillChange == 1){
+				gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
+				gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
+				plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
+			}
+			else{
+				gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
+				plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex].m_iShouldShow = 0;
+			}
 		}
 
 		//cg01s_evtcodes.ShowEvtCodes();

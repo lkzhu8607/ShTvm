@@ -12,8 +12,8 @@
 //
 d_cg02s_machinestate_t::d_cg02s_machinestate_t()
 {
-	m_x = 0.426667;
-	m_y = 0.037209;
+	m_x = 0.416667;
+	m_y = 0.032209;
 }
 
 
@@ -35,7 +35,7 @@ void d_cg02s_machinestate_t::ShowStatus()
 	}
 	if(1){
 		a_label_t::ROWTYPE  row;
-		gp_ui->LabelMkStr( row, 0, "EN_page2MachineState", "No Bill Change", m_x,m_y, 0.038, "black" );
+		gp_ui->LabelMkStr( row, 0, "EN_page2MachineState", "No Notes for Change", m_x,m_y, 0.038, "black" );
 		this->AddLg( m_Lg, row );
 		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);

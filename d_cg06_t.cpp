@@ -64,7 +64,7 @@ void d_cg06_t::Proc()
 					if(plocalcg06->graphElementsCN[i].m_name == "CN_page6Chg"){
 						SClib::p_sprintf()( sz1, "%d", gp_db->m_a_waiter_t.GetRow( gp_db->m_a_waiter_t.GetRowCount()-1 ).m_BilchgActual + \
 			                           gp_db->m_a_waiter_t.GetRow( gp_db->m_a_waiter_t.GetRowCount()-1 ).m_CoinRecycleChgActual );
-						gp_ui->updateLabel(plocalcg06->graphElementsEN[i],sz1);
+						gp_ui->updateLabel(plocalcg06->graphElementsCN[i],sz1);
 						gp_ui->showLabel(plocalcg06->graphElementsCN[i]);
 						plocalcg06->graphElementsCN[i].m_iShouldShow = 1;
 						continue;
@@ -100,17 +100,7 @@ void d_cg06_t::Proc()
 
 		}
 		wl::WThrd::tr_sleepu( 3 );
-
-		plocalcg01->displayFlag = 0;
-		plocalcg01->langFlag = 0;
-		plocalcg01->errorFlag = 0;		
-		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
-		
-		gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
-		gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
-		SetLanguageCh();
-		
-		if(plocalcg04->langFlag == 0){
+		if(plocalcg06->langFlag == 0){
 			for(int i=0;i<plocalcg06->graphElementsCN.size();i++){
 				if(plocalcg06->graphElementsCN[i].m_iShouldShow == 1){
 					gp_ui->hideLabel(plocalcg06->graphElementsCN[i]);
@@ -128,6 +118,17 @@ void d_cg06_t::Proc()
 				}
 			}
 		}
+
+		plocalcg01->displayFlag = 0;
+		plocalcg01->langFlag = 0;
+		plocalcg01->errorFlag = 0;		
+		gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+
+		gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
+		gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
+		SetLanguageCh();
+		
+
 		
 		gp_coin->RepCoinStock();    //检测是否需要补充硬币
 		gp_coin->CleanCoinStock();  //检测是否需要清除部分硬币

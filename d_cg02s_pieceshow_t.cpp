@@ -23,7 +23,7 @@ d_cg02s_pieceshow_t::d_cg02s_pieceshow_t()
 {
 	m_iPieceNum = 1;
 	m_ButtType = UP;
-
+	disableDisplayFlag = 0;
 	m_payed = m_payed_coin = m_payed_bill = 0;
 	m_LastPayed = 0;
 	m_chg = 0;
@@ -268,7 +268,7 @@ tbool d_cg02s_pieceshow_t::Find_n_do_ShowAllPieceNum( std::string strinput )
 	int choicePieceNum = 0;
 	//如果已全禁止，则不能再选价	
 	//if( m_ButtType == DISABLE ) return 0;
-	if(plocalcg02->disableDisplayFlag == 1){
+	if(this->disableDisplayFlag == 1){
 		return 0;
 	}
 	if(plocalcg02->langFlag==0){
@@ -533,7 +533,7 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 	//如果有钱投入则 张数键盘 全禁止
 	if( Rb8701.m_CoinPollData.a[0] + Rb8701.m_CoinPollData.a[1] + Rb8702.m_cNoteNum != 0 && this->m_payed == 0) 
 	{
-		if(plocalcg02->disableDisplayFlag == 0){
+		if(this->disableDisplayFlag == 0){
 			if(plocalcg02->langFlag == 0){
 				for(int i=0;i<plocalcg02->graphPieceNumCN.size();i++){
 					if(plocalcg02->graphPieceNumCN[i].m_funcname == "PieceNumDis" && plocalcg02->graphPieceNumCN[i].m_funcvalue != plocalcg02->m_iPieceNum){
@@ -547,6 +547,13 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 						continue;
 					}					
 				}
+				for(int i=0;i<plocalcg02->graphElementsCN.size();i++){
+					if(plocalcg02->graphElementsCN[i].m_name == "CN_page2Goback--hot"){
+						gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+						plocalcg02->graphElementsCN[i].m_iShouldShow = 0;
+						continue;
+					}					
+				}				
 			}
 			else if(plocalcg02->langFlag == 1){
 				for(int i=0;i<plocalcg02->graphPieceNumEN.size();i++){
@@ -561,8 +568,15 @@ int d_cg02s_pieceshow_t::FnD_ShowNewValue( std::string strinput , a_waiter_t_row
 						continue;
 					}					
 				}
+				for(int i=0;i<plocalcg02->graphElementsEN.size();i++){
+					if(plocalcg02->graphElementsEN[i].m_name == "EN_page2Goback--hot"){
+						gp_ui->hideLabel(plocalcg02->graphElementsEN[i]);
+						plocalcg02->graphElementsEN[i].m_iShouldShow = 0;
+						continue;
+					}					
+				}	
 			}
-			//this->disableDisplayFlag = 1;
+			this->disableDisplayFlag = 1;
 			plocalcg02->disableDisplayFlag = 1;
 		}
 		/*if( m_ButtType != DISABLE ) 
