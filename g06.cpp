@@ -3256,6 +3256,9 @@ SDte GetOperationDate( SDte dt )
 bool isChangeOK( int iToBeChange, int iRMB50, int iRMB100, int iRMB500, int iRMB1000, int iRMB2000,int iRMB5000, long *iChangeCoin /*= NULL*/ ,long *iChangeBill /*= NULL*/ )
 {
 
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"m_PermitBillChgType.a[1]"<< wl::SStrf::sltoa(gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[1] ) ) ;
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"m_PermitBillChgType.a[0]"<< wl::SStrf::sltoa(gp_db->m_a3003.GetRow(0).m_PermitBillChgType.a[0] ) ) ;
+
 	int n50, n100, n500, n1000, n2000, n5000;
 	n50 = n100 = n500 = n1000 = n2000 = n5000 = 0;
 	if( 1 != gp_bill->m_iIsNotBillChange )

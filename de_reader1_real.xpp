@@ -296,6 +296,7 @@ int de_reader1_t::rReadCard()
 	if(int_ret!=0) 
 	{
 		LOGSTREAM( gp_log[LOGREADER1], LOGPOSI << "rInit2 int_ret="<<int_ret);
+		Rb8704.m_BigErr = 1;
 		return int_ret;
 	}
 
@@ -303,6 +304,8 @@ int de_reader1_t::rReadCard()
 	if(int_ret!=0)
 	{
 		LOGSTREAM( gp_log[LOGREADER1], LOGPOSI << "ReadCard int_ret="<<int_ret);
+
+		Rb8704.m_BigErr = 1;
 		return int_ret;
 	}
 
@@ -322,7 +325,12 @@ int de_reader1_t::rSaleCard( BYTE SaleIn[14] )
 
 	int_ret=rw.SaleCard(SaleIn,SaleOut);
 	
-	if(int_ret!=0) return int_ret;
+	if(int_ret!=0) 
+	{
+		LOGSTREAM( gp_log[LOGREADER1], LOGPOSI << "SaleCard int_ret="<<int_ret);
+		Rb8704.m_BigErr = 1;
+		return int_ret;
+	}
 
 	memcpy( Rb8704.m_SaleOut.a, SaleOut, 8 );
 	

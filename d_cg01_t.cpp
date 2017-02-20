@@ -498,7 +498,7 @@ L_GETINPUT:
 
 		int  iLastOutOfServiceStatus = gp_medev->m_outofservicestatus;
 
-		/*if( 4 == gp_medev->m_devstatus )
+		if( 4 == gp_medev->m_devstatus || 7 == gp_medev->m_devstatus)
 		{
 			//??¨º?o¨²?¨°o¨ª??¨®|¨ºy¡Á?
 			//cg01s_errpic.Show();
@@ -588,7 +588,7 @@ L_GETINPUT2:
 				goto L_GETINPUT;
 			}
 			goto L_GETINPUT2;
-		}*/
+		}
 
 		if(1)
 		{			

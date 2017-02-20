@@ -55,7 +55,7 @@ L_CHANGESTATUS:
 
 		//d_cg04s_backpic_t  cg04s_backpic;
 		//d_cg04s_stoppic_t  cg04s_stoppic;
-L_GETINPUT:	
+//L_GETINPUT:	
 		if( ( 9 == gp_medev->m_devstatus ) )
 		{
 			//cg04s_stoppic.ShowBack1();
@@ -92,8 +92,8 @@ L_GETINPUT:
 		lastmachinestatus = gp_medev->m_devstatus;
 		//d_cg01s_evtcodes_t  cg01s_evtcodes;
 
-//L_GETINPUT:
-		d_cg01s_jud5041_t  cg01s_jud5041;
+L_GETINPUT:
+		//d_cg01s_jud5041_t  cg01s_jud5041;
 
 		//cg01s_evtcodes.ShowEvtCodes();
 

@@ -2981,6 +2981,8 @@ void bu_backman_ele_t::f_Reset()
 		if( 0 == irc )
 		{
 			m_Scr1.push_back( "读写器模块复位成功" );
+
+			gp_db->m_b8704.GetRow(0).m_BigErr = 0;   //消除错误
 		}
 		else
 		{

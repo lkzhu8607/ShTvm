@@ -13,9 +13,9 @@
 
 		// 42	´òÓ¡»úÈ±Ö½				¡Ì		2 
 		if( Rb8707.m_NearEmpty || Rb8707.m_IsEmpty )	 
-			EVT_CHG(42,0);
-		else
 			EVT_CHG(42,1);
+		else
+			EVT_CHG(42,0);
 
 	}
 

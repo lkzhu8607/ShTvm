@@ -421,14 +421,18 @@ L_GETINPUT:
 			gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex]);
 			plocalcg02->graphElementsCN[plocalcg02->notesIndex].m_iShouldShow = 1;
 			if(gp_bill->m_iIsNotBillChange == 1){
-				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
-				//gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
-				gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
-				plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
+				if(plocalcg02->MachineStateIndex !=0){
+					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+					//gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
+					gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+					plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
+				}
 			}
 			else{
-				gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
-				plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 0;
+				if(plocalcg02->MachineStateIndex !=0){
+					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+					plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 0;
+				}
 			}
 		}
 		else if(plocalcg02->langFlag == 1){
@@ -439,13 +443,17 @@ L_GETINPUT:
 			plocalcg02->graphElementsEN[plocalcg02->notesIndex].m_iShouldShow = 1; 
 
 			if(gp_bill->m_iIsNotBillChange == 1){
-				gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
-				gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
-				plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
+				if(plocalcg02->MachineStateIndex !=0){
+					gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
+					gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
+					plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
+				}
 			}
 			else{
-				gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
-				plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex].m_iShouldShow = 0;
+				if(plocalcg02->MachineStateIndex !=0){
+					gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
+					plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex].m_iShouldShow = 0;
+				}
 			}
 		}
 

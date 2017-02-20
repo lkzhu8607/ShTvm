@@ -51,8 +51,6 @@ void d_cg02s_backpic_t::ShowBack1()
 		row1.m_hot = 0;
 		row1.m_funcname = "ShowBack1";
 		row1.m_funcvalue = 0;
-		//this->AddLg( m_Lg, row1 );
-		//gp_ui->LabelPrep(row1);
 		gp_ui->pic_task(row1);
 		if(i==0){
 			plocalcg02->graphElementsCN.push_back(row1);
