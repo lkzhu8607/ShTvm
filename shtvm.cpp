@@ -459,6 +459,10 @@ int main( int argc, char *argv[] )
 			if( IsYunYingDT(dtnow) )
 			{
 				//运营开始
+				if( 1 == gp_medev->m_IsYunYingEnd )
+				{
+					DoYunYingStart();
+				}
 				gp_medev->m_IsYunYingEnd = 0;
 			}
 		}

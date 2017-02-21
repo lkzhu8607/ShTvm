@@ -1,5 +1,6 @@
-#ifndef V1_3AB8702_T_20170103_094937
-#define V1_3AB8702_T_20170103_094937
+
+#ifndef V1_3AB8702_T_20170220_103439
+#define V1_3AB8702_T_20170220_103439
 
  
 ///////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ public:
 	//#.统计字段：
 	long		m_PasswayTotal;			// a	11	通道中的钱数 
 	long		m_BoxTotal;			// a	12	压箱中的钱数 
-	uiarr_t<long,111>		m_Pieces;			// a	13	面额和张数，最大50元（回收箱） 
+	uiarr_t<long,111>		m_Pieces;			// a	13	面额和张数，最大50元 
 	int		m_wInShutter;			// a	14	入钞口状态 0：无纸币 1：有纸币 
 	int		m_wReturnShutter;			// a	15	退钞口状态 0：无纸币 1：有纸币 
 	uiarr_t<long,6>		m_boxExist;			// a	16	箱存在(循环箱0-3 RE3-RE6,4回收箱CB ，5补币箱LO， 现在用RE5,RE6暂时不用)0=不存在 1=存在 
@@ -41,11 +42,13 @@ public:
 	uiarr_t<long,6>		m_boxIsEmpty;			// a	20	0=不空  1=空(循环箱0-3,RE3-RE6,4回收箱CB ，5补币箱LO， 现在RE5,RE6暂时不用)只有[0]，[1]有用 
 	uiarr_t<long,6>		m_OutNumber;			// a	21	找出的纸币数目（0-1 RE3，RE4  有用） 
 	uiarr_t<long,6>		m_rejectNumber;			// a	22	找出的纸币废币数目（0-1 RE3，RE4  有用） 
-	uiarr_t<long,4>		m_ReDenomination;			// a	23	循环箱纸币面额(0-3 RE3-RE6,现在用RE3，RE4) 
-	uiarr_t<long,4>		m_ReNumber;			// a	24	循环箱纸币张数(0-3 RE3-RE6,现在用RE3，RE4) 
-	uiarr_t<long,4>		m_ReCount;			// a	25	金额(0-3 RE3-RE6,现在用RE3，RE4) 
-	int		m_RES_01;			// a	26	[保留] 
-	int		m_RES_02;			// a	27	[保留] 
+	uiarr_t<long,4>		m_ReDenomination;			// a	23	循环箱纸币面额(0-3 RE3-RE6,现在用RE3，RE4)	现实数据 
+	uiarr_t<long,4>		m_ReNumber;			// a	24	循环箱纸币张数(0-3 RE3-RE6,现在用RE3，RE4)	现实数据 
+	uiarr_t<long,4>		m_ReCount;			// a	25	金额(0-3 RE3-RE6,现在用RE3，RE4)	现实数据 
+	long		m_BillAddCountForYunYing;			// a	26	运营日内纸币加币总额	运营开始清除 
+	long		m_BillChgCountYunYingStart;			// a	27	运营开始时找零箱总额	运营开始赋值 
+	int		m_RES_01;			// a	28	[保留] 
+	int		m_RES_02;			// a	29	[保留] 
  
 public:
 
@@ -83,6 +86,8 @@ public:
 		//m_ReDenomination = //use default
 		//m_ReNumber = //use default
 		//m_ReCount = //use default
+		m_BillAddCountForYunYing = 0;
+		m_BillChgCountYunYingStart = 0;
 		m_RES_01 = 0;
 		m_RES_02 = 0;
 	}
@@ -387,6 +392,20 @@ public:
 		en( buf1, len1, buf2 );
 		strOut += std::string(buf2);
 		strOut += std::string("/");
+		buf1 = (const char *)reinterpret_cast<char *>(&reinterpret_cast<char&>(m_BillAddCountForYunYing));
+		len1 = sizeof(m_BillAddCountForYunYing);
+		if( (int)v.size() < ( len1 * 2 + 4 ) ) v.resize( len1 * 2 + 4 );
+		buf2 = (char*)(&(v[0]));
+		en( buf1, len1, buf2 );
+		strOut += std::string(buf2);
+		strOut += std::string("/");
+		buf1 = (const char *)reinterpret_cast<char *>(&reinterpret_cast<char&>(m_BillChgCountYunYingStart));
+		len1 = sizeof(m_BillChgCountYunYingStart);
+		if( (int)v.size() < ( len1 * 2 + 4 ) ) v.resize( len1 * 2 + 4 );
+		buf2 = (char*)(&(v[0]));
+		en( buf1, len1, buf2 );
+		strOut += std::string(buf2);
+		strOut += std::string("/");
 		buf1 = (const char *)reinterpret_cast<char *>(&reinterpret_cast<char&>(m_RES_01));
 		len1 = sizeof(m_RES_01);
 		if( (int)v.size() < ( len1 * 2 + 4 ) ) v.resize( len1 * 2 + 4 );
@@ -511,6 +530,12 @@ public:
 		buf2 = (char*)buf1;
 		 if( *buf2!='}') {buf1 = de( buf2 );  
 		 /*if( *buf2!='}')*/ m_ReCount = *(uiarr_t<long,4>*)buf2; }else return *this; 
+		buf2 = (char*)buf1;
+		 if( *buf2!='}') {buf1 = de( buf2 );  
+		 /*if( *buf2!='}')*/ m_BillAddCountForYunYing = *(long*)buf2; }else return *this; 
+		buf2 = (char*)buf1;
+		 if( *buf2!='}') {buf1 = de( buf2 );  
+		 /*if( *buf2!='}')*/ m_BillChgCountYunYingStart = *(long*)buf2; }else return *this; 
 		buf2 = (char*)buf1;
 		 if( *buf2!='}') {buf1 = de( buf2 );  
 		 /*if( *buf2!='}')*/ m_RES_01 = *(int*)buf2; }else return *this; 
@@ -657,6 +682,14 @@ public:
 		len1 = sizeof(m_ReCount);
 		ckl.add( wl::SCake( (wl::tchar*)&len1, 4 ) );
 		ckl.add( wl::SCake( buf1, len1 ) );
+		buf1 = (const char *)reinterpret_cast<char *>(&reinterpret_cast<char&>(m_BillAddCountForYunYing));
+		len1 = sizeof(m_BillAddCountForYunYing);
+		ckl.add( wl::SCake( (wl::tchar*)&len1, 4 ) );
+		ckl.add( wl::SCake( buf1, len1 ) );
+		buf1 = (const char *)reinterpret_cast<char *>(&reinterpret_cast<char&>(m_BillChgCountYunYingStart));
+		len1 = sizeof(m_BillChgCountYunYingStart);
+		ckl.add( wl::SCake( (wl::tchar*)&len1, 4 ) );
+		ckl.add( wl::SCake( buf1, len1 ) );
 		buf1 = (const char *)reinterpret_cast<char *>(&reinterpret_cast<char&>(m_RES_01));
 		len1 = sizeof(m_RES_01);
 		ckl.add( wl::SCake( (wl::tchar*)&len1, 4 ) );
@@ -769,6 +802,12 @@ public:
 		buf2 = (char*)buf1 + 4;
 		buf1 = buf2 + *(wl::tuint32*)buf1;
 		m_ReCount = *(uiarr_t<long,4>*)buf2;
+		buf2 = (char*)buf1 + 4;
+		buf1 = buf2 + *(wl::tuint32*)buf1;
+		m_BillAddCountForYunYing = *(long*)buf2;
+		buf2 = (char*)buf1 + 4;
+		buf1 = buf2 + *(wl::tuint32*)buf1;
+		m_BillChgCountYunYingStart = *(long*)buf2;
 		buf2 = (char*)buf1 + 4;
 		buf1 = buf2 + *(wl::tuint32*)buf1;
 		m_RES_01 = *(int*)buf2;
@@ -1074,6 +1113,24 @@ public:
 	}
 
 //////////////////////////////////////////////////////////
+//Function:	GetCol_BillAddCountForYunYing
+//Effect:	get ref of col. col is BillAddCountForYunYing
+//Return:	long & 
+	long & GetCol_BillAddCountForYunYing(void)
+	{
+		return m_BillAddCountForYunYing;
+	}
+
+///////////////////////////////////////////////////////
+//Function:	GetCol_BillChgCountYunYingStart
+//Effect:	get ref of col. col is BillChgCountYunYingStart
+//Return:	long & 
+	long & GetCol_BillChgCountYunYingStart(void)
+	{
+		return m_BillChgCountYunYingStart;
+	}
+
+/////////////////////////////////////////////////////////////
 //Function:	GetCol_RES_01
 //Effect:	get ref of col. col is RES_01
 //Return:	int & 
@@ -1082,7 +1139,7 @@ public:
 		return m_RES_01;
 	}
 
-///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	GetCol_RES_02
 //Effect:	get ref of col. col is RES_02
 //Return:	int & 
@@ -1094,16 +1151,16 @@ public:
  
 public:
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	GetColAmount
 //Effect:	get column amount
 //Return:	return the column amount, int.
 	int GetColAmount() 
 	{
-		return 34;
+		return 36;
 	}
 
-///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	GetColName
 //Effect:	get column name, input col number base on 0.
 //Return:	return col's name in string format.
@@ -1239,16 +1296,24 @@ public:
 		}
 		if( iColNum == 32 )
 		{
-			return "RES_01";
+			return "BillAddCountForYunYing";
 		}
 		if( iColNum == 33 )
+		{
+			return "BillChgCountYunYingStart";
+		}
+		if( iColNum == 34 )
+		{
+			return "RES_01";
+		}
+		if( iColNum == 35 )
 		{
 			return "RES_02";
 		}
 		return "";
 	}
 
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	GetColNumber
 //Effect:	input col name, get col number
 //Return:	return the column number, int.
@@ -1382,18 +1447,26 @@ public:
 		{
 			return 31;
 		}
-		if( strColName == "RES_01" )
+		if( strColName == "BillAddCountForYunYing" )
 		{
 			return 32;
 		}
-		if( strColName == "RES_02" )
+		if( strColName == "BillChgCountYunYingStart" )
 		{
 			return 33;
+		}
+		if( strColName == "RES_01" )
+		{
+			return 34;
+		}
+		if( strColName == "RES_02" )
+		{
+			return 35;
 		}
 		return -1;
 	}
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	GetColStr
 //Effect:	get column value, input col number base on 0.
 //Return:	return col value in string format.
@@ -1530,9 +1603,17 @@ public:
 		}
 		if( iColNum == 32 )
 		{
-			return wl::SStrf::sltoa(m_RES_01);
+			return wl::SStrf::sltoa(m_BillAddCountForYunYing);
 		}
 		if( iColNum == 33 )
+		{
+			return wl::SStrf::sltoa(m_BillChgCountYunYingStart);
+		}
+		if( iColNum == 34 )
+		{
+			return wl::SStrf::sltoa(m_RES_01);
+		}
+		if( iColNum == 35 )
 		{
 			return wl::SStrf::sltoa(m_RES_02);
 		}
@@ -1542,7 +1623,7 @@ public:
 	template<class STRINGT>
 	STRINGT & GetColStr( int iColNum , STRINGT & sBuf ) { return sBuf = GetColStr<STRINGT>(iColNum); }
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	GetColStr
 //Effect:	get column value, input col name.
 //Return:	return col value in string format.
@@ -1677,13 +1758,21 @@ public:
 		{
 			return GetColStr<STRINGT>(31);
 		}
-		if( strColName == "RES_01" )
+		if( strColName == "BillAddCountForYunYing" )
 		{
 			return GetColStr<STRINGT>(32);
 		}
-		if( strColName == "RES_02" )
+		if( strColName == "BillChgCountYunYingStart" )
 		{
 			return GetColStr<STRINGT>(33);
+		}
+		if( strColName == "RES_01" )
+		{
+			return GetColStr<STRINGT>(34);
+		}
+		if( strColName == "RES_02" )
+		{
+			return GetColStr<STRINGT>(35);
 		}
 		return GetColStr<STRINGT>(0);
 	}
@@ -1691,7 +1780,7 @@ public:
 	template<class STRINGT>
 	STRINGT& GetColStr( std::string strColName, STRINGT & sBuf ) { return sBuf = GetColStr<STRINGT>(strColName); }
 
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SetColVal
 //Effect:	set column value, input col number base on 0, and input value in string format.
 //Return:	no return.
@@ -1828,15 +1917,23 @@ public:
 		}
 		if( iColNum == 32 )
 		{
-			m_RES_01=wl::SStrf::satol(strValPARA);
+			m_BillAddCountForYunYing=wl::SStrf::satol(strValPARA);
 		}
 		if( iColNum == 33 )
+		{
+			m_BillChgCountYunYingStart=wl::SStrf::satol(strValPARA);
+		}
+		if( iColNum == 34 )
+		{
+			m_RES_01=wl::SStrf::satol(strValPARA);
+		}
+		if( iColNum == 35 )
 		{
 			m_RES_02=wl::SStrf::satol(strValPARA);
 		}
 	}
 
-//////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SetColVal
 //Effect:	set column value, input col number base on 0, and input value in string format.
 //Return:	no return.
@@ -1971,13 +2068,21 @@ public:
 		{
 			SetColVal<STRINGT>(31,strValPARA);
 		}
-		if( strColName == "RES_01" )
+		if( strColName == "BillAddCountForYunYing" )
 		{
 			SetColVal<STRINGT>(32,strValPARA);
 		}
-		if( strColName == "RES_02" )
+		if( strColName == "BillChgCountYunYingStart" )
 		{
 			SetColVal<STRINGT>(33,strValPARA);
+		}
+		if( strColName == "RES_01" )
+		{
+			SetColVal<STRINGT>(34,strValPARA);
+		}
+		if( strColName == "RES_02" )
+		{
+			SetColVal<STRINGT>(35,strValPARA);
 		}
 	}
 
@@ -2109,7 +2214,7 @@ public:
  
 public:
 
-/////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	Clear
 //Effect:	clear the tbl.
 //Return:	no return
@@ -2127,7 +2232,7 @@ public:
 		return (long)m_DATAcorpora.size();
 	}
 
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	GetRowCount
 //Effect:	get row count of the tbl according to RPS
 //Return:	long
@@ -2136,7 +2241,7 @@ public:
 		return (long)vRps.size();
 	}
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	GetRow
 //Effect:	get one appointed row
 //Return:	b8702_t_rowtype&
@@ -2174,7 +2279,7 @@ public:
 		}while(0);
 	}
 
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	Add
 //Effect:	add one appointed row and build the indexes, if any.
 //Return:	no return
@@ -2183,7 +2288,7 @@ public:
 		m_DATAcorpora.push_back( varRow);
 	}
 
-/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	AddDefaultRow
 //Effect:	add one default row using Add function.
 //Return:	no return
@@ -2192,7 +2297,7 @@ public:
 		Add( b8702_t_rowtype());
 	}
 
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	ReIdx
 //Effect:	re-build the indexes, if any.
 //Return:	no return
@@ -2200,7 +2305,7 @@ public:
 	{
 	}
 
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	DelInternal
 //Effect:	Internally del one appointed row number
 //Return:	no return
@@ -2210,7 +2315,7 @@ public:
 		m_DATAcorpora.erase( m_DATAcorpora.begin()+lRowNum);
 	}
 
-/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	Del
 //Effect:	Del one appointed row number. Rebuild indexes, if any.
 //Return:	no return
@@ -2224,7 +2329,7 @@ public:
 		delete p;
 	}
 
-/////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelE_strTblName
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2235,7 +2340,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	SelE1_strTblName
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2246,7 +2351,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelEc_strTblName
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2256,7 +2361,7 @@ public:
 		SelE_strTblName(strVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelE_lVer
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2267,7 +2372,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-//////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 //Function:	SelE1_lVer
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2278,7 +2383,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelEc_lVer
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2288,7 +2393,7 @@ public:
 		SelE_lVer(iVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE_strAffectDateTime
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2299,7 +2404,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelE1_strAffectDateTime
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2310,7 +2415,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 //Function:	SelEc_strAffectDateTime
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2320,7 +2425,7 @@ public:
 		SelE_strAffectDateTime(strVal, vRps, pRefRps);
 	}
 
-//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 //Function:	SelE_biDelFlag
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2331,7 +2436,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelE1_biDelFlag
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2342,7 +2447,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelEc_biDelFlag
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2352,7 +2457,7 @@ public:
 		SelE_biDelFlag(iVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelE_biIsAffect
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2363,7 +2468,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelE1_biIsAffect
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2374,7 +2479,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelEc_biIsAffect
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2384,7 +2489,7 @@ public:
 		SelE_biIsAffect(iVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelE_strStampDateTime
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2406,7 +2511,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_strStampDateTime
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2416,7 +2521,7 @@ public:
 		SelE_strStampDateTime(strVal, vRps, pRefRps);
 	}
 
-//////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	SelE_strDataRef
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2427,7 +2532,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelE1_strDataRef
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2438,7 +2543,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_strDataRef
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2448,7 +2553,7 @@ public:
 		SelE_strDataRef(strVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelE_ConnState
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2459,7 +2564,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelE1_ConnState
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2470,7 +2575,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelEc_ConnState
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2480,7 +2585,7 @@ public:
 		SelE_ConnState(iVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE_RtnVal
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2491,7 +2596,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelE1_RtnVal
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2502,7 +2607,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelEc_RtnVal
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2512,7 +2617,7 @@ public:
 		SelE_RtnVal(iVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelE_BigErr
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2523,7 +2628,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelE1_BigErr
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2534,7 +2639,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelEc_BigErr
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2544,7 +2649,7 @@ public:
 		SelE_BigErr(iVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelE_BillStopUseFlag
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2555,7 +2660,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE1_BillStopUseFlag
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2566,7 +2671,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	SelEc_BillStopUseFlag
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2576,7 +2681,7 @@ public:
 		SelE_BillStopUseFlag(iVal, vRps, pRefRps);
 	}
 
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelE_Major
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2587,7 +2692,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelE1_Major
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2598,7 +2703,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_Major
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2608,7 +2713,7 @@ public:
 		SelE_Major(iVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelE_Minor
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2619,7 +2724,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelE1_Minor
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2630,7 +2735,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-/////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelEc_Minor
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2640,7 +2745,7 @@ public:
 		SelE_Minor(iVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE_cNoteValue
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2651,7 +2756,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelE1_cNoteValue
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2662,7 +2767,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_cNoteValue
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2672,7 +2777,7 @@ public:
 		SelE_cNoteValue(iVal, vRps, pRefRps);
 	}
 
-//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 //Function:	SelE_cNoteNum
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2683,7 +2788,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelE1_cNoteNum
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2694,7 +2799,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_cNoteNum
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2704,7 +2809,7 @@ public:
 		SelE_cNoteNum(iVal, vRps, pRefRps);
 	}
 
-//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE_cErrorCode
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2715,7 +2820,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelE1_cErrorCode
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2736,7 +2841,7 @@ public:
 		SelE_cErrorCode(aVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelE_cErrorNum
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2747,7 +2852,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelE1_cErrorNum
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2758,7 +2863,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelEc_cErrorNum
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2768,7 +2873,7 @@ public:
 		SelE_cErrorNum(iVal, vRps, pRefRps);
 	}
 
-//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelE_PasswayTotal
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2779,7 +2884,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-//////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 //Function:	SelE1_PasswayTotal
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2790,7 +2895,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelEc_PasswayTotal
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2800,7 +2905,7 @@ public:
 		SelE_PasswayTotal(iVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelE_BoxTotal
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2811,7 +2916,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE1_BoxTotal
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2822,7 +2927,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelEc_BoxTotal
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2832,7 +2937,7 @@ public:
 		SelE_BoxTotal(iVal, vRps, pRefRps);
 	}
 
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelE_Pieces
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2843,7 +2948,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelE1_Pieces
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2854,7 +2959,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	SelEc_Pieces
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2864,7 +2969,7 @@ public:
 		SelE_Pieces(aVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE_wInShutter
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2875,7 +2980,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelE1_wInShutter
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2886,7 +2991,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_wInShutter
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2896,7 +3001,7 @@ public:
 		SelE_wInShutter(iVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE_wReturnShutter
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2918,7 +3023,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelEc_wReturnShutter
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2928,7 +3033,7 @@ public:
 		SelE_wReturnShutter(iVal, vRps, pRefRps);
 	}
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelE_boxExist
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2939,7 +3044,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelE1_boxExist
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2950,7 +3055,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelEc_boxExist
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -2960,7 +3065,7 @@ public:
 		SelE_boxExist(aVal, vRps, pRefRps);
 	}
 
-//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelE_boxNearEmpty
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -2971,7 +3076,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelE1_boxNearEmpty
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -2992,7 +3097,7 @@ public:
 		SelE_boxNearEmpty(aVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelE_boxNearFull
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3003,7 +3108,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelE1_boxNearFull
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3014,7 +3119,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelEc_boxNearFull
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3024,7 +3129,7 @@ public:
 		SelE_boxNearFull(aVal, vRps, pRefRps);
 	}
 
-////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelE_boxFull
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3035,7 +3140,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 //Function:	SelE1_boxFull
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3046,7 +3151,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_boxFull
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3056,7 +3161,7 @@ public:
 		SelE_boxFull(aVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	SelE_boxIsEmpty
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3067,7 +3172,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelE1_boxIsEmpty
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3078,7 +3183,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 //Function:	SelEc_boxIsEmpty
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3088,7 +3193,7 @@ public:
 		SelE_boxIsEmpty(aVal, vRps, pRefRps);
 	}
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelE_OutNumber
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3099,7 +3204,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelE1_OutNumber
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3110,7 +3215,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelEc_OutNumber
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3120,7 +3225,7 @@ public:
 		SelE_OutNumber(aVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelE_rejectNumber
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3131,7 +3236,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelE1_rejectNumber
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3142,7 +3247,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-//////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 //Function:	SelEc_rejectNumber
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3152,7 +3257,7 @@ public:
 		SelE_rejectNumber(aVal, vRps, pRefRps);
 	}
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelE_ReDenomination
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3163,7 +3268,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelE1_ReDenomination
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3174,7 +3279,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelEc_ReDenomination
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3184,7 +3289,7 @@ public:
 		SelE_ReDenomination(aVal, vRps, pRefRps);
 	}
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	SelE_ReNumber
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3195,7 +3300,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 //Function:	SelE1_ReNumber
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3206,7 +3311,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 //Function:	SelEc_ReNumber
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3216,7 +3321,7 @@ public:
 		SelE_ReNumber(aVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //Function:	SelE_ReCount
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3227,7 +3332,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-//////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelE1_ReCount
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3238,7 +3343,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	SelEc_ReCount
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3248,7 +3353,71 @@ public:
 		SelE_ReCount(aVal, vRps, pRefRps);
 	}
 
-/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+//Function:	SelE_BillAddCountForYunYing
+//Effect:	select and build RPS where col=val use traverse
+//Return:	no return
+	void SelE_BillAddCountForYunYing(long iVal, std::vector<long> & vRps, std::vector<long> * pRefRps=NULL) //(ni)
+	{
+		for(long ltmp=0;ltmp<(long)m_DATAcorpora.size();ltmp++)
+		if(m_DATAcorpora[ltmp].m_BillAddCountForYunYing==iVal)
+		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
+	}
+
+////////////////////////////////////////////////////////////////
+//Function:	SelE1_BillAddCountForYunYing
+//Effect:	select 1st row where col=val, or return default row.
+//Return:	b8702_t_rowtype&
+	b8702_t_rowtype & SelE1_BillAddCountForYunYing(long iVal) 
+	{
+		std::vector<long> vRps ;
+		SelE_BillAddCountForYunYing( iVal, vRps );
+		return GetRow( vRps, 0 );
+	}
+
+///////////////////////////////////////////////////////////
+//Function:	SelEc_BillAddCountForYunYing
+//Effect:	select and build RPS where col=val. clear rps first.
+//Return:	no return
+	void SelEc_BillAddCountForYunYing(long iVal, std::vector<long> & vRps, std::vector<long> * pRefRps=NULL) //()
+	{
+		vRps.clear();
+		SelE_BillAddCountForYunYing(iVal, vRps, pRefRps);
+	}
+
+////////////////////////////////////////////////////////////
+//Function:	SelE_BillChgCountYunYingStart
+//Effect:	select and build RPS where col=val use traverse
+//Return:	no return
+	void SelE_BillChgCountYunYingStart(long iVal, std::vector<long> & vRps, std::vector<long> * pRefRps=NULL) //(ni)
+	{
+		for(long ltmp=0;ltmp<(long)m_DATAcorpora.size();ltmp++)
+		if(m_DATAcorpora[ltmp].m_BillChgCountYunYingStart==iVal)
+		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
+	}
+
+////////////////////////////////////////////////////////////////
+//Function:	SelE1_BillChgCountYunYingStart
+//Effect:	select 1st row where col=val, or return default row.
+//Return:	b8702_t_rowtype&
+	b8702_t_rowtype & SelE1_BillChgCountYunYingStart(long iVal) 
+	{
+		std::vector<long> vRps ;
+		SelE_BillChgCountYunYingStart( iVal, vRps );
+		return GetRow( vRps, 0 );
+	}
+
+///////////////////////////////////////////////////////
+//Function:	SelEc_BillChgCountYunYingStart
+//Effect:	select and build RPS where col=val. clear rps first.
+//Return:	no return
+	void SelEc_BillChgCountYunYingStart(long iVal, std::vector<long> & vRps, std::vector<long> * pRefRps=NULL) //()
+	{
+		vRps.clear();
+		SelE_BillChgCountYunYingStart(iVal, vRps, pRefRps);
+	}
+
+/////////////////////////////////////////////////////////////////
 //Function:	SelE_RES_01
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3259,7 +3428,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	SelE1_RES_01
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3270,7 +3439,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 //Function:	SelEc_RES_01
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3280,7 +3449,7 @@ public:
 		SelE_RES_01(iVal, vRps, pRefRps);
 	}
 
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 //Function:	SelE_RES_02
 //Effect:	select and build RPS where col=val use traverse
 //Return:	no return
@@ -3291,7 +3460,7 @@ public:
 		if( !pRefRps || !pRefRps->empty() && std::binary_search( pRefRps->begin(), pRefRps->end(), ltmp ) ) vRps.push_back( ltmp );
 	}
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	SelE1_RES_02
 //Effect:	select 1st row where col=val, or return default row.
 //Return:	b8702_t_rowtype&
@@ -3302,7 +3471,7 @@ public:
 		return GetRow( vRps, 0 );
 	}
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //Function:	SelEc_RES_02
 //Effect:	select and build RPS where col=val. clear rps first.
 //Return:	no return
@@ -3312,7 +3481,7 @@ public:
 		SelE_RES_02(iVal, vRps, pRefRps);
 	}
 
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 //Function:	RpsAnd
 //Effect:	set intersection for RPSs. the varRpsSource1 is also the result.
 //Return:	RPSTYPE &
@@ -3328,7 +3497,7 @@ public:
 		return varRpsSource1;
 	}
 
-///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //Function:	RpsAnd
 //Effect:	set intersection for RPSs. the rps3 is the result. sortflag: 10=rps1 sorted. 01=rps2 sorted.
 //Return:	RPSTYPE &
@@ -3342,7 +3511,7 @@ public:
 		return vRps3;
 	}
 
-/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 //Function:	RpsOr
 //Effect:	set union for RPSs. the varRpsSource1 is also the result.
 //Return:	RPSTYPE &
@@ -3365,5 +3534,4 @@ public:
 
 
 #endif
-
 

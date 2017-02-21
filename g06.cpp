@@ -3241,6 +3241,56 @@ SDte GetOperationDate( SDte dt )
 	return dtOut;
 }
 
+
+void DoYunYingStart()
+{
+
+	long lBillChgBoxAmount = 0;
+	b8702_t::ROWTYPE rbill;
+	if(1)
+	{
+		MYAUTOLOCK( gp_db->m_b8702.m_ut_tbl_lck );
+		rbill = gp_db->m_b8702.GetRow(0);
+	}
+
+	UINT32 ReDeno[4]={0,0,0,0};
+	UINT32 ReCount[4]={0,0,0,0};
+	gp_bill->dBill_GetRecycleDenomination(ReDeno,ReCount);
+
+	for(int i=0;i<4;i++)
+	{
+		if( rbill.m_ReDenomination.a[i] == 500 )  lBillChgBoxAmount += rbill.m_ReNumber.a[i] * 5;
+		if( rbill.m_ReDenomination.a[i] == 1000 ) lBillChgBoxAmount += rbill.m_ReNumber.a[i] * 10;
+		if( rbill.m_ReDenomination.a[i] == 2000 ) lBillChgBoxAmount += rbill.m_ReNumber.a[i] * 20;
+		if( rbill.m_ReDenomination.a[i] == 5000 ) lBillChgBoxAmount += rbill.m_ReNumber.a[i] * 50;
+	}
+
+	rbill.m_BillChgCountYunYingStart = lBillChgBoxAmount;
+
+	rbill.m_BillAddCountForYunYing = 0;   // 开始运营，纸币加币金额清除
+
+	long lBillVaultAmount = 0;
+	b8701_t::ROWTYPE rCoin;
+	if(1)
+	{
+		MYAUTOLOCK( gp_db->m_b8701.m_ut_tbl_lck );
+		rCoin = gp_db->m_b8701.GetRow(0);
+	}
+	
+	rCoin.m_CoinAddCountForYunYing = 0;      // 开始运营，硬币加币金额清除
+	rCoin.m_CoinCleanCountForYunYing = 0;    // 开始运营，硬币清币金额清除
+
+	rCoin.m_CoinChgCountYunYingStart = rCoin.m_A1YuanCycleChg + rCoin.m_A5MaoCycleChg/2;
+
+
+}
+
+void DOYunYingEnd()
+{
+
+}
+
+
 // [in]  iToBeChange 找零金额 (以分为单位)
 // [in]  iRMB50 硬币循环箱中5角个数
 // [in]  iRMB100 硬币循环箱中1元个数

@@ -28,6 +28,11 @@ public:
 
 	int         m_coin_rep_num;
 
+	int m_iIsUseSCAddr2;         //是否使用备用sc地址     0-不使用(default)  1-使用
+
+	std::string m_Sc2000HostIpAddr;       //零时用变量存储
+	std::string m_Sc2000BackUpIpAddr;
+
 private:
 	WCrsc  m_ConfLck;
 
@@ -77,6 +82,10 @@ public:
 	int Get_scr_starty( int scrnum );
 	
 	std::string Get_sc_addr();  // sc
+
+private:
+	std::string Get_sc_addr1();  // sc
+	std::string Get_sc_addr2();  // sc
 
 };
 

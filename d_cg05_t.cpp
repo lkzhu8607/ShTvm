@@ -63,9 +63,11 @@ L_GETINPUT:
 		{
 			if( cg01s_jud5041.Find_n_do_gotowork(gp_frontinput->GetFrontCurrentKey()) )
 			{
-				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 				plocalcg01->displayFlag = 0;
 				plocalcg01->langFlag = 0;
+				plocalcg01->errorFlag = 0;
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
+
 				return;
 			}
 
@@ -76,6 +78,7 @@ L_GETINPUT:
 				if(ret == 2){
 					plocalcg01->displayFlag = 0;
 					plocalcg01->langFlag = 0;
+					plocalcg01->errorFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 				}
 				else if(ret == 1){

@@ -1482,6 +1482,7 @@ void bu_backman_ele_t::f_BillStock_Test()
 	if( ret != 0 )	 
 	{
 		m_Scr1.push_back( "暂存纸币命令失败" );
+		gp_db->m_a5041.GetRow(0).m_e.a[127] = 1;     //设置压箱失败事件码
 		return ;
 	}
 
@@ -1526,6 +1527,7 @@ void bu_backman_ele_t::f_BillCollect_Test()
 	if( ret != 0 )	 
 	{
 		m_Scr1.push_back( "纸币进入钱箱命令失败" );
+		gp_db->m_a5041.GetRow(0).m_e.a[127] = 1;     //设置压箱失败事件码
 		return ;
 	}
 
@@ -1722,9 +1724,9 @@ void bu_backman_ele_t::f_Print_Profit_Report()
 	long lCoinAddAmount = 0;
 	long lBillAddAmount = 0;
 	long lCoinCleanAmount = 0;
-	int iYunYingStartCoinChgBoxAmount = 0;
-	int iYunYingStartBillChgBoxAmount = 0;
-	int iYunYingEndBillChgBoxAmount = 0;
+	long lYunYingStartCoinChgBoxAmount = 0;
+	long lYunYingStartBillChgBoxAmount = 0;
+	long lYunYingEndBillChgBoxAmount = 0;
 	long lOverPayAmount = 0;
 	long lTodayProfileAmount = 0;
 
@@ -1752,14 +1754,11 @@ void bu_backman_ele_t::f_Print_Profit_Report()
 			lCoinChgAmount += gp_db->m_a_waiter_t.GetRow(l).m_CoinRecycleChgActual;
 			lBillChgAmount += gp_db->m_a_waiter_t.GetRow(l).m_BilchgActual;
 
-			lCoinAddAmount += 0;
-			lBillAddAmount += 0;
-			lCoinCleanAmount += 0;
+			
 			lOverPayAmount += ( gp_db->m_a_waiter_t.GetRow(l).m_ShouldChgTotal - 
 				                gp_db->m_a_waiter_t.GetRow(l).m_CoinRecycleChgActual -
 								gp_db->m_a_waiter_t.GetRow(l).m_BilchgActual );
 
-			iBadTicketAmount += 0;
 
 		}
 		else
@@ -1768,12 +1767,37 @@ void bu_backman_ele_t::f_Print_Profit_Report()
 		}
 	}
 
+	lCoinAddAmount = gp_db->m_b8701.GetRow(0).m_CoinAddCountForYunYing;
+	
+	lCoinCleanAmount = gp_db->m_b8701.GetRow(0).m_CoinCleanCountForYunYing;
+	lYunYingStartCoinChgBoxAmount = gp_db->m_b8701.GetRow(0).m_CoinChgCountYunYingStart;
+	
+
+	b8702_t::ROWTYPE rbill;
+	if(1)
+	{
+		MYAUTOLOCK( gp_db->m_b8702.m_ut_tbl_lck );
+		rbill = gp_db->m_b8702.GetRow(0);
+	}
+	for(int i=0;i<4;i++)
+	{
+		if( rbill.m_ReDenomination.a[i] == 500 )  lYunYingEndBillChgBoxAmount += rbill.m_ReNumber.a[i] * 5;
+		if( rbill.m_ReDenomination.a[i] == 1000 ) lYunYingEndBillChgBoxAmount += rbill.m_ReNumber.a[i] * 10;
+		if( rbill.m_ReDenomination.a[i] == 2000 ) lYunYingEndBillChgBoxAmount += rbill.m_ReNumber.a[i] * 20;
+		if( rbill.m_ReDenomination.a[i] == 5000 ) lYunYingEndBillChgBoxAmount += rbill.m_ReNumber.a[i] * 50;
+	}
+
+	lBillAddAmount = rbill.m_BillAddCountForYunYing;
+	lYunYingStartBillChgBoxAmount = rbill.m_BillChgCountYunYingStart;
+
 	lReceiveCoinAmount =  (ReceiveCoin[1] * 50 + ReceiveCoin[0]*100)/100 ;
 	lReceivceBillAmount = ( MapReceiveBill[5]*500 + MapReceiveBill[10]*1000 + 
 						    MapReceiveBill[20]*2000 + MapReceiveBill[50]*5000 + 
 						    MapReceiveBill[100]*10000 )/100 ;
 
 	lTodayProfileAmount = ( lReceiveCoinAmount + lReceivceBillAmount);
+
+	iBadTicketAmount  = gp_db->m_b8704.GetRow(0).m_BadTotal ;
 
 	iSaleTicketAmount = MapSaleTicket[200] + MapSaleTicket[300] +
 						MapSaleTicket[400] + MapSaleTicket[500] +
@@ -1845,9 +1869,9 @@ void bu_backman_ele_t::f_Print_Profit_Report()
 				lCoinAddAmount,
 				lBillAddAmount,
 				lCoinCleanAmount,
-				iYunYingStartCoinChgBoxAmount,
-				iYunYingStartBillChgBoxAmount,
-				iYunYingEndBillChgBoxAmount,
+				lYunYingStartCoinChgBoxAmount,
+				lYunYingStartBillChgBoxAmount,
+				lYunYingEndBillChgBoxAmount,
 				lOverPayAmount,
 				lTodayProfileAmount,
 				MapSaleTicket[200],
@@ -2995,6 +3019,11 @@ void bu_backman_ele_t::f_Reset()
 	}
 	
 	ShowCurrScr();
+
+	if(1)
+	{
+		gp_db->m_b8703.GetRow(0).m_BadTotal = 0;    //清除发卡废票箱计数
+	}
 
 	//消除一些错误码
 	a5041_t::ROWTYPE &row2( gp_db->m_a5041.GetRow(0) );

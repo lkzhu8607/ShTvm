@@ -50,11 +50,13 @@ tbool d_cg01s_jud5041_t::Find_n_do_stopservice( std::string strinput )
 			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 			SetLanguageCh();
 
+			gp_db->m_a5041.GetRow(0).m_e.a[104] = 1;       //进入故障暂停服务画面，则产生该事件码104
+
 			return 2;
 		}
 		if( -1 == irc )
 		{
-			a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041()); //????	
+			a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041()); //试验代码	
 
 			//gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg04;
 
@@ -63,6 +65,9 @@ tbool d_cg01s_jud5041_t::Find_n_do_stopservice( std::string strinput )
 			SetLanguageCh();
 			//plocalcg04->displayFlag = 0;
 			//plocalcg04->langFlag = 0;
+
+			gp_db->m_a5041.GetRow(0).m_e.a[104] = 0;       //清除事件码104
+
 			return 1;
 		}
 	}
@@ -89,10 +94,11 @@ tbool d_cg01s_jud5041_t::Find_n_do_gotowork( std::string strinput )
 			gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
 			SetLanguageCh();
 
+			gp_db->m_a5041.GetRow(0).m_e.a[104] = 0;       //清除事件码104
 
-			gp_coin->RepCoinStock();    //??????????
-			gp_coin->CleanCoinStock();  //????????????
-			gp_bill->RepBillStock();    //??????????
+			gp_coin->RepCoinStock();    //检测是否需要补充硬币
+			gp_coin->CleanCoinStock();  //检测是否需要清除部分硬币
+			gp_bill->RepBillStock();    //检测是否需要补充纸币
 
 			return 1;
 		}

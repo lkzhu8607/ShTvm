@@ -12,7 +12,7 @@
 		//else
 		//	EVT_CHG(28,0);
 
-		// 41	分币器卡住
+		
 
 
 		//  77	门被打开			√	√	√	2
@@ -42,6 +42,9 @@
 		if( SStrf::readbit( Rb8701.m_SensorStatus.a[2], 5 ) == 1 )			//	Bit3:=1/0  硬币回收箱到位：0，到位；1，未到 
 		{
 			EVT_CHG(137,1);
+			EVT_CHG(46,1);     //TVM钱箱进币口开时的事件代码（46）
+			EVT_CHG(47,1);     //TVM钱箱进币口未锁时的事件代码（47）
+
 			if( 0 == m_legal_authority )
 			{
 				EVT_CHG(169,1);
@@ -50,6 +53,8 @@
 		else
 		{
 			EVT_CHG(137,0);
+			EVT_CHG(46,0);
+			EVT_CHG(47,0);
 		}
 		
 
@@ -223,10 +228,16 @@
 		// 175 硬币接收卡币
 		if( SStrf::readbit( gp_db->m_b8701.GetRow(0).m_CoinPollData.a[2], 4 ) == 1 )
 		{
+			// 41	分币器卡住
+			EVT_CHG(41,1);
+
 			EVT_CHG(175,1);
+			
 		}
 		else
 		{
+			// 41	分币器卡住
+			EVT_CHG(41,0);
 			EVT_CHG(175,0);
 		}
 

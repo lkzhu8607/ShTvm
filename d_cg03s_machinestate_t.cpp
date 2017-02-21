@@ -39,6 +39,7 @@ void d_cg03s_machinestate_t::Showmachinestate()
 
 
 	gp_ui->LabelMkStr( row1, 0, "EN_MachineState", GetStrRes(gp_medev->m_devstatus), m_x,m_y, 0.038, "black" );
+
 	//gp_ui->LabelPrep(row1);	
 	gp_ui->str_task(row1);
 	plocalcg03->graphElementsEN.push_back(row1);

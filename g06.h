@@ -50,7 +50,10 @@ void test_read_card();
 
 int IsYunYingDT( wl::SDte dtnow ,wl::SDte *pdtstart = NULL );
 void GetYunYingDT( wl::SDte &YunYingStartDt,wl::SDte &YunYingEndDt );
-SDte GetOperationDate( SDte dt ); // ??¡§¡§??¡§2?¨º?¡§o?¨¤??¡§¡§?0 
+SDte GetOperationDate( SDte dt ); // ??¨¨??¨²¡ê?¨º¡À??¨¨?0 
+
+void DoYunYingStart();
+void DOYunYingEnd();
 
 bool isChangeOK( int iToBeChange, int iRMB50, int iRMB100, int iRMB500, int iRMB1000, int iRMB2000,int iRMB5000 ,long *iChangeCoin = NULL ,long *iChangeBill = NULL );
 

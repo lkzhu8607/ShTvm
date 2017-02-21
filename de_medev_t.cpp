@@ -487,6 +487,10 @@ tbool de_medev_t::IntegratedStateGood()
 				return 0;
 			}
 		}
+		else
+		{
+			gp_db->m_a5041.GetRow(0).m_e.a[59] = 0;   //清除掉不开门进维护的登录标志，
+		}
 
 		// s1.a[1]		门被开锁(1)
 		if( Ra5041.m_s1.a[1] == 1 )

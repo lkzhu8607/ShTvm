@@ -86,29 +86,29 @@ extern bool g_log_status_thread;
 extern bool g_log_intermediate;
 extern T_XfsCashUnit g_CashUnit;
 
-//暂存区纸币面额
+//æš‚å­˜åŒºçº¸å¸é¢é¢?
 extern int g_StoredNote;
 
-//在第一次CashIn动作没有结束前,禁止发第二次
+//åœ¨ç¬¬ä¸€æ¬¡CashInåŠ¨ä½œæ²¡æœ‰ç»“æŸå‰?ç¦æ­¢å‘ç¬¬äºŒæ¬¡
 extern INT32 g_iCashInResult;
 
-//0:不显示界面,托盘区不显示; 1:显示在托盘区
+//0:ä¸æ˜¾ç¤ºç•Œé?æ‰˜ç›˜åŒºä¸æ˜¾ç¤º; 1:æ˜¾ç¤ºåœ¨æ‰˜ç›˜åŒº
 extern BYTE g_ibnrhide;
 
-//用于USB线断开后重新插上,保存BNR的API返回值,判断-1
+//ç”¨äºŽUSBçº¿æ–­å¼€åŽé‡æ–°æ’ä¸?ä¿å­˜BNRçš„APIè¿”å›žå€?åˆ¤æ–­-1
 extern INT32 g_iDoOpen;
 
-//流水号
+//æµæ°´å?
 extern INT32 g_iflow;
-//配置文件
+//é…ç½®æ–‡ä»¶
 struct  tagConfigInfo
 {
 	int  log_level;
 	int log_debug_level;
 	char log_dir[64];
 	
-	int iloaderlock; //补币箱,1:lock; 0:unlock
-	//4个循环箱低币位和1个回收箱
+	int iloaderlock; //è¡¥å¸ç®?1:lock; 0:unlock
+	//4ä¸ªå¾ªçŽ¯ç®±ä½Žå¸ä½å’Œ1ä¸ªå›žæ”¶ç®±
 	int ReBoxLows[5];
 	int ReBoxHighs[5];
 	int ReBoxFulls[5];
@@ -123,15 +123,15 @@ typedef struct tagConfigInfo ConfigInfo_t;
 extern ConfigInfo_t g_ConfigInfo;
 
 
-//保存找零信息
+//ä¿å­˜æ‰¾é›¶ä¿¡æ¯
 typedef struct tagBNRResult 
 {
-	T_BnrXfsResult ocResult;	//BNR动作命令执行结果
+	T_BnrXfsResult ocResult;	//BNRåŠ¨ä½œå‘½ä»¤æ‰§è¡Œç»“æžœ
 
-	//找零信息保存(0-3对应RE3---RE6,4对应LO1 )
+	//æ‰¾é›¶ä¿¡æ¯ä¿å­˜(0-3å¯¹åº”RE3---RE6,4å¯¹åº”LO1 )
 	T_BillCount ReChangeCount[5];
 	
-	//清币信息数量保存(0-3对应RE3---RE6,4对应LO1 )
+	//æ¸…å¸ä¿¡æ¯æ•°é‡ä¿å­˜(0-3å¯¹åº”RE3---RE6,4å¯¹åº”LO1 )
 	T_BillCount ReClearCount[5];
 }BNRResult_t;
 extern BNRResult_t	g_BNRResult;
@@ -143,14 +143,14 @@ extern unsigned int g_CashBox_Num[8]; //回收箱各面额纸币数量 1 2 5 10 
 
 typedef struct  tagCashInInfo
 {
-	T_Amount amount_yuan;	//纸币面额,以元为单位
-	T_BillCount billcount;	//纸币数量
+	T_Amount amount_yuan;	//çº¸å¸é¢é¢,ä»¥å…ƒä¸ºå•ä½?
+	T_BillCount billcount;	//çº¸å¸æ•°é‡
 }CashInInfo_t;
 struct  tagREInfo
 {
-	T_Amount amount_yuan;	//纸币面额,以元为单位
-	T_BillCount billmax;	//最大张数
-	BYTE bconfig;	//0:表示不用设置; 1:表示需要设置
+	T_Amount amount_yuan;	//çº¸å¸é¢é¢,ä»¥å…ƒä¸ºå•ä½?
+	T_BillCount billmax;	//æœ€å¤§å¼ æ•?
+	BYTE bconfig;	//0:è¡¨ç¤ºä¸ç”¨è®¾ç½®; 1:è¡¨ç¤ºéœ€è¦è®¾ç½?
 };
 typedef struct  tagREInfo REInfo_t;
 
@@ -173,13 +173,13 @@ extern BNRStatus_t g_BNRStatus;
 
 typedef struct tagModuleList 
 {
-	BYTE iloboxexist; //是否存在补币箱,1:存在; 0:不存在
-	char loname[5]; //补币箱物理名
-	BYTE ireboxnum; //存在循环箱数量
-	BYTE ireboxexist[4]; //4个循环箱是否存在,,1:存在; 0:不存在
-	char reboxname[4][6]; //循环箱1~4,物理名	
-	T_ModuleId dwloid; //补币箱ID
-	T_ModuleId dwreid[4]; //4个循环箱ID
+	BYTE iloboxexist; //æ˜¯å¦å­˜åœ¨è¡¥å¸ç®?1:å­˜åœ¨; 0:ä¸å­˜åœ?
+	char loname[5]; //è¡¥å¸ç®±ç‰©ç†å
+	BYTE ireboxnum; //å­˜åœ¨å¾ªçŽ¯ç®±æ•°é‡?
+	BYTE ireboxexist[4]; //4ä¸ªå¾ªçŽ¯ç®±æ˜¯å¦å­˜åœ¨,,1:å­˜åœ¨; 0:ä¸å­˜åœ?
+	char reboxname[4][6]; //å¾ªçŽ¯ç®?~4,ç‰©ç†å?
+	T_ModuleId dwloid; //è¡¥å¸ç®±ID
+	T_ModuleId dwreid[4]; //4ä¸ªå¾ªçŽ¯ç®±ID
 	T_ModuleId dwcbid; //回收箱ID
 	char CBSerialNum[16];//回收箱序列号列号
 	char RESerialNum[4][16];//循环箱序列号 
@@ -192,7 +192,7 @@ const std::string Elis_BNR_VERSION = "Elis_BNR_DRIVER_V1.0.1.5";
 
 
 
-//协议中应答码
+//åè®®ä¸­åº”ç­”ç 
 #define ACK_SUCCESS			0x00
 #define ACK_INVALIDMESSAGE	0x01
 #define ACK_INVALIDPARAM	0x02
@@ -212,7 +212,7 @@ const std::string Elis_BNR_VERSION = "Elis_BNR_DRIVER_V1.0.1.5";
 #define	RMB_AMOUNT_50 	(5000)
 #define	RMB_AMOUNT_100 	(10000)
 
-//4个循环找零模块的ID号:
+//4ä¸ªå¾ªçŽ¯æ‰¾é›¶æ¨¡å—çš„IDå?
 #define RE3_ID	RECYCLER_CLASS+0x03
 #define RE4_ID	RECYCLER_CLASS+0x04
 #define RE5_ID  RECYCLER_CLASS+0x05
@@ -241,13 +241,13 @@ const std::string Elis_BNR_VERSION = "Elis_BNR_DRIVER_V1.0.1.5";
 
 /************************** Static Data Definitions **************************/
 
-//保存LCU对应的编号,找零时用
-//[0]:RE3-LCU(循环箱); [1]:RE4-LCU(循环箱); [2]:RE5-LCU(循环箱); [3]:RE6-LCU(循环箱);
-//[4]:RE3-LCU(暂存);   [5]:RE4-LCU(暂存);   [6]:RE5-LCU(暂存);   [7]:RE6-LCU(暂存); 
-//[8]:LO1-LCU(循环箱); [9]:LO1-LCU(暂存);   [10]:BU-LCU;
+//ä¿å­˜LCUå¯¹åº”çš„ç¼–å?æ‰¾é›¶æ—¶ç”¨
+//[0]:RE3-LCU(å¾ªçŽ¯ç®?; [1]:RE4-LCU(å¾ªçŽ¯ç®?; [2]:RE5-LCU(å¾ªçŽ¯ç®?; [3]:RE6-LCU(å¾ªçŽ¯ç®?;
+//[4]:RE3-LCU(æš‚å­˜);   [5]:RE4-LCU(æš‚å­˜);   [6]:RE5-LCU(æš‚å­˜);   [7]:RE6-LCU(æš‚å­˜); 
+//[8]:LO1-LCU(å¾ªçŽ¯ç®?; [9]:LO1-LCU(æš‚å­˜);   [10]:BU-LCU;
 
 extern unsigned int g_LcuSeq[60];
-//保存循环找零箱RE3~RE6的对应币种,以分为单位
+//ä¿å­˜å¾ªçŽ¯æ‰¾é›¶ç®±RE3~RE6çš„å¯¹åº”å¸ç§?ä»¥åˆ†ä¸ºå•ä½?
 extern unsigned int  g_ibilldeno[4];
 
 //保存找零箱RE3-RE6 对应入账张数
@@ -265,13 +265,13 @@ class CBNROperation
 	private:
 		bool m_IsOpened;
 		
-		bool m_IsInletFulled;	//入钞口是否有纸币
-		bool m_IsOutletFulled;  //退钞口是否有纸币
-		bool m_IsStoredEmpty;  //暂存区是否有纸币
-		int  m_StoredCount;    //暂存区纸币数量
+		bool m_IsInletFulled;	//å…¥é’žå£æ˜¯å¦æœ‰çº¸å¸
+		bool m_IsOutletFulled;  //é€€é’žå£æ˜¯å¦æœ‰çº¸å¸?
+		bool m_IsStoredEmpty;  //æš‚å­˜åŒºæ˜¯å¦æœ‰çº¸å¸
+		int  m_StoredCount;    //æš‚å­˜åŒºçº¸å¸æ•°é‡?
 	
 		MAP_UINT_STRING	m_cashid_map;  //
-		MAP_STRING_UINT m_PCUStatus_map;  //PCU信息列表
+		MAP_STRING_UINT m_PCUStatus_map;  //PCUä¿¡æ¯åˆ—è¡¨
 		bool m_IsCashInStarted;
 	private:
 		
@@ -282,17 +282,17 @@ class CBNROperation
 	
 		//
 		T_BnrXfsResult CBNR_SetCapabilities(T_XfsCapabilities *capabilities);
-		//参数分别是4个循环箱需要找零的张数
-		//判断找零是否可行
+		//å‚æ•°åˆ†åˆ«æ˜?ä¸ªå¾ªçŽ¯ç®±éœ€è¦æ‰¾é›¶çš„å¼ æ•°
+		//åˆ¤æ–­æ‰¾é›¶æ˜¯å¦å¯è¡Œ
 		T_BnrXfsResult CBNR_Denominate(int imethod,UINT32 ireone, UINT32 iretwo, UINT32 irethree, UINT32 irefour);
 
-		//准备找零
+		//å‡†å¤‡æ‰¾é›¶
 		T_BnrXfsResult CBNR_Dispense(int imethod,UINT32 ireone, UINT32 iretwo, UINT32 irethree, UINT32 irefour);
 
-		//执行找零
+		//æ‰§è¡Œæ‰¾é›¶
 		T_BnrXfsResult CBNR_Present();
 
-		//清空循环箱至回收箱
+		//æ¸…ç©ºå¾ªçŽ¯ç®±è‡³å›žæ”¶ç®?
 		T_BnrXfsResult CBNR_Empty(std::string vstr, BOOL toFloat);	
 		
 	public:
@@ -303,113 +303,113 @@ class CBNROperation
 		bool IsCashInStarted();
 		int print_BNRStatus(BNRStatus_t* bnrstatus);
 				
-		//开始现金交易
+		//å¼€å§‹çŽ°é‡‘äº¤æ˜?
 		T_BnrXfsResult CBNR_CashInStart();
-		//接受纸币
+		//æŽ¥å—çº¸å¸
 		T_BnrXfsResult CBNR_CashIn();
-		//结束现金交易
+		//ç»“æŸçŽ°é‡‘äº¤æ˜“
 		T_BnrXfsResult CBNR_CashInEnd();
-		//退回纸币
+		//é€€å›žçº¸å¸?
 		T_BnrXfsResult CBNR_CashInRollback();
-		//停收纸币
+		//åœæ”¶çº¸å¸
 		T_BnrXfsResult CBNR_Cancel();
 
-		//中断当前交易
+		//ä¸­æ–­å½“å‰äº¤æ˜“
 		T_BnrXfsResult CBNR_CancelWaitingCashTaken();
 
 		
-		//纸币找零总函数
-		//参数:需要找零的张数
- 		//参数:实际找零的张数
- 		//返回值:0  :成功
- 		//		 -1 :失败
+		//çº¸å¸æ‰¾é›¶æ€»å‡½æ•?
+		//å‚æ•°:éœ€è¦æ‰¾é›¶çš„å¼ æ•°
+ 		//å‚æ•°:å®žé™…æ‰¾é›¶çš„å¼ æ•?
+ 		//è¿”å›žå€?0  :æˆåŠŸ
+ 		//		 -1 :å¤±è´¥
 		int CBNR_OddChange(int imethod,UINT32 *ireone, UINT32 *iretwo, UINT32 *irethree, UINT32 *irefour);
 		
-		//喷出进出口纸币
+		//å–·å‡ºè¿›å‡ºå£çº¸å¸?
 		T_BnrXfsResult CBNR_Eject();
-		//缩回出口纸币
+		//ç¼©å›žå‡ºå£çº¸å¸
 		T_BnrXfsResult CBNR_Retract();
-		//清暂存纸币
+		//æ¸…æš‚å­˜çº¸å¸?
 		T_BnrXfsResult CBNR_Reject();
 
 		//======================================== Merge Functions=============================
 	public:
-		//连接BNR设备
+		//è¿žæŽ¥BNRè®¾å¤‡
 		T_BnrXfsResult CBNR_Open();
-		//断开连接
+		//æ–­å¼€è¿žæŽ¥
 		T_BnrXfsResult CBNR_Close();
-		//复位
+		//å¤ä½
 		T_BnrXfsResult CBNR_Reset();
-		//重启bnr系统(类似于断电)
+		//é‡å¯bnrç³»ç»Ÿ(ç±»ä¼¼äºŽæ–­ç”?
 		T_BnrXfsResult CBNR_Reboot();
-		//打开投币口
+		//æ‰“å¼€æŠ•å¸å?
 		T_BnrXfsResult CBNR_Enable();
 
-		//关闭投币口
+		//å…³é—­æŠ•å¸å?
 		T_BnrXfsResult CBNR_Disable();
 
-		//纸币压箱
+		//çº¸å¸åŽ‹ç®±
 		T_BnrXfsResult CBNR_Encash();
-		//退出纸币
+		//é€€å‡ºçº¸å¸?
 		T_BnrXfsResult CBNR_Refund();
 
-		//清空纸币到回收箱
+		//æ¸…ç©ºçº¸å¸åˆ°å›žæ”¶ç®±
 		T_BnrXfsResult CBNR_EmptytoRecycle(int uiclear[5]);
 		
-		//查询暂存区纸币面值 (元为单位,0:空)
+		//æŸ¥è¯¢æš‚å­˜åŒºçº¸å¸é¢å€?(å…ƒä¸ºå•ä½,0:ç©?
 		int CBNR_GetStoredBanknote();
 
-		//清除暂存区纸币面额
+		//æ¸…é™¤æš‚å­˜åŒºçº¸å¸é¢é¢?
 		int CBNR_ClearStoredBanknote();
-		//设置循环箱满高低空四个纸币位(不需要复位Reset) CB:4
+		//è®¾ç½®å¾ªçŽ¯ç®±æ»¡é«˜ä½Žç©ºå››ä¸ªçº¸å¸ä½(ä¸éœ€è¦å¤ä½Reset) CB:4
 		T_BnrXfsResult CBNR_SetReCBPositionNum(int fulls[5],int highs[5],int lows[5],int empty[5]);
 		
-		//查看以及设定接收纸币相关信息
-		//设定支持的币种
+		//æŸ¥çœ‹ä»¥åŠè®¾å®šæŽ¥æ”¶çº¸å¸ç›¸å…³ä¿¡æ¯
+		//è®¾å®šæ”¯æŒçš„å¸ç§?
 		T_BnrXfsResult CBNR_UpdateDenominations(BOOL *bcashenable);
 
-		//查询bnr状态
+		//æŸ¥è¯¢bnrçŠ¶æ€?
 		T_BnrXfsResult CBNR_GetStatus();
 
-		//状态纸币单元查询-获取钱箱信息
+		//çŠ¶æ€çº¸å¸å•å…ƒæŸ¥è¯?èŽ·å–é’±ç®±ä¿¡æ¯
 		T_BnrXfsResult CBNR_QueryCashUnit(T_XfsCashUnit *cashUnit);
 		
-		//设置钱箱数据,RE3----RE6 (设定面和 张数)
-		//             数组下标 0-3
+		//è®¾ç½®é’±ç®±æ•°æ®,RE3----RE6 (è®¾å®šé¢å’Œ å¼ æ•°)
+		//             æ•°ç»„ä¸‹æ ‡ 0-3
 		T_BnrXfsResult CBNR_SetCashUnit(int yuan_amount[5] ,int yuan_maxcount[5]);
 
-		//清除箱内数据
+		//æ¸…é™¤ç®±å†…æ•°æ®
 
 		
 
-		//锁定或者解锁指定的箱子,参数1:箱子名; 参数2: true为锁定,false为解锁
+		//é”å®šæˆ–è€…è§£é”æŒ‡å®šçš„ç®±å­,å‚æ•°1:ç®±å­å? å‚æ•°2: trueä¸ºé”å®?falseä¸ºè§£é”?
 		T_BnrXfsResult CBNR_LockCashBox(std::string vstrname, bool block);
 
 
-		//获取纸币模块信息
+		//èŽ·å–çº¸å¸æ¨¡å—ä¿¡æ¯
 		T_BnrXfsResult CBNR_GetMoudleInfo();
-		//获取模块ID列表
+		//èŽ·å–æ¨¡å—IDåˆ—è¡¨
 		T_BnrXfsResult CBNR_GetMoudles(T_ModuleIdList *moduleList);
-		//处理USB线被拔掉和重新插上
+		//å¤„ç†USBçº¿è¢«æ‹”æŽ‰å’Œé‡æ–°æ’ä¸?
 		T_BnrXfsResult CBNR_DoUSBOpen(T_BnrXfsResult iresult);
-		//模块初始化复位
-		//参数:true  仅仅机械复位
-		//    :false  设定一些参数，并复位
+		//æ¨¡å—åˆå§‹åŒ–å¤ä½?
+		//å‚æ•°:true  ä»…ä»…æœºæ¢°å¤ä½
+		//    :false  è®¾å®šä¸€äº›å‚æ•°ï¼Œå¹¶å¤ä½?
 		T_BnrXfsResult CBNR_ResetInit(bool OnlyReset);
 
-		//找零之后，缩回纸币
+		//æ‰¾é›¶ä¹‹åŽï¼Œç¼©å›žçº¸å¸?
 		T_BnrXfsResult CBNR_Backnotes();
 
-		//找零之后 喷出出口的纸币
+		//æ‰¾é›¶ä¹‹åŽ å–·å‡ºå‡ºå£çš„çº¸å¸?
 		T_BnrXfsResult CBNR_JetBanknotes();
 
-		//补币箱补币到RE循环箱
+		//è¡¥å¸ç®±è¡¥å¸åˆ°REå¾ªçŽ¯ç®?
 		T_BnrXfsResult CBNR_LoadBanknotes();
 
-		//获取交易状态
+		//èŽ·å–äº¤æ˜“çŠ¶æ€?
 		T_BnrXfsResult CBNR_GetTransactionStatus(T_TransactionStatus *status);
 
-		//清除单元纸币数量
+		//æ¸…é™¤å•å…ƒçº¸å¸æ•°é‡
 		int CBNR_ClearCashUnit(const char box_name[8]);
 		//=========================================================================
 };

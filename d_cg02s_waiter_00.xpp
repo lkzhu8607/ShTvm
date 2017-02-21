@@ -60,6 +60,7 @@ public:
 			else
 			{
 				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Bill Encash Error");
+				gp_db->m_a5041.GetRow(0).m_e.a[127] = 1;     //ÉèÖÃÑ¹ÏäÊ§°ÜÊÂ¼þÂë
 				m_pWR->m_MoneyStoreOk = 0;
 				//THREAD_END;
 			}

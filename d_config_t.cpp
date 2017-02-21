@@ -13,7 +13,7 @@ d_config_t  *gp_conf;
 d_config_t::d_config_t()
 {
 	m_strSysVer = "1.01";
-	m_strSysVerInternal = "20140327.153829" + std::string(" ") + std::string(__DATE__) + std::string(" ") + std::string(__TIME__) + std::string(" ");
+	m_strSysVerInternal = "20170106.094101" + std::string(" ") + std::string(__DATE__) + std::string(" ") + std::string(__TIME__) + std::string(" ");
 	//20140327.153829	初版，开发中. 
 
 	m_biSysShouldExit = 0;
@@ -28,6 +28,11 @@ d_config_t::d_config_t()
 
 	m_iSend6002RowCount = 0;
 	m_iSend6002ShouldNum = 0;
+
+	m_iIsUseSCAddr2 = 0;
+
+	m_Sc2000HostIpAddr = "";
+	m_Sc2000BackUpIpAddr = "";
 }
 
 
@@ -368,10 +373,31 @@ int d_config_t::Get_scr_starty( int scrnum )
 // 
 std::string d_config_t::Get_sc_addr()
 {
-	//return (int)SStrf::satol( getnvB("sc_addr") );
+	if( m_iIsUseSCAddr2 )
+	{
+		return Get_sc_addr2();
+	}
+	
+	return Get_sc_addr1();
+}
+
+std::string d_config_t::Get_sc_addr1()
+{
+	if( m_Sc2000HostIpAddr != "" )
+	{
+		return m_Sc2000HostIpAddr;
+	}
 	return getnvB("sc_addr");
 }
 
+std::string d_config_t::Get_sc_addr2()
+{
+	if( m_Sc2000BackUpIpAddr != "" )
+	{
+		return m_Sc2000BackUpIpAddr;
+	}
+	return getnvB("sc_addr2");
+}
 
 
 

@@ -430,6 +430,33 @@ tbool bu_me_ele_t::do_a2000()
 
 		row.m_strAffectDateTime = SDte("1970-1-1").RelativeSec( deat.eat_data<long>() ).ReadString();
 
+		row.m_ReSendBeforeWaitTime = deat.eat_data<wl::tuint8>() * 5;
+		deat.eat_bin(row.m_ReSendNum);
+		row.m_WaitConnTime = deat.eat_data<wl::tuint8>() * 5;
+		deat.eat_bin(row.m_NoResponseNum);
+		row.m_ParaVerCheckOrSyncTime = deat.eat_str(4);
+		row.m_YunYingEndTime = deat.eat_str(4);
+		row.m_ParaWaitTime = deat.eat_data<wl::tuint8>() * 5;
+		deat.eat_bin(row.m_ResponseTimeoutTime);
+		deat.eat_bin(row.m_HostScIpAddr);
+		deat.eat_bin(row.m_BackUpScIpAddr);
+		row.m_Rule1ScPort = deat.eat_data<wl::tuint16>();
+		row.m_Rule2ScPort = deat.eat_data<wl::tuint16>();
+		row.m_Rule3ScPort = deat.eat_data<wl::tuint16>();
+		row.m_Rule4ScPort = deat.eat_data<wl::tuint16>();
+
+		//记录IP有更新，同时写txt文件中ip(为写入txt文件中)
+
+		gp_conf->m_Sc2000HostIpAddr = wl::SStrf::sltoa(row.m_HostScIpAddr.a[0]) + "." + wl::SStrf::sltoa(row.m_HostScIpAddr.a[1]) + "." +
+			                          wl::SStrf::sltoa(row.m_HostScIpAddr.a[2]) + "." + wl::SStrf::sltoa(row.m_HostScIpAddr.a[3]) + ":"+
+									  wl::SStrf::sltoa(row.m_Rule1ScPort);
+		gp_conf->m_Sc2000BackUpIpAddr = wl::SStrf::sltoa(row.m_BackUpScIpAddr.a[0]) + "." + wl::SStrf::sltoa(row.m_BackUpScIpAddr.a[1]) + "." +
+			                            wl::SStrf::sltoa(row.m_BackUpScIpAddr.a[2]) + "." + wl::SStrf::sltoa(row.m_BackUpScIpAddr.a[3]) + ":"+
+									    wl::SStrf::sltoa(row.m_Rule1ScPort);
+
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "m_Sc2000HostIpAddr="<< gp_conf->m_Sc2000HostIpAddr 
+			                              << " m_Sc2000BackUpIpAddr="<<gp_conf->m_Sc2000BackUpIpAddr);
+		
 		gp_db->m_a2000.Add(row);
 	}
 
@@ -543,11 +570,13 @@ tbool bu_me_ele_t::do_a3000()
 		
 		if( row.m_uiCmdCode == 0x80 )	//	80h	COC、SOC	SLE	设备能使用主IP与所属SC通信
 		{
+			gp_conf->m_iIsUseSCAddr2 = 0;   //
 			rc = 0;
 		}
 
 		if( row.m_uiCmdCode == 0x81 )	//	81h	COC、SOC	SLE	设备能使用备份IP与所属SC通信
 		{
+			gp_conf->m_iIsUseSCAddr2 = 1;   //
 			rc = 0;
 		}
 

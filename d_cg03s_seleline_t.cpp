@@ -47,7 +47,7 @@ tbool d_cg03s_seleline_t::Find_n_do_seleline( std::string strinput )
 							gp_frontman_mgr->m_cg03.m_iLineCode = row[j].m_funcvalue;
 							return 1;
 						}
-					}			
+					}
 				}
 			}
 		}

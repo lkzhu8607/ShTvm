@@ -424,7 +424,7 @@ void d_cg01_t::Proc()
 				//gp_frontman_mgr.graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 			}			
 		}
-		
+
 		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
 		//d_cg01s_backpic_t			cg01s_backpic;
 		//d_cg01s_lang_t			cg01s_lang;
@@ -617,10 +617,11 @@ L_GETINPUT2:
 				return;
 			}
 		
-			/*int ret = 0;
+			int ret = 0;
 			if( ret = cg01s_jud5041.Find_n_do_stopservice(m_strInput) )
 			{
 				if(ret == 2){
+					plocalcg01->errorFlag = 0;
 					continue;
 				}
 				else if(ret == 1){
@@ -635,7 +636,7 @@ L_GETINPUT2:
 					}
 					return;
 				}
-			}*/
+			}
 			goto L_GETINPUT;
 		}
 	}

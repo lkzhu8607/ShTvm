@@ -589,6 +589,38 @@ int de_bill_t::dBill_State()
 						R8702.m_boxIsEmpty.a[4]=0;
 						R8702.m_boxNearEmpty.a[4] = 0;
 					}
+					if(strncmp(cu_name,"RE3",sizeof(cu_name))==0)
+					{
+						
+						R8702.m_boxNearFull.a[0]=0;
+						R8702.m_boxFull.a[0]=1;
+						R8702.m_boxIsEmpty.a[0]=0;
+						R8702.m_boxNearEmpty.a[0]=0;
+					}
+					if(strncmp(cu_name,"RE4",sizeof(cu_name))==0)
+					{
+						
+						R8702.m_boxNearFull.a[1]=0;
+						R8702.m_boxFull.a[1]=1;
+						R8702.m_boxIsEmpty.a[1]=0;
+						R8702.m_boxNearEmpty.a[1]=0;
+					}
+					if(strncmp(cu_name,"RE5",sizeof(cu_name))==0)
+					{
+						
+						R8702.m_boxNearFull.a[2]=0;
+						R8702.m_boxFull.a[2]=1;
+						R8702.m_boxIsEmpty.a[2]=0;
+						R8702.m_boxNearEmpty.a[2]=0;
+					}
+					if(strncmp(cu_name,"RE6",sizeof(cu_name))==0)
+					{
+						
+						R8702.m_boxNearFull.a[3]=0;
+						R8702.m_boxFull.a[3]=1;
+						R8702.m_boxIsEmpty.a[3]=0;
+						R8702.m_boxNearEmpty.a[3]=0;
+					}
 					break;
 				}
 		}
@@ -683,12 +715,17 @@ int de_bill_t::dBill_Clean( int boxclear[5],unsigned int LOClear_Num[8],unsigned
 int de_bill_t::dBill_Add(unsigned int LOAdd_Num[8] )
 {
 	using namespace BillBNR;
+	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
+
 	int ret = bnr_demo.CBNR_LoadBanknotes();
 	int i=0;
 	for (i=0;i<8;i++)
 	{
 		LOAdd_Num[i]=g_LOAdd_Num[i];
 	}
+
+	R8702.m_BillAddCountForYunYing += LOAdd_Num[3]*10;    //Ö»²¹³ä10Ôª
+
 	return 0;
 }
 

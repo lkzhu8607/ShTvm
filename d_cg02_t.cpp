@@ -606,13 +606,14 @@ L_GETINPUT:
 			return;
 		}
 
-		/*int ret = 0;
+		int ret = 0;
 		if( ret = cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
 		{
 			//如果有投钱，则退钱 或 列印异常交易
 			if(ret == 2){
 				plocalcg01->displayFlag = 0;
 				plocalcg01->langFlag = 0;
+				plocalcg01->errorFlag = 0;
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 			}
 			else if(ret == 1){
@@ -630,7 +631,7 @@ L_GETINPUT:
 			}
 
 			return;
-		}	*/
+		}	
 		goto L_GETINPUT;
 	}
 
