@@ -16,24 +16,24 @@
 
 
 
-//
-#define TAKE_AFFECT_1(tblname)	\
-				do{	\
-					if(1)\
-					{\
-						MYAUTOLOCK( tblname.m_ut_tbl_lck );\
-						std::string s1=GetPrepareAffectPk(tblname) ;\
-						if( s1.empty() ) break;\
-						TakeAffect( tblname, s1 );\
-					}\
-					if( 1 )\
-					{\
-						MYAUTOLOCK( gp_db->m_DbMgrLck );\
-						std::string strTblName = tblname.ut_GetItemStr(-1,"strTblName");\
-						gp_db->m_mTbllSaveFlag[1][strTblName] = "aaa";\
-						gp_db->m_mTbllSaveFlag[2][strTblName] = "aaa";\
-					}\
-				}while(0)
+////
+//#define TAKE_AFFECT_1(tblname)	\
+//				do{	\
+//					if(1)\
+//					{\
+//						MYAUTOLOCK( tblname.m_ut_tbl_lck );\
+//						std::string s1=GetPrepareAffectPk(tblname) ;\
+//						if( s1.empty() ) break;\
+//						TakeAffect( tblname, s1 );\
+//					}\
+//					if( 1 )\
+//					{\
+//						MYAUTOLOCK( gp_db->m_DbMgrLck );\
+//						std::string strTblName = tblname.ut_GetItemStr(-1,"strTblName");\
+//						gp_db->m_mTbllSaveFlag[1][strTblName] = "aaa";\
+//						gp_db->m_mTbllSaveFlag[2][strTblName] = "aaa";\
+//					}\
+//				}while(0)
 
 
 
@@ -42,7 +42,28 @@ d_paratime_t::d_paratime_t()
 {
 }
 
+// return 0-Not Affect  1-Affect
+int d_paratime_t::TakeAffect_1(unitbl_base_t & tblname)
+{
+	do{	
+		if(1)
+		{
+			MYAUTOLOCK( tblname.m_ut_tbl_lck );
+			std::string s1=GetPrepareAffectPk(tblname) ;
+			if( s1.empty() ) return 0;
+			TakeAffect( tblname, s1 );
+		}
+		if( 1 )
+		{
+			MYAUTOLOCK( gp_db->m_DbMgrLck );
+			std::string strTblName = tblname.ut_GetItemStr(-1,"strTblName");
+			gp_db->m_mTbllSaveFlag[1][strTblName] = "aaa";
+			gp_db->m_mTbllSaveFlag[2][strTblName] = "aaa";
+		}
+	}while(0);
 
+	return 1;
+}
 
 //
 std::string d_paratime_t::GetRowAffectPk( unitbl_base_t & tbl, long y )
@@ -225,34 +246,41 @@ tbool d_paratime_t::DetectAffect()
 //
 void d_paratime_t::TakeAffectAll()
 {
-	TAKE_AFFECT_1(gp_db->m_a1040);
-	TAKE_AFFECT_1(gp_db->m_a2000);
-	TAKE_AFFECT_1(gp_db->m_a2001);
-	TAKE_AFFECT_1(gp_db->m_a3000);
-	TAKE_AFFECT_1(gp_db->m_a3001);
-	TAKE_AFFECT_1(gp_db->m_a3002);
-	TAKE_AFFECT_1(gp_db->m_a3003);
-	TAKE_AFFECT_1(gp_db->m_a3006);
-	TAKE_AFFECT_1(gp_db->m_a3007);
-	TAKE_AFFECT_1(gp_db->m_a3008);
-	TAKE_AFFECT_1(gp_db->m_a3009);
-	TAKE_AFFECT_1(gp_db->m_a3011);
-	TAKE_AFFECT_1(gp_db->m_a3014);
-	TAKE_AFFECT_1(gp_db->m_a3082);
-	TAKE_AFFECT_1(gp_db->m_a3083);
-	TAKE_AFFECT_1(gp_db->m_a3084);
-	TAKE_AFFECT_1(gp_db->m_a3085);
-	TAKE_AFFECT_1(gp_db->m_a3086);
-	TAKE_AFFECT_1(gp_db->m_a4001);
-	TAKE_AFFECT_1(gp_db->m_a4002);
-	TAKE_AFFECT_1(gp_db->m_a4003);
-	TAKE_AFFECT_1(gp_db->m_a4004);
-	TAKE_AFFECT_1(gp_db->m_a4006);
-	TAKE_AFFECT_1(gp_db->m_a4007);
-	TAKE_AFFECT_1(gp_db->m_a4008);
-	TAKE_AFFECT_1(gp_db->m_a4009);
-	TAKE_AFFECT_1(gp_db->m_a4015);
-	TAKE_AFFECT_1(gp_db->m_a4016);
+	TakeAffect_1(gp_db->m_a1040);
+	TakeAffect_1(gp_db->m_a2000);
+	TakeAffect_1(gp_db->m_a2001);
+	TakeAffect_1(gp_db->m_a3000);
+	TakeAffect_1(gp_db->m_a3001);
+	TakeAffect_1(gp_db->m_a3002);
+	TakeAffect_1(gp_db->m_a3003);
+	TakeAffect_1(gp_db->m_a3006);
+	TakeAffect_1(gp_db->m_a3007);
+	TakeAffect_1(gp_db->m_a3008);
+	TakeAffect_1(gp_db->m_a3009);
+	TakeAffect_1(gp_db->m_a3011);
+	TakeAffect_1(gp_db->m_a3014);
+	TakeAffect_1(gp_db->m_a3082);
+
+	if( TakeAffect_1(gp_db->m_a3083) ||
+		TakeAffect_1(gp_db->m_a3084) )
+	{
+		//copy 3086µÄÎ»Í¼
+		if( gp_db->m_a3086.GetRow(0).m_PkgDownloaded )
+			Copy3086PicToSystemPath();
+	}
+
+	TakeAffect_1(gp_db->m_a3085);
+	TakeAffect_1(gp_db->m_a3086);
+	TakeAffect_1(gp_db->m_a4001);
+	TakeAffect_1(gp_db->m_a4002);
+	TakeAffect_1(gp_db->m_a4003);
+	TakeAffect_1(gp_db->m_a4004);
+	TakeAffect_1(gp_db->m_a4006);
+	TakeAffect_1(gp_db->m_a4007);
+	TakeAffect_1(gp_db->m_a4008);
+	TakeAffect_1(gp_db->m_a4009);
+	TakeAffect_1(gp_db->m_a4015);
+	TakeAffect_1(gp_db->m_a4016);
 }
 
 
@@ -466,7 +494,25 @@ long d_paratime_t::GetParaNewVer( tuint16 itype , long * plAffcGmtTime /*= NULL*
 }
 
 
+int d_paratime_t::Copy3086PicToSystemPath()
+{
 
+	char cmd_str[512]={0,};
+	std::string sDestFilePath = WFile::MkDir2Path( gp_conf->Get_datapath3() );
+	std::string ssep = ".";
+	std::vector<std::string > vTemp;
+
+	wl::SStrvs::vsa_imp(gp_db->m_a3086.GetRow(0).m_strPicFn,ssep,0,vTemp);
+
+	std::string sSrcFilePath  = "/mnt/" + vTemp.at(0);
+	snprintf(cmd_str,sizeof(cmd_str)-1,"cp -rf %s %s;",sSrcFilePath.c_str(),sDestFilePath.c_str());
+	printf("%s\n",cmd_str);
+	system(cmd_str);
+
+	snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf %s;",sSrcFilePath.c_str());
+	printf("%s\n",cmd_str);
+	system(cmd_str);
+}
 
 
 

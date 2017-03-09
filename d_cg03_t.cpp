@@ -46,63 +46,42 @@ d_cg03_t::~d_cg03_t()
 
 void d_cg03_t::cg03_graphElementsHide(int langFlag)
 {
-
 	if(langFlag == 0){
-		/*if(gp_frontman_mgr->graphLastPageElementsCN.size()){
-			for(int j=0;j<gp_frontman_mgr->graphLastPageElementsCN.size();j++){
-				gp_ui->hideLabel(gp_frontman_mgr->graphLastPageElementsCN[j]);
-			}		
-			//gp_frontman_mgr->graphLastPageElementsCN.clear();
-
-		}*/		
 		for(int j=0;j<plocalcg03->graphElementsCN.size();j++){
 			if(plocalcg03->graphElementsCN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg03->graphElementsCN[j]);
-				//gp_frontman_mgr->graphLastPageElementsCN.push_back(plocalcg03->graphElementsCN[j]);
 				plocalcg03->graphElementsCN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j=0;j<plocalcg01->graphLineButtonCN.size();j++){
 			if(plocalcg01->graphLineButtonCN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg01->graphLineButtonCN[j]);
-				//gp_frontman_mgr->graphLastPageElementsCN.push_back(plocalcg01->graphLineButtonCN[j]);
 				plocalcg01->graphLineButtonCN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j = 0;j<plocalcg03->lineCount;j++){
 			if(plocalcg03->graphLineStationCN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
 				gp_ui->hideLabel(plocalcg03->graphLineStationCN[j][0]);
-				//gp_frontman_mgr->graphLastPageElementsCN.push_back(plocalcg03->graphLineStationCN[j][0]);
 				plocalcg03->graphLineStationCN[j][0].m_iShouldShow = 0;				
 			}
 		}
 	}
 	else if(langFlag == 1){
-		/*if(gp_frontman_mgr->graphLastPageElementsCN.size()){
-			for(int j=0;j<gp_frontman_mgr->graphLastPageElementsEN.size();j++){
-				gp_ui->hideLabel(gp_frontman_mgr->graphLastPageElementsEN[j]);
-			}		
-			//gp_frontman_mgr->graphLastPageElementsCN.clear();
-
-		}*/
 		for(int j=0;j<plocalcg03->graphElementsEN.size();j++){
 			if(plocalcg03->graphElementsEN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg03->graphElementsEN[j]);
-				//gp_frontman_mgr->graphLastPageElementsEN.push_back(plocalcg03->graphElementsEN[j]);
 				plocalcg03->graphElementsEN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j=0;j<plocalcg01->graphLineButtonEN.size();j++){
 			if(plocalcg01->graphLineButtonEN[j].m_iShouldShow == 1){
 				gp_ui->hideLabel(plocalcg01->graphLineButtonEN[j]);
-				//gp_frontman_mgr->graphLastPageElementsEN.push_back(plocalcg01->graphLineButtonEN[j]);
 				plocalcg01->graphLineButtonEN[j].m_iShouldShow = 0;
 			}
 		}
 		for(int j = 0;j<plocalcg03->lineCount;j++){
 			if(plocalcg03->graphLineStationEN[j][0].m_funcvalue == gp_frontman_mgr->m_cg03.m_iLineCode){
 				gp_ui->hideLabel(plocalcg03->graphLineStationEN[j][0]);
-				//gp_frontman_mgr->graphLastPageElementsEN.push_back(plocalcg03->graphLineStationEN[j][0]);
 				plocalcg03->graphLineStationEN[j][0].m_iShouldShow = 0;				
 			}
 		}
@@ -110,8 +89,6 @@ void d_cg03_t::cg03_graphElementsHide(int langFlag)
 	for(int j=0;j<gp_timeshower->graphElements.size();j++){
 		if(gp_timeshower->graphElements[j].m_iShouldShow == 1){
 			gp_ui->hideLabel(gp_timeshower->graphElements[j]);
-			//gp_frontman_mgr->graphLastPageElementsCN.push_back(gp_timeshower->graphElements[j]);
-			//gp_frontman_mgr->graphLastPageElementsEN.push_back(gp_timeshower->graphElements[j]);
 			gp_timeshower->graphElements[j].m_iShouldShow = 0;
 		}
 	}

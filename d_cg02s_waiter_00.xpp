@@ -258,7 +258,8 @@ public:
 		if( gp_coin->CycleBoxChg( m_pWR->m_CoinRecycleChgPlan /*- m_pWR->m_CoinRecycleChgActual */) != 0 )
 		{
 			//,如果找失败 退回，待专用找零 
-			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "循环箱找零失败");
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "CoinRecycleChgActual 1 Yuan fail");
+			m_pWR->m_CoinRecycleChgActual += Rb8701.m_CoinChangeData.a[1]; // [out] Data[1]	BYTE	找零数1~48;
 			m_pWR->m_CoinRecycleChgOk = 0;
 			THREAD_END; 
 		}

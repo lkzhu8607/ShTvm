@@ -24,6 +24,8 @@ private:
 	std::string GetPrepareAffectPk( unitbl_base_t & tbl ); // 所有过去的且未生效的PK拿出来排序取最后一个。 
 	void TakeAffect( unitbl_base_t & tbl, std::string strAffectPk );
 	void Purge1( unitbl_base_t & tbl, double dTimeLimit = 3.0 );
+
+	int  TakeAffect_1(unitbl_base_t & tblname);
 	
 public:
 	tbool DetectAffect();
@@ -36,6 +38,8 @@ public:
 
 	long GetParaNewVer( unitbl_base_t & tbl , long * plAffcGmtTime = NULL );  
 	long GetParaNewVer( tuint16 itype , long * plAffcGmtTime = NULL );  
+
+	int Copy3086PicToSystemPath();
 };
 
 

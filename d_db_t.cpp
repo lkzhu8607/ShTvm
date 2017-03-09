@@ -570,6 +570,16 @@ void d_db_t::LoadDb()
 
 
 	LOADTBLFILE(m_a_waiter_t);
+	if( gp_db->m_a2000.GetRowCount() > 0 )
+	{
+		a2000_t::ROWTYPE &R2000( gp_db->m_a2000.GetRow(0) );
+		gp_conf->m_Sc2000HostIpAddr = wl::SStrf::sltoa(R2000.m_HostScIpAddr.a[0]) + "." + wl::SStrf::sltoa(R2000.m_HostScIpAddr.a[1]) + "." +
+			                          wl::SStrf::sltoa(R2000.m_HostScIpAddr.a[2]) + "." + wl::SStrf::sltoa(R2000.m_HostScIpAddr.a[3]) + ":"+
+									  wl::SStrf::sltoa(R2000.m_Rule1ScPort);
+		gp_conf->m_Sc2000BackUpIpAddr = wl::SStrf::sltoa(R2000.m_BackUpScIpAddr.a[0]) + "." + wl::SStrf::sltoa(R2000.m_BackUpScIpAddr.a[1]) + "." +
+			                            wl::SStrf::sltoa(R2000.m_BackUpScIpAddr.a[2]) + "." + wl::SStrf::sltoa(R2000.m_BackUpScIpAddr.a[3]) + ":"+
+									    wl::SStrf::sltoa(R2000.m_Rule1ScPort);
+	}
 }
 	
 
@@ -756,13 +766,13 @@ void d_db_t::CleanParaProtect3014()
 	CLEANDBTBL(m_a6000);
 	CLEANDBTBL(m_a6002);
 
-		CLEANDBTBL(m_b8701);
-		CLEANDBTBL(m_b8702);
-		CLEANDBTBL(m_b8703);
-		CLEANDBTBL(m_b8704);
-		CLEANDBTBL(m_b8705);
-	CLEANDBTBL(m_a9999);
-	CLEANDBTBL(m_a_waiter_t);
+		//CLEANDBTBL(m_b8701);
+		//CLEANDBTBL(m_b8702);
+		//CLEANDBTBL(m_b8703);
+		//CLEANDBTBL(m_b8704);
+		//CLEANDBTBL(m_b8705);
+	//CLEANDBTBL(m_a9999);
+	//CLEANDBTBL(m_a_waiter_t);
 
 	this->SaveDb();
 	this->LoadDb();

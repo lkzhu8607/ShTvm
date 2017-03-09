@@ -104,6 +104,7 @@ int de_emitticket_t::EmttInit()
 	{
 		Rb8703.m_ConnState = 0;
 		Rb8703.m_BigErr = 1;
+		LOGSTREAM( gp_log[LOGEMTICKET], LOGPOSI <<"Open EMTICKET Comm Fail");
 		this->EmttAdvice();
 		WThrd::tr_sleepu( 5 );
 	}

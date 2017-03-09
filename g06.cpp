@@ -3458,7 +3458,12 @@ bool CanChange( int iChangeLimit /*= 4900*/ ,long *iChangeCoin /*= NULL*/ ,long 
 		
 	iRMB50  = rcoin.m_A5MaoCycleChg /*+ rcoin.m_A5MaoSpecialChg*/ ;
 	iRMB100 = rcoin.m_A1YuanCycleChg /*+ rcoin.m_A1YuanSpecialChg*/ ;
-	gp_bill->dBill_QueryCashUint();
+	//gp_bill->dBill_QueryCashUint();
+
+	UINT32 ReDeno[4]={0,0,0,0};
+	UINT32 ReCount[4]={0,0,0,0};
+	gp_bill->dBill_GetRecycleDenomination(ReDeno,ReCount);
+
 	for(int i=0;i<4;i++)
 	{
 		if( rbill.m_ReDenomination.a[i] == 500 )  iRMB500  = rbill.m_ReNumber.a[i];
@@ -3666,4 +3671,123 @@ int ReturnCoinAndBill( a_waiter_t_rowtype&  waiter_data )
 	
 }
 
+void AddValueTo6002( a_waiter_t_rowtype&  waiter_data )
+{
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI );
 
+	a6002_t::ROWTYPE a6002;
+
+
+	a6002.m_uTradeCode         = (wl::tuint8)0x20;
+	a6002.m_uTicketTypeCode    = (wl::tuint8)0x01;
+	a6002.m_lTicketMark        = 0;
+	a6002.m_lNewTicketMark     = 0;
+	a6002.m_lOperatorNum       = 0;
+	a6002.m_SingleCardSam.a[0] = 0 ,a6002.m_SingleCardSam.a[1] = 0,a6002.m_SingleCardSam.a[2] = 0,a6002.m_SingleCardSam.a[3] = 0;
+	a6002.m_lTradeDateTime     = waiter_data.m_begin_time.DiffSec(wl::SDte("1970-1-1"));
+	a6002.m_lValBeforeTrade    = 0;
+	a6002.m_lTradeVal          = waiter_data.m_TickePrice1;
+	a6002.m_SCNodecode1        = gp_db->m_a3014.GetRow(0).m_SCNodecode1;
+	a6002.m_SCNodecode2        = gp_db->m_a3014.GetRow(0).m_SCNodecode2;
+	a6002.m_SCNodecode3        = gp_db->m_a3014.GetRow(0).m_SCNodecode3;
+	a6002.m_SCNodecode4        = gp_db->m_a3014.GetRow(0).m_SCNodecode4;
+	a6002.m_LastSCNodecode1    = 0;
+	a6002.m_LastSCNodecode2    = 0;
+	a6002.m_LastSCNodecode3    = 0;
+	a6002.m_LastSCNodecode4    = 0;
+	a6002.m_uRemainTakeTimes   = 0;
+	a6002.m_EqpNodecode1       = gp_db->m_a3014.GetRow(0).m_EqpNodecode1;
+	a6002.m_EqpNodecode2       = gp_db->m_a3014.GetRow(0).m_EqpNodecode2;
+	a6002.m_EqpNodecode3       = gp_db->m_a3014.GetRow(0).m_EqpNodecode3;
+	a6002.m_EqpNodecode4       = gp_db->m_a3014.GetRow(0).m_EqpNodecode4;
+	a6002.m_lTicketTradeTerminalFlow   = gp_db->GetTicketTradeTerminalFlow();
+ 	a6002.m_lTicketCounter     = 0;
+	a6002.m_SellEqpNodecode1   = gp_db->m_a3014.GetRow(0).m_EqpNodecode1;
+	a6002.m_SellEqpNodecode2   = gp_db->m_a3014.GetRow(0).m_EqpNodecode2;
+	a6002.m_SellEqpNodecode3   = gp_db->m_a3014.GetRow(0).m_EqpNodecode3;
+	a6002.m_SellEqpNodecode4   = gp_db->m_a3014.GetRow(0).m_EqpNodecode4;
+	a6002.m_lPromotionVal      = 0;
+	a6002.m_uTAC1              = 0;
+	a6002.m_uTAC2              = 0;
+	a6002.m_uTAC3              = 0;
+	a6002.m_uTAC4              = 0;
+
+	gp_db->m_a6002.Add( a6002 );
+}
+
+//return -1-fail 0-ok
+int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
+{
+	CFTPManager FtpClient;
+	char cmd_str[512]={0,};
+
+	int ret=FtpClient.login2Server( update3086.sFtpIp );
+	if(ret == -1)
+	{
+		return -1; 
+	}
+	if(FtpClient.inputUserName( update3086.sUserName )==-1)
+	{
+		return -1;
+	}
+	if(-1==FtpClient.inputPassWord( update3086.sPasswd ))
+	{
+		return -1;
+	}
+		
+	std::string sRemoteFile = update3086.sPicPath + "/" + update3086.sPicFn;
+
+	std::string sLoaclFilePath  =  "/mnt";
+	std::string sLoaclFileName = update3086.sPicFn;
+	std::string sLoaclFile  =  sLoaclFilePath +"/"+ sLoaclFileName;
+	std::string sLoaclTempFile = sLoaclFileName + ".tmp";
+	
+
+	//long remote_filesize=FtpClient.getFileLength( sRemoteFile );
+	ret=FtpClient.Get(sRemoteFile,sLoaclTempFile);
+
+	wl::WFile f1;
+	wl::SCake ck;
+	unsigned char binmd5[16];
+
+	
+	if(ret != 0)
+	{
+			LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|ftp download fail ........" );
+			FtpClient.quitServer();
+			return -1;
+	}
+	
+	f1.bind(sLoaclTempFile);
+	f1.read(ck);
+
+	md5_encode( ck.buf() , ck.len(), binmd5 );
+	for(int i=0;i<8;i++)
+	{
+		if( binmd5[i] != picChk.a[i] )
+		{
+			LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|md5_encode != picChk" );
+			FtpClient.quitServer();
+			return -1;
+		}
+	}
+
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|download file  success......" );
+	
+	snprintf(cmd_str,sizeof(cmd_str)-1,"mv %s %s;",sLoaclTempFile.c_str(),sLoaclFile.c_str());
+	printf("%s\n",cmd_str);
+	system(cmd_str);
+	
+	snprintf(cmd_str,sizeof(cmd_str)-1,"cd %s ;unzip -o %s -d %s;",sLoaclFilePath.c_str(),sLoaclFileName.c_str(),sLoaclFilePath.c_str());
+	printf("%s\n",cmd_str);
+	system(cmd_str);
+
+	
+	FtpClient.quitServer();
+
+	//snprintf(cmd_str,sizeof(cmd_str)-1,"reboot");
+	//printf("%s\n",cmd_str);
+	//system(cmd_str);
+	
+	return 0;
+}

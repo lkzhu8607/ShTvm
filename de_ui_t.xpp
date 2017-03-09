@@ -133,8 +133,8 @@ public:
 		
 		gtk_init( NULL, NULL );
 
-		//m_frmMain = gtk_window_new(GTK_WINDOW_POPUP);   //没有标题栏
-		m_frmMain = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+		m_frmMain = gtk_window_new(GTK_WINDOW_POPUP);   //没有标题栏
+		//m_frmMain = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
 		gtk_window_set_title( GTK_WINDOW(m_frmMain), "TVM_SH" );
 		gtk_window_set_default_size(GTK_WINDOW(m_frmMain), gp_conf->Get_scrall_width(), gp_conf->Get_scrall_height());
@@ -168,7 +168,7 @@ public:
 
 
 		//隐藏鼠标形状 
-		if( 0 && !gp_conf->IsOsWin() )
+		if( 1 && !gp_conf->IsOsWin() )
 		{
 			GdkCursor *cursor;
 			GdkPixmap *source, *mask;

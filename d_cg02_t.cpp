@@ -551,7 +551,7 @@ L_GETINPUT:
 			cg02s_pieceshow.StopCoinAndBill();
  
 			irc = cg02s_waiter.FnD_WaiterJob( gp_frontinput->GetFrontCurrentKey() , &waiter_data ); // 处理找零和出票 内有getinput 
-			if( 0 != irc )
+			if( 1 == irc || 2 == irc )
 			{
 				//交易失败，暂停服务
 
@@ -572,7 +572,7 @@ L_GETINPUT:
 				}
 				SetLanguageCh();
 			}
-			else
+			else if( 3 == irc )
 			{
 				plocalcg02->disableDisplayFlag = 0;
 				plocalcg06->displayFlag = 0;
@@ -601,7 +601,6 @@ L_GETINPUT:
 				}	
 
 				SetLanguageCh();
-				
 			}
 			return;
 		}

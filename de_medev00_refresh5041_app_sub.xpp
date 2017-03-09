@@ -32,13 +32,10 @@ tbool de_medev_t::Refresh5041_app_sub()
 
 
 	//8	连续通信故障	√	√		√		5
-	//R5041.m_e.a[8] = gp_conf->m_biScConnOk ? 0 : 1;
-
-	//7=LV2通信故障(见注1)
 	if( gp_conf->m_biScConnOk )
-		EVT_CHG(7,0);
+		EVT_CHG(8,0);
 	else
-		EVT_CHG(7,1);
+		EVT_CHG(8,1);
 
 
 	//	49	磁盘错	√	√	√	√	√	5
@@ -50,9 +47,6 @@ tbool de_medev_t::Refresh5041_app_sub()
 
 	//开机	 71	开		√	√	√	√	0
 	EVT_CHG(71,1);
-
-
-
 
 
 	//***********************所有总状态：	一个状态可能由多个模块共同决定。所以此处要综合来看。 

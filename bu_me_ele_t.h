@@ -18,6 +18,7 @@ public:
 	std::map< tuint16, std::string >	m_mOff; // 固定长度部分的长度表，用字符串记录，无记录的可自动得到0.  
 	SCake			m_ckWholeMsg;
 	tuint16			m_uiMsgType;
+	wl::tint32   m_lConversationFlow;
 
 public:
 	bu_me_ele_t();
@@ -27,6 +28,9 @@ public:
 	virtual int tr_on_user_run();
 	tbool GetWholeMsg();
 	tbool ExistsVer( unitbl_base_t & tbl , long lVer );
+
+	wl::tbool My_SendMACK( wl::tuint8 ui1Answer );
+
 	tbool do_a_fake();
 	tbool do_a1040();
 	tbool do_a2000();

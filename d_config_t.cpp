@@ -12,7 +12,9 @@ d_config_t  *gp_conf;
 //
 d_config_t::d_config_t()
 {
-	m_strSysVer = "1.01";
+	m_bMajorSysVer = 1;
+	m_bMinorSysVer = 2;
+	m_strSysVer = "1.02";
 	m_strSysVerInternal = "20170106.094101" + std::string(" ") + std::string(__DATE__) + std::string(" ") + std::string(__TIME__) + std::string(" ");
 	//20140327.153829	初版，开发中. 
 
@@ -55,6 +57,9 @@ tbool d_config_t::LoadConfFile()
 
 
 	m_coin_rep_num = (int)SStrf::satol( gp_conf->getnvB("coin_rep_num") ) ;
+
+
+	m_TicketTradeTerminalFlow0 = (long)SStrf::satol( gp_conf->getnvB("TicketTradeTerminalFlow0") ) ;
 
 	return 1;
 }
@@ -399,6 +404,31 @@ std::string d_config_t::Get_sc_addr2()
 	return getnvB("sc_addr2");
 }
 
+wl::tbool d_config_t::IsJT_SC()
+{
+	if( Get_pkg_seri_style() == 0 ) // 0:技通式  1:华腾式 
+		return 1;
 
+	return 0;
+}
+wl::tbool d_config_t::IsHT_SC()
+{
+	if( Get_pkg_seri_style() == 1 ) // 0:技通式  1:华腾式 
+		return 1;
 
+	return 0;
+}
+
+std::string d_config_t::Get_sc_ftp_username()
+{
+
+	return getnvB("sc_ftp_username");
+
+}
+
+std::string d_config_t::Get_sc_ftp_passwd()
+{
+	return getnvB("sc_ftp_passwd");
+
+}
 

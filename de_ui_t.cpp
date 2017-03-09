@@ -204,7 +204,6 @@ void de_ui_t::LabelPrep( const a_label_t::ROWTYPE & row )
 					p->GetColStr<std::string>("pic_height") ;	
 
 	this->PostTask( p, 0, 0 );
-	//m_lbl_sholdshow.Add(row);
 }
 
 
@@ -406,11 +405,9 @@ void de_ui_t::LineScrPrint( int scrnum, const std::string & strLine, tbool IsCon
 							v_lines[scrnum][i],
 							x, y + fontsize * i, fontsize, "brown" ); //也可以用LabelMkStrPrep 
 		this->LabelPrep(row);
-		//if( HaveCommit ) this->showLabel(row);
 	}
 	
 	if( HaveCommit ) this->LabelCommit();
-	//if( HaveCommit ) this->showLabel(row);
 }
 
 
@@ -530,8 +527,6 @@ void de_ui_t::str_task( a_label_t::ROWTYPE & row )
 
 		s3 += " font_family='黑体' foreground='" + row.m_font_color + "'";
 		s3 += " font_desc='黑体 bold " + sSize + "'";
-		//s3 += " font_family='宋体' foreground='" + row.m_font_color + "'";
-		//s3 += " font_desc='宋体 bold " + sSize + "'";
 
 		//s3 += "   foreground='" + row.m_font_color + "'";
 		//s3 += " font_desc=' bold " + sSize + "'";

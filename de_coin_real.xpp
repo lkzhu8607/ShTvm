@@ -151,6 +151,7 @@ int de_coin_t::CoinInit()
 	{
 		R8701.m_ConnState = 0;
 		R8701.m_BigErr = 0;
+		LOGSTREAM( gp_log[LOGCOIN], LOGPOSI <<"Open Coin Comm Fail");
 		this->CoinAdvice();
 		WThrd::tr_sleepu( 5.1 );
 	}

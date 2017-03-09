@@ -25,6 +25,11 @@
 			EVT_CHG(77,0);
 
 		//78 门被用钥匙开锁
+		ui1 = Rb8701.m_SensorStatus.a[1];	//	[out] SensorStatus[1]	Bit1:=1/0  门锁到位（保留）：0，到位；1，未到位
+		if( SStrf::readbit( ui1, 1 ) == 1 )	
+			EVT_CHG(78,1);
+		else
+			EVT_CHG(78,0);
 
 
 		
@@ -60,12 +65,16 @@
 
 		// 138 硬币回收箱将满 
 		// 139 硬币回收箱满 
-		if( SStrf::readbit( Rb8701.m_SensorStatus.a[2], 7 ) == 1 )			//	Bit7:=1/0  硬币回收箱：0，正常；1，满
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[2], 7 ) == 1 ||
+			( Rb8701.m_A5MaoStoreBox + Rb8701.m_A1YuanStoreBox >= 
+			  (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxCapacity/100.0 * gp_db->m_a3002.GetRow(0).m_iCoinBoxWillFullPercent ) ) )			//	Bit7:=1/0  硬币回收箱：0，正常；1，满
 		{
 			EVT_CHG(139,1);
 			EVT_CHG(138,0);
 		}
-		else if( ( Rb8701.m_A1YuanStoreBox + Rb8701.m_A5MaoStoreBox ) >= 1800 )
+		else if( ( Rb8701.m_A1YuanStoreBox + Rb8701.m_A5MaoStoreBox ) >= 1800 ||
+			     ( Rb8701.m_A5MaoStoreBox + Rb8701.m_A1YuanStoreBox >= 
+			       (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxCapacity/100.0 * gp_db->m_a3002.GetRow(0).m_iCoinBoxFullPercent ) ) )
 		{
 			EVT_CHG(139,0);
 			EVT_CHG(138,1);
@@ -80,10 +89,17 @@
 		
 		// 143 硬币找零箱1不在位
 		// 167 硬币补充箱1不在位
+
+		// 171 非法操作硬币找零箱1
 		if( SStrf::readbit( Rb8701.m_SensorStatus.a[0], 7 ) == 1 )     // Data0  Bit7:=1/0  1元补币箱：0，到位；1，未到位
 		{
 			EVT_CHG(143,1);
 			EVT_CHG(167,1);
+
+			if( 1 != m_legal_authority )
+			{
+				EVT_CHG(171,1);
+			}
 		}
 		else
 		{
@@ -104,10 +120,17 @@
 
 		// 146 硬币找零箱2不在位
 		// 168  硬币补充箱2不在位
+
+		// 172 非法操作硬币找零箱2
 		if( SStrf::readbit( Rb8701.m_SensorStatus.a[0], 6 ) == 1 )     // Data0  Bit6:=1/0  5角补币箱（保留）：0，到位；1，未到位
 		{
 			EVT_CHG(146,1);
 			EVT_CHG(168,1);
+			
+			if( 1 != m_legal_authority )
+			{
+				EVT_CHG(172,1);
+			}
 		}
 		else
 		{
@@ -220,10 +243,6 @@
 			EVT_CHG(163,0);
 		}
 
-
-		// 171 非法操作硬币找零箱1
-
-		// 172 非法操作硬币找零箱2
 
 		// 175 硬币接收卡币
 		if( SStrf::readbit( gp_db->m_b8701.GetRow(0).m_CoinPollData.a[2], 4 ) == 1 )

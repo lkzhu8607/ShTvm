@@ -211,6 +211,7 @@ int de_topscr_t::TopscrInit()
 	{
 		Rb8706.m_ConnState = 0;
 		Rb8706.m_BigErr = 1;
+		LOGSTREAM( gp_log[LOGTOPSCR], LOGPOSI <<"Open TOPSCR Comm Fail");
 		this->TopscrAdvice();
 		WThrd::tr_sleepu( 5.5 );
 	}

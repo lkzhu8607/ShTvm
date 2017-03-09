@@ -119,6 +119,7 @@ int de_printer_t::PrinterInit()
 	{
 		Rb8707.m_ConnState = 0;
 		Rb8707.m_BigErr = 1;
+		LOGSTREAM( gp_log[LOGPRINTER], LOGPOSI <<"Open PRINTER Comm Fail");
 		this->PrinterAdvice();
 		WThrd::tr_sleepu( 3.5 );
 	}
@@ -443,7 +444,8 @@ void de_printer_t::PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata )
 {
 
 	long lActualChg = pwaiterdata.m_BilchgActual + pwaiterdata.m_CoinRecycleChgActual /*+ pwaiterdata.m_CoinSpecialChgActual*/;
-	long lNotChg = pwaiterdata.m_TickePriceTotal - pwaiterdata.m_TicketoutActual * pwaiterdata.m_TickePrice1 - lActualChg;
+	long lNotChg = pwaiterdata.m_ReceiveCoin + pwaiterdata.m_ReceiveBill - 
+		           pwaiterdata.m_TicketoutActual * pwaiterdata.m_TickePrice1 - lActualChg;
 
 	char cc[1024] = {0};
 	sprintf(cc,"	上海地铁TVM现金购票故障记录单\n"

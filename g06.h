@@ -20,6 +20,7 @@
 #include "de_topscr_t.h"
 #include "de_printer_t.h"
 #include "de_upsdev_t.h"
+#include "FTPManager.h"  
 
 
 int main2();
@@ -66,6 +67,21 @@ void AddMachineDataTo6000();
 
 
 int ReturnCoinAndBill( a_waiter_t_rowtype&  waiter_data );
+
+
+void AddValueTo6002( a_waiter_t_rowtype&  waiter_data );
+
+
+typedef struct update_3086
+{
+	std::string sFtpIp;
+	std::string sUserName;
+	std::string sPasswd;
+	std::string sPicPath;
+	std::string sPicFn;
+}UPDATE_3086;
+
+int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk );
 
 
 

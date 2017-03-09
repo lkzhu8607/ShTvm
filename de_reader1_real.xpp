@@ -79,6 +79,7 @@ int de_reader1_t::Reader1Init()
 	{
 		Rb8704.m_ConnState = 0;
 		Rb8704.m_BigErr = 1;
+		LOGSTREAM( gp_log[LOGREADER1], LOGPOSI <<"Open READER1 Comm Fail");
 		this->Reader1Advice();
 		WThrd::tr_sleepu( 5.5 );
 	}
@@ -127,6 +128,8 @@ int de_reader1_t::rReset()
 	BYTE SingleCard[4];
 
 	int_ret=rw.Reset(ResetOut,DoubleCard,SingleCard);
+
+	
 	
 	this->m_de_ShouldReset = 0;
 	

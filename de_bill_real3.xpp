@@ -162,6 +162,7 @@ int de_bill_t::billInit()
 		Rb8702.m_RtnVal = re;
 		Rb8702.m_ConnState = 0;
 		Rb8702.m_BigErr = 1;
+		LOGSTREAM( gp_log[LOGBILL], LOGPOSI <<"Open Bill Fail");
 		this->billAdvice();
 		WThrd::tr_sleepu( 5.3 );
 	}

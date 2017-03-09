@@ -34,6 +34,8 @@ de_medev_t::de_medev_t()
 	m_IsYunYingEnd = 0;
 
 	m_IsEmergeModel = 0;
+
+	m_IsRecv3014 = 0;
 }
 
 
@@ -162,8 +164,8 @@ tbool de_medev_t::Refresh5041_dev( std::string strinput )
 {
 	char c = strinput[0];
 
-	if( c == KIN_APP	||  
-		c == KIN_SC 		)
+	if( c == KIN_APP	/*||  
+		c == KIN_SC 	*/	)
 	{
 		return 1;
 	}
@@ -181,7 +183,8 @@ tbool de_medev_t::Refresh5041_dev( std::string strinput )
 		c == KIN_BILLCHG  ||
 		c == KIN_TOPSCR  ||
 		c == KIN_PRINTER  ||
-		c == KIN_UPS  
+		c == KIN_UPS      ||
+		c == KIN_SC
 		)
 	{ 
 		//flow down
@@ -265,6 +268,8 @@ tbool de_medev_t::Refresh5041_dev( std::string strinput )
 	{
 		//纸币硬币都有问题，暂停服务
 		// 清除 事件 136 135
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Coin And Bill Have Truble To Out Of Service");
+
 		EVT_CHG(135,0);
 		EVT_CHG(136,0);
 		//S0_CHG(1,1);
@@ -727,6 +732,9 @@ static tbool ChkEod_2( T & eodtbl )
 //
 tbool de_medev_t::IsEODComplete()
 {
+	if( !ChkEod_2( gp_db->m_a2000 ) )
+		return 0;
+
 	if( !ChkEod_2( gp_db->m_a3002 ) )
 		return 0;
 
@@ -751,14 +759,21 @@ tbool de_medev_t::IsEODComplete()
 	if( !ChkEod_2( gp_db->m_a3084 ) )
 		return 0;
 
+	if( !ChkEod_2( gp_db->m_a3086 ) )
+		return 0;
+
 	if( !ChkEod_2( gp_db->m_a4001 ) )
 		return 0;
+
 	if( !ChkEod_2( gp_db->m_a4002 ) )
 		return 0;
+
 	if( !ChkEod_2( gp_db->m_a4003 ) )
 		return 0;
+
 	if( !ChkEod_2( gp_db->m_a4004 ) )
 		return 0;
+
 	if( !ChkEod_2( gp_db->m_a4006 ) )
 		return 0;
 

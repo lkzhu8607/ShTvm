@@ -7,6 +7,7 @@
 #include "d_paratime_t.h"
 #include "de_medev_t.h"
 #include "FTPManager.h" 
+#include "g06.h"
 
 
 
@@ -107,8 +108,8 @@ bu_me_ele_t:: ~bu_me_ele_t()
 // 
 int bu_me_ele_t::tr_on_user_run()
 {
-	std::map< tuint16, tbool(bu_me_ele_t::*)() >::iterator it;
-	tbool(bu_me_ele_t::*p)();
+	//std::map< tuint16, tbool(bu_me_ele_t::*)() >::iterator it;
+	//tbool(bu_me_ele_t::*p)();
 
 	try
 	{
@@ -117,31 +118,24 @@ int bu_me_ele_t::tr_on_user_run()
 			throw (tuint8)0x01;
 		}
 
-		it = m_mf.find( (tuint16)m_uiMsgType );
-
-		if( it == m_mf.end() ) // 没有处理函数对应。   
+		if( m_mf.find( (wl::tuint16)m_uiMsgType ) == m_mf.end() )          // 没有处理函数对应。   
 		{
-			throw (tuint8)0x02;
+			throw (wl::tuint8)0x02;
 		}
-	
-		//MYAUTOLOCK( gp_db->m_DbMgrLck );
 
-		p = it->second;
-
-		//if( !(this->*m_mf[(tuint16)m_uiMsgType])() )
-		//if( ! (this->*it->second)() )
-		if( !(this->*p)() )
+		if( !(this->*m_mf[(wl::tuint16)m_uiMsgType])() )
 		{
-			throw (tuint8)0x01;
+			throw (wl::tuint8)0x01;
 		}
+
 	}
 	catch( tuint8 c )
 	{
-		de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, c ); 
+		My_SendMACK( c );
 	}
 	catch(...)
 	{
-		de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0xff ); 
+		My_SendMACK( (tuint8)0xff );
 	}
 
 	m_tSvr.DisConn();
@@ -180,7 +174,7 @@ tbool bu_me_ele_t::GetWholeMsg()
 
 			m_uiMsgType = deat.eat_data<tuint16>();        // 消息分类/类型码 
 			uiSenderId = deat.eat_data<tuint32>();       // 发送方标识码
-			lConversationFlow = deat.eat_data<tint32>(); // 会话流水号 
+			m_lConversationFlow = deat.eat_data<tint32>(); // 会话流水号 
 			deat.eat_skip<tuint16>();                      // 包序列号	0 ~ 65535，按包序递增	Word	2
 			isLast = 0x01 & deat.eat_data<tuint8>();       // 标志Bit7~2：[未定义]Bit1：0-请求消息1-应答消息Bit0：0-还有更大的包序列号的包1-这是本消息的最后一包
 
@@ -253,12 +247,19 @@ tbool bu_me_ele_t::ExistsVer( unitbl_base_t & tbl , long lVer )
 
 
 
+wl::tbool bu_me_ele_t::My_SendMACK( wl::tuint8 ui1Answer )
+{
+	wl::tbool ret = de_tcpmsg_t::SendMACK( &m_tSvr, m_uiMsgType, ui1Answer ,m_lConversationFlow); 
+
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "SendMACK ret ="<<ret );
+	return ret;
+}
 //
 tbool bu_me_ele_t::do_a_fake()	 
 {
 	//send ack
 	//
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -400,7 +401,7 @@ tbool bu_me_ele_t::do_a1040()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -465,7 +466,7 @@ tbool bu_me_ele_t::do_a2000()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -498,7 +499,7 @@ tbool bu_me_ele_t::do_a2001()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK_2001( m_tSvr, m_uiMsgType ); 
+	de_tcpmsg_t::SendMACK_2001( m_tSvr, m_uiMsgType,m_lConversationFlow ); 
 
 	return 1;
 }
@@ -590,6 +591,7 @@ tbool bu_me_ele_t::do_a3000()
             else
             {
                 LOGSTREAM( gp_log[LOGSC], LOGPOSI << "update software success ..." );
+				gp_conf->m_biSysShouldReboot = 1;
             }
 		}
 
@@ -613,7 +615,7 @@ tbool bu_me_ele_t::do_a3000()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)rc ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -662,7 +664,7 @@ tbool bu_me_ele_t::do_a3001()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -839,7 +841,7 @@ tbool bu_me_ele_t::do_a3002()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -899,7 +901,7 @@ tbool bu_me_ele_t::do_a3003()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -946,7 +948,7 @@ tbool bu_me_ele_t::do_a3006()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -993,7 +995,7 @@ tbool bu_me_ele_t::do_a3007()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1031,7 +1033,7 @@ tbool bu_me_ele_t::do_a3008()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1078,7 +1080,7 @@ tbool bu_me_ele_t::do_a3009()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1149,7 +1151,7 @@ tbool bu_me_ele_t::do_a3011()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1187,7 +1189,7 @@ tbool bu_me_ele_t::do_a3012()
 		system( strCmd.c_str() );
 	}
 
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1249,8 +1251,19 @@ tbool bu_me_ele_t::do_a3014()
 			rownew.m_EqpNodecode3 != rowold.m_EqpNodecode3 ||
 			rownew.m_EqpNodecode4 != rowold.m_EqpNodecode4	)
 		{
+			if(1)
+			{
+				MYAUTOLOCK( gp_medev->m_DevLck );
+				gp_medev->m_IsRecv3014 = 1;      //设置更新参数标志为1
+			}
 			//设备号不同，所有参数重下  
 			gp_db->CleanParaProtect3014();
+
+			if(1)
+			{
+				MYAUTOLOCK( gp_medev->m_DevLck );
+				gp_medev->m_IsRecv3014 = 0;      //清除更新参数标志为1
+			}
 		}
 
 		gp_db->m_a3014.GetRow(0) = rownew;
@@ -1261,7 +1274,7 @@ tbool bu_me_ele_t::do_a3014()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1299,7 +1312,7 @@ tbool bu_me_ele_t::do_a3082()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1387,7 +1400,7 @@ tbool bu_me_ele_t::do_a3083()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1444,7 +1457,7 @@ tbool bu_me_ele_t::do_a3084()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1482,7 +1495,7 @@ tbool bu_me_ele_t::do_a3085()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1523,8 +1536,26 @@ tbool bu_me_ele_t::do_a3086()
 			
 			//接下来收FTP文件 收到就m_PkgDownloaded=1 
 			//、、
+			UPDATE_3086 update3086;
+			std::vector<std::string> vTemp;
+			std::string ssep = ":";
 
-			gp_db->m_a3086.Add(row);
+			wl::SStrvs::vsa_imp(gp_conf->Get_sc_addr(),ssep,0,vTemp);
+
+			update3086.sFtpIp    = vTemp.at(0);
+			printf("ftpIp=%s",update3086.sFtpIp.c_str());
+			update3086.sUserName = gp_conf->Get_sc_ftp_username();
+			update3086.sPasswd   = gp_conf->Get_sc_ftp_passwd();
+			update3086.sPicPath  = row.m_strPicPath;
+			update3086.sPicFn    = row.m_strPicFn;
+			if( 0 == update_3086_by_ftp( update3086,row.m_PicChk ) )
+			{
+				row.m_PkgDownloaded = 1;
+
+				gp_db->m_a3086.Add(row);
+
+			}
+			
 			break;
 		}
 	}
@@ -1534,7 +1565,7 @@ tbool bu_me_ele_t::do_a3086()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1588,7 +1619,7 @@ tbool bu_me_ele_t::do_a4001()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1694,7 +1725,7 @@ tbool bu_me_ele_t::do_a4002()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1746,7 +1777,7 @@ tbool bu_me_ele_t::do_a4003()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1792,7 +1823,7 @@ tbool bu_me_ele_t::do_a4004()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1852,7 +1883,7 @@ tbool bu_me_ele_t::do_a4006()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1890,7 +1921,7 @@ tbool bu_me_ele_t::do_a4007()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1928,7 +1959,7 @@ tbool bu_me_ele_t::do_a4008()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -1966,7 +1997,7 @@ tbool bu_me_ele_t::do_a4009()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -2004,7 +2035,7 @@ tbool bu_me_ele_t::do_a4015()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -2043,7 +2074,7 @@ tbool bu_me_ele_t::do_a4016()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendMACK( m_tSvr, m_uiMsgType, (tuint8)0x00 ); 
+	My_SendMACK( (tuint8)0x00 );
 
 	return 1;
 }
@@ -2081,7 +2112,7 @@ tbool bu_me_ele_t::do_a5000()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer ); 
+	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer,m_lConversationFlow ); 
 
 	return 1;
 }
@@ -2120,7 +2151,7 @@ tbool bu_me_ele_t::do_a5003()
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer ); 
+	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer,m_lConversationFlow ); 
 
 	return 1;
 }
@@ -2149,13 +2180,25 @@ tbool bu_me_ele_t::do_a5001()
 	vType.push_back(0x2000); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
 	vType.push_back(0x3002); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
 	vType.push_back(0x3003); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3006); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3009); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3011); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3083); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3084); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3086); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4001); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4002); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4003); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4004); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4006); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4007); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
 
 
 	goto L_SEND_ACK;
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer ); 
+	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer,m_lConversationFlow ); 
 
 	return 1;
 }
@@ -2184,13 +2227,25 @@ tbool bu_me_ele_t::do_a5002()
 	vType.push_back(0x2000); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
 	vType.push_back(0x3002); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
 	vType.push_back(0x3003); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3006); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3009); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3011); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3083); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3084); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3086); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4001); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4002); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4003); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4004); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4006); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4007); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
 
 
 	goto L_SEND_ACK;
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendAns5002( m_tSvr, m_uiMsgType, vType, vVer, vGmtTime ); 
+	de_tcpmsg_t::SendAns5002( m_tSvr, m_uiMsgType, vType, vVer, vGmtTime,m_lConversationFlow ); 
 
 	return 1;
 }
@@ -2206,7 +2261,7 @@ tbool bu_me_ele_t::do_a5005()
 	}
 	
 	//send ack
-	de_tcpmsg_t::SendAns5005( m_tSvr, m_uiMsgType ); 
+	de_tcpmsg_t::SendAns5005( m_tSvr, m_uiMsgType,m_lConversationFlow ); 
 
 	return 1;
 }
@@ -2252,7 +2307,7 @@ tbool bu_me_ele_t::do_a6004()
 
 
 	//send ack
-	gp_tcpmsg->SendMACK( m_tSvr, m_uiMsgType, (tuint8)rc ); 
+	My_SendMACK( (tuint8)0x00 );
 	
 
 	return 1;
@@ -2273,7 +2328,7 @@ tbool bu_me_ele_t::do_a6005()
 	//send ack
 	//做设备最新交易流水号
 
-	de_tcpmsg_t::SendAns6005(m_uiMsgType);
+	de_tcpmsg_t::SendAns6005( m_tSvr, m_uiMsgType,m_lConversationFlow );
 
 	return 1;
 }

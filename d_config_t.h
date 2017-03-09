@@ -10,6 +10,9 @@
 class d_config_t
 {
 public:
+
+	tuint8       m_bMajorSysVer;
+	tuint8       m_bMinorSysVer;
 	std::string  m_strSysVer;
 	std::string  m_strSysVerInternal;
 
@@ -32,6 +35,8 @@ public:
 
 	std::string m_Sc2000HostIpAddr;       //零时用变量存储
 	std::string m_Sc2000BackUpIpAddr;
+
+	long   m_TicketTradeTerminalFlow0;    //配置读取初始交易流水号
 
 private:
 	WCrsc  m_ConfLck;
@@ -82,6 +87,12 @@ public:
 	int Get_scr_starty( int scrnum );
 	
 	std::string Get_sc_addr();  // sc
+
+	wl::tbool IsJT_SC(); // 是技通SC
+	wl::tbool IsHT_SC(); // 是华腾SC
+
+	std::string Get_sc_ftp_username();
+	std::string Get_sc_ftp_passwd();
 
 private:
 	std::string Get_sc_addr1();  // sc

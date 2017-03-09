@@ -44,6 +44,12 @@ int de_bill_cashbox_t::tr_on_user_run()
 	b8701_t::ROWTYPE &Rb8701(gp_db->GetTheRowb8701());
 	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
 
+
+	if( 1 == gp_medev->m_IsRecv3014 )
+	{
+		WThrd::tr_sleep(2);
+		return 1;
+	}
 	// 未登陆，但打开纸币模块物理锁 则报警.   其他线程处登陆后会关闭报警
     if(gp_bill->m_safeunlock==1 && gp_medev->m_IsLegalLoginMaintenance==0)
     {

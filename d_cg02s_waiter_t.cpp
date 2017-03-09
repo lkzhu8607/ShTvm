@@ -62,6 +62,7 @@ class BilchgPlan_t;			//
 // 0 : normal
 // 1 : 票少出/票多出
 // 2 : 少找零/多找零
+// 3 : 正常售出票卡 需要切换到cg06
 int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype * pwaiterdata )
 {
 	LOGSTREAM( gp_log[LOGAPP], LOGPOSI );
@@ -317,6 +318,12 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 				AddTransDataTo6000( WR );
 				gp_db->RiseSaveFlag( gp_db->m_a6000 );
 
+				for(int i = 0 ;i < WR.m_TicketoutActual ;i++ )
+				{
+					AddValueTo6002( WR );
+				}
+
+				irc = 3;
 				break;
 			}
 			

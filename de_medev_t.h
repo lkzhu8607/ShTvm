@@ -28,6 +28,8 @@ public:
     
 	int     m_IsEmergeModel;                  //是否是紧急模式 1：是  0：正常   
 
+	int     m_IsRecv3014;                     //是否接收到3014 ，需要控制纸币模块非法取钱箱问题     1 ：是  0：不是 (default)
+
 public:
 	virtual void OnRunTask( std::string t );
 	virtual void tr_on_pre_thrd();

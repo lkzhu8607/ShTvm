@@ -71,7 +71,7 @@ tbool de_tcpmsg_t::ConnSc( WTcpCellc & tcpc )
 
 
 // 
-tbool de_tcpmsg_t::SendMACK( WTcpCell &tc, tuint16 uiMsgType, tuint8 ui1Answer )
+tbool de_tcpmsg_t::SendMACK( WTcpCell * ptcp, tuint16 uiMsgType, tuint8 ui1Answer, wl::tint32 lConversationFlow )
 {
 	SCake ck;
 	SCake ck2;
@@ -79,12 +79,13 @@ tbool de_tcpmsg_t::SendMACK( WTcpCell &tc, tuint16 uiMsgType, tuint8 ui1Answer )
 	tuint16 ui2;
 	tuint32 ui4;
 
-	WTcpCellc  tc2;
-	if( !ConnSc(tc2) ) 
-	{
-		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
-		return 0;
-	}
+	wl::WTcpCell & tc(*ptcp);
+	//WTcpCellc  tc2;
+	//if( !ConnSc(tc2) ) 
+	//{
+	//	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+	//	return 0;
+	//}
 
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
@@ -98,9 +99,19 @@ tbool de_tcpmsg_t::SendMACK( WTcpCell &tc, tuint16 uiMsgType, tuint8 ui1Answer )
 	ck.append( (tchar)gp_db->m_a3014.GetRow(0).m_EqpNodecode4 );
 
 	// 会话流水号  
-	ui4 = gp_db->GetSendConversationFlow();
-	SStrf::chgendian(ui4);
-	ck.append( (tchar*)&ui4, 4 );
+	if( gp_conf->IsJT_SC() )
+	{
+		ui4 = gp_db->GetSendConversationFlow();
+		SStrf::chgendian(ui4);
+		ck.append( (tchar*)&ui4, 4 );
+	}
+
+	if( gp_conf->IsHT_SC() )
+	{
+		ui4 = lConversationFlow;
+		wl::SStrf::chgendian(ui4);
+		ck.append( (wl::tchar*)&ui4, 4 );
+	}
 
 	//包序列号	0 ~ 65535，按包序递增	Word	2 
 	if( gp_conf->Get_pkg_seri_style() == 0 )
@@ -138,23 +149,31 @@ tbool de_tcpmsg_t::SendMACK( WTcpCell &tc, tuint16 uiMsgType, tuint8 ui1Answer )
 	ui2 = (tuint16)ck.len();
 	SStrf::chgendian(ui2);
 
-	//组织全部数据为一个包  
-	ck2.append( (tchar*)&ui2, 2 );
-	ck2.append( ck );
+	////组织全部数据为一个包  
+	//ck2.append( (tchar*)&ui2, 2 );
+	//ck2.append( ck );
 
 	///
 	//gp_log[LOGSC].LogPrintf( 999 + ck2.len() * 3 , "%s|通信原始数据data=%s", LOGPOSI, ck2.Seri_S().c_str() );
-	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck2.Seri_S() );
+	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck2.Seri_S() );
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck.Seri_S() );
 
-	if( !tc2.send_bin( ck2 ) )
+	if( !tc.send_bin( ui2 ) )
 		return 0;
+
+	if( !tc.send_bin( ck ) )
+		return 0;
+
+
+	//if( !tc.send_bin( ck2 ) )
+	//	return 0;
 
 	return 1;
 }
 
 
 // 
-tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
+tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType, wl::tint32 lConversationFlow )
 {
 	SCake ck;
 	SCake ck2;
@@ -162,12 +181,12 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
 	tuint16 ui2;
 	tuint32 ui4;
 
-	WTcpCellc  tc2;
-	if( !ConnSc(tc2) ) 
-	{
-		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
-		return 0;
-	}
+	//WTcpCellc  tc2;
+	//if( !ConnSc(tc2) ) 
+	//{
+	//	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+	//	return 0;
+	//}
 
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
@@ -181,9 +200,19 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
 	ck.append( (tchar)gp_db->m_a3014.GetRow(0).m_EqpNodecode4 );
 
 	// 会话流水号  
-	ui4 = gp_db->GetSendConversationFlow() ;
-	SStrf::chgendian(ui4);
-	ck.append( (tchar*)&ui4, 4 );
+	if( gp_conf->IsJT_SC() )
+	{
+		ui4 = gp_db->GetSendConversationFlow();
+		SStrf::chgendian(ui4);
+		ck.append( (tchar*)&ui4, 4 );
+	}
+
+	if( gp_conf->IsHT_SC() )
+	{
+		ui4 = lConversationFlow;
+		wl::SStrf::chgendian(ui4);
+		ck.append( (wl::tchar*)&ui4, 4 );
+	}
 
 	//包序列号	0 ~ 65535，按包序递增	Word	2 
 	if( gp_conf->Get_pkg_seri_style() == 0 )
@@ -230,7 +259,7 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
 	//gp_log[LOGSC].LogPrintf( 999 + ck2.len() * 3 , "%s|通信原始数据data=%s", LOGPOSI, ck2.Seri_S().c_str() );
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck2.Seri_S() );
 
-	if( !tc2.send_bin( ck2 ) )
+	if( !tc.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -238,7 +267,7 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType )
 
 
 //
-tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer )
+tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer, wl::tint32 lConversationFlow )
 {
 	
 	SCake ck;
@@ -247,12 +276,12 @@ tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	tuint16 ui2;
 	tuint32 ui4;
 
-	WTcpCellc  tc2;
-	if( !ConnSc(tc2) ) 
-	{
-		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
-		return 0;
-	}
+	//WTcpCellc  tc2;
+	//if( !ConnSc(tc2) ) 
+	//{
+	//	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+	//	return 0;
+	//}
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
 	SStrf::chgendian(ui2);
@@ -265,9 +294,19 @@ tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	ck.append( (tchar)gp_db->m_a3014.GetRow(0).m_EqpNodecode4 );
 
 	// 会话流水号  
-	ui4 = gp_db->GetSendConversationFlow() ;
-	SStrf::chgendian(ui4);
-	ck.append( (tchar*)&ui4, 4 );
+	if( gp_conf->IsJT_SC() )
+	{
+		ui4 = gp_db->GetSendConversationFlow();
+		SStrf::chgendian(ui4);
+		ck.append( (tchar*)&ui4, 4 );
+	}
+
+	if( gp_conf->IsHT_SC() )
+	{
+		ui4 = lConversationFlow;
+		wl::SStrf::chgendian(ui4);
+		ck.append( (wl::tchar*)&ui4, 4 );
+	}
 
 	//包序列号	0 ~ 65535，按包序递增	Word	2 
 	if( gp_conf->Get_pkg_seri_style() == 0 )
@@ -323,7 +362,7 @@ tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	//
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data=" << ck2.Seri_S() );
 
-	if( !tc2.send_bin( ck2 ) )
+	if( !tc.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -331,7 +370,7 @@ tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 
 
 //
-tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer, std::vector<long> vGmtTime )
+tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer, std::vector<long> vGmtTime, wl::tint32 lConversationFlow )
 {
 	SCake ck;
 	SCake ck2;
@@ -339,12 +378,12 @@ tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	tuint16 ui2;
 	tuint32 ui4;
 
-	WTcpCellc  tc2;
-	if( !ConnSc(tc2) ) 
-	{
-		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
-		return 0;
-	}
+	//WTcpCellc  tc2;
+	//if( !ConnSc(tc2) ) 
+	//{
+	//	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+	//	return 0;
+	//}
 
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
@@ -358,10 +397,19 @@ tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	ck.append( (tchar)gp_db->m_a3014.GetRow(0).m_EqpNodecode4 );
 
 	// 会话流水号  
-	ui4 = gp_db->GetSendConversationFlow() ;
-	SStrf::chgendian(ui4);
-	ck.append( (tchar*)&ui4, 4 );
+	if( gp_conf->IsJT_SC() )
+	{
+		ui4 = gp_db->GetSendConversationFlow();
+		SStrf::chgendian(ui4);
+		ck.append( (tchar*)&ui4, 4 );
+	}
 
+	if( gp_conf->IsHT_SC() )
+	{
+		ui4 = lConversationFlow;
+		wl::SStrf::chgendian(ui4);
+		ck.append( (wl::tchar*)&ui4, 4 );
+	}
 	//包序列号	0 ~ 65535，按包序递增	Word	2 
 	if( gp_conf->Get_pkg_seri_style() == 0 )
 		ui2 = 0;
@@ -421,7 +469,7 @@ tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	//
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data=" << ck2.Seri_S() );
 
-	if( !tc2.send_bin( ck2 ) )
+	if( !tc.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -429,7 +477,7 @@ tbool de_tcpmsg_t::SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 
 
 // 
-tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
+tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType, wl::tint32 lConversationFlow )
 {
 	SCake ck;
 	SCake ck2;
@@ -437,12 +485,12 @@ tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
 	tuint16 ui2;
 	tuint32 ui4;
 
-	WTcpCellc  tc2;
-	if( !ConnSc(tc2) ) 
-	{
-		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
-		return 0;
-	}
+	//WTcpCellc  tc2;
+	//if( !ConnSc(tc2) ) 
+	//{
+	//	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+	//	return 0;
+	//}
 
 	//消息分类/类型码 
 	ui2 = (tuint16)uiMsgType;
@@ -456,9 +504,19 @@ tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
 	ck.append( (tchar)gp_db->m_a3014.GetRow(0).m_EqpNodecode4 );
 
 	// 会话流水号  
-	ui4 = gp_db->GetSendConversationFlow() ;
-	SStrf::chgendian(ui4);
-	ck.append( (tchar*)&ui4, 4 );
+	if( gp_conf->IsJT_SC() )
+	{
+		ui4 = gp_db->GetSendConversationFlow();
+		SStrf::chgendian(ui4);
+		ck.append( (tchar*)&ui4, 4 );
+	}
+
+	if( gp_conf->IsHT_SC() )
+	{
+		ui4 = lConversationFlow;
+		wl::SStrf::chgendian(ui4);
+		ck.append( (wl::tchar*)&ui4, 4 );
+	}
 
 	//包序列号	0 ~ 65535，按包序递增	Word	2 
 	if( gp_conf->Get_pkg_seri_style() == 0 )
@@ -485,10 +543,35 @@ tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
 	//send 应答
 	ck.append( (wl::tchar)0 ); 	//应答码 
 
-	for( int i1 = 0; i1 <= 9; i1++ )
+	// 主程序版本
+	//厂商代码 
+	ui4 = 3;
+	SStrf::chgendian(ui4) ;
+	ck.append( (tchar*)&ui4, 4 );
+	// 主版本号 
+	ui1 = (tuint8)gp_conf->m_bMajorSysVer;
+	ck.append( (tchar)ui1 );
+	// 副版本号 
+	ui1 = (tuint8)gp_conf->m_bMinorSysVer;
+	ck.append( (tchar)ui1 );
+
+
+	// 读写器版本
+	//厂商代码 
+	ui4 = 3;
+	SStrf::chgendian(ui4) ;
+	ck.append( (tchar*)&ui4, 4 );
+	// 主版本号 
+	ui1 = (tuint8)gp_db->m_b8704.GetRow(0).m_Major;
+	ck.append( (tchar)ui1 );
+	// 副版本号 
+	ui1 = (tuint8)gp_db->m_b8704.GetRow(0).m_Minor ;
+	ck.append( (tchar)ui1 );
+
+	for( int i1 = 2; i1 <= 9; i1++ )
 	{
 		//厂商代码 
-		ui4 = 0;
+		ui4 = 3;
 		SStrf::chgendian(ui4) ;
 		ck.append( (tchar*)&ui4, 4 );
 		// 主版本号 
@@ -518,7 +601,7 @@ tbool de_tcpmsg_t::SendAns5005( WTcpCell &tc, tuint16 uiMsgType )
 	//gp_log[LOGSC].LogPrintf( 999 + ck2.len() * 3 , "%s|通信原始数据data=%s", LOGPOSI, ck2.Seri_S().c_str() );
 	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|通信原始数据data= " << ck2.Seri_S() );
 
-	if( !tc2.send_bin( ck2 ) )
+	if( !tc.send_bin( ck2 ) )
 		return 0;
 
 	return 1;
@@ -533,6 +616,12 @@ wl::tbool de_tcpmsg_t::RecvMACK( wl::WTcpCell * ptcp )
 	wl::tuint16 ui2;
 
 	//接收 MACK，如果接失败则return 0;
+
+	//if( gp_conf->IsJT_SC() )  
+	//{
+	//}
+	//if( gp_conf->IsHT_SC() )  
+		//tc.killer_up( 9 );
 
 	tc.recv_len( ck, 2 );
 
@@ -570,6 +659,11 @@ wl::tbool de_tcpmsg_t::RecvMACK_2( wl::WTcpCell * ptcp )
 	wl::tuint16 ui2;
 
 	//接收 MACK，如果接失败则return 0;
+	//if( gp_conf->IsJT_SC() )  
+	//{
+	//}
+	//if( gp_conf->IsHT_SC() )  
+	//	tc.killer_up( 9 );
 
 	tc.recv_len( ck, 2 );
 
@@ -590,8 +684,21 @@ wl::tbool de_tcpmsg_t::RecvMACK_2( wl::WTcpCell * ptcp )
 		if( ck.len() != ui2 )
 			return 0;
 
-		if( *wl::SStrf::splast(ck.buf(), ck.len(), 8+16) != 0 )
-			return 0;
+		if( gp_conf->IsJT_SC() )
+		{
+			if( *wl::SStrf::splast(ck.buf(), ck.len(), 8+16) != 0 )
+				return 0;
+		}
+
+		if( gp_conf->IsHT_SC() )
+		{
+			if( *wl::SStrf::splast(ck.buf(), ck.len(), 8+16) == 0 || *wl::SStrf::splast(ck.buf(), ck.len(), 8+16) == 8 ) // 华腾重复记录返回8 ，至少说明已在库。 
+			{}
+			else
+			{
+				return 0;
+			}
+		}
 
 		return 1;
 	}
@@ -605,8 +712,21 @@ wl::tbool de_tcpmsg_t::RecvMACK_2( wl::WTcpCell * ptcp )
 		if( ck.len() != ui2 )
 			return 0;
 
-		if( *wl::SStrf::splast(ck.buf(), ck.len(), 16) != 0 )
-			return 0;
+		if( gp_conf->IsJT_SC() )
+		{
+			if( *wl::SStrf::splast(ck.buf(), ck.len(), 8+16) != 0 )
+				return 0;
+		}
+
+		if( gp_conf->IsHT_SC() )
+		{
+			if( *wl::SStrf::splast(ck.buf(), ck.len(), 8+16) == 0 || *wl::SStrf::splast(ck.buf(), ck.len(), 8+16) == 8 ) // 华腾重复记录返回8 ，至少说明已在库。 
+			{}
+			else
+			{
+				return 0;
+			}
+		}
 
 		return 1;
 	} 
@@ -957,33 +1077,40 @@ tbool de_tcpmsg_t::SendReg6000( wl::tuint8 uiAuditType )
 	ui2 = (tuint16)ck.len();
 	SStrf::chgendian(ui2);
 
-	//组织全部数据为一个包  
-	ck2.append( (tchar*)&ui2, 2 );
-	ck2.append( ck );
+	////组织全部数据为一个包  
+	//ck2.append( (tchar*)&ui2, 2 );
+	//ck2.append( ck );
 
 	///
-	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck2.Seri_S() );
+	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck2.Seri_S() );
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck.Seri_S() );
 
-	if( !tc.send_bin( ck2 ) )
+	if( !tc.send_bin( ui2 ) )
 		return 0;
+
+	if( !tc.send_bin( ck ) )
+		return 0;
+
+	//if( !tc.send_bin( ck2 ) )
+	//	return 0;
 
 	return RecvMACK(&tc);
 }
 
-wl::tbool de_tcpmsg_t::SendAns6005( wl::tuint16 uiMsgType )
+wl::tbool de_tcpmsg_t::SendAns6005( WTcpCell &tc, wl::tuint16 uiMsgType, wl::tint32 lConversationFlow )
 {
-	WTcpCellc  tc;
+	//WTcpCellc  tc;
 	wl::SCake ck;
 	SCake ck2;
 	wl::tuint8  ui1;
 	wl::tuint16 ui2;
 	wl::tuint32 ui4;
 
-	if( !ConnSc(tc) ) 
-	{
-		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
-		return 0;
-	}
+	//if( !ConnSc(tc) ) 
+	//{
+	//	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+	//	return 0;
+	//}
 
 
 	//消息分类/类型码 
@@ -998,9 +1125,19 @@ wl::tbool de_tcpmsg_t::SendAns6005( wl::tuint16 uiMsgType )
 	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode4 );
 
 	// 会话流水号  
-	ui4 = gp_db->GetSendConversationFlow() ;
-	SStrf::chgendian(ui4);
-	ck.append( (tchar*)&ui4, 4 );
+	if( gp_conf->IsJT_SC() )
+	{
+		ui4 = gp_db->GetSendConversationFlow();
+		SStrf::chgendian(ui4);
+		ck.append( (tchar*)&ui4, 4 );
+	}
+
+	if( gp_conf->IsHT_SC() )
+	{
+		ui4 = lConversationFlow;
+		wl::SStrf::chgendian(ui4);
+		ck.append( (wl::tchar*)&ui4, 4 );
+	}
 
 	//包序列号	0 ~ 65535，按包序递增	Word	2 
 	if( gp_conf->Get_pkg_seri_style() == 0 )
@@ -1031,9 +1168,9 @@ wl::tbool de_tcpmsg_t::SendAns6005( wl::tuint16 uiMsgType )
 
 
 		// 一票通交易流水号	当前已分配的最后一笔一票通交易记录的终端流水号	Long	4
-		if( gp_db->m_a6002.GetRowCount() > 0 )
+		if( gp_db->m_a9999.GetRowCount() > 0 )
 		{
-			ui4 = gp_db->m_a6002.GetRow(gp_db->m_a6002.GetRowCount()-1).m_lTicketTradeTerminalFlow;
+			ui4 = gp_db->m_a9999.GetRow(0).m_TicketTradeTerminalFlow;
 		}
 		else
 		{
