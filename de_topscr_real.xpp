@@ -179,13 +179,50 @@ int de_topscr_t::tr_on_user_run()
 		}
 
 		if( ck.len() )
-			mySerialPort.send_bin( ck );
+		{
+			static int iNoResponseCount = 0;
+			if( !mySerialPort.send_bin( ck ) )
+			{
+				//发送错误
+				Rb8706.m_BigErr = 1;
+				gp_frontinput->input_KIN_TOPSCR();
+			}
 
-		//	4.下位机应答	
-		mySerialPort.recv_len( ck , 1 );	//	接收初始化工作的返回值	
-		if( ck.len() == 0 ) Rb8706.m_Counter1 ++;
-		mySerialPort.recv_len( ck , 1 );	//	接收数据工作的返回值	
-		if( ck.len() == 0 ) Rb8706.m_Counter1 ++;
+			//	4.下位机应答	
+			mySerialPort.recv_len( ck , 1 );	//	接收初始化工作的返回值	
+			if( ck.len() == 0 ) 
+			{
+				iNoResponseCount++;
+				Rb8706.m_Counter1 ++;
+			}
+			else
+			{
+				iNoResponseCount = 0;
+			}
+			mySerialPort.recv_len( ck , 1 );	//	接收数据工作的返回值	
+			if( ck.len() == 0 ) 
+			{
+				iNoResponseCount++;
+				Rb8706.m_Counter1 ++;
+			}
+			else
+			{
+				iNoResponseCount = 0;
+			}
+
+			if(2 <= iNoResponseCount)
+			{
+				Rb8706.m_BigErr = 1;
+				gp_frontinput->input_KIN_TOPSCR();
+			}
+			else
+			{
+				Rb8706.m_BigErr = 0;
+				gp_frontinput->input_KIN_TOPSCR();
+			}
+		}
+
+		
 	}
 
 	WThrd::tr_sleepu( 3.91 );

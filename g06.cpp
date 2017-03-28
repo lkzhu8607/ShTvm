@@ -3466,10 +3466,10 @@ bool CanChange( int iChangeLimit /*= 4900*/ ,long *iChangeCoin /*= NULL*/ ,long 
 
 	for(int i=0;i<4;i++)
 	{
-		if( rbill.m_ReDenomination.a[i] == 500 )  iRMB500  = rbill.m_ReNumber.a[i];
-		if( rbill.m_ReDenomination.a[i] == 1000 ) iRMB1000 = rbill.m_ReNumber.a[i];
-		if( rbill.m_ReDenomination.a[i] == 2000 ) iRMB2000 = rbill.m_ReNumber.a[i];
-		if( rbill.m_ReDenomination.a[i] == 5000 ) iRMB5000 = rbill.m_ReNumber.a[i];
+		if( rbill.m_ReDenomination.a[i] == 500 )  iRMB500  += rbill.m_ReNumber.a[i];
+		if( rbill.m_ReDenomination.a[i] == 1000 ) iRMB1000 += rbill.m_ReNumber.a[i];
+		if( rbill.m_ReDenomination.a[i] == 2000 ) iRMB2000 += rbill.m_ReNumber.a[i];
+		if( rbill.m_ReDenomination.a[i] == 5000 ) iRMB5000 += rbill.m_ReNumber.a[i];
 	}
 
 	// 判断每个档位的面额
@@ -3559,7 +3559,7 @@ void AddTransDataTo6000( a_waiter_t_rowtype & pwaiterdata )
 			{
 					z = row4003.m_FareRate.a[row4004.m_lZone] / 100 ;
 
-					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "cacl 6000=m_lZone = :" << row4004.m_lZone<<" z="<<z <<" m_TickePrice1="<< pwaiterdata.m_TickePrice1 );
+					//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "cacl 6000=m_lZone = :" << row4004.m_lZone<<" z="<<z <<" m_TickePrice1="<< pwaiterdata.m_TickePrice1 );
 
 					if( pwaiterdata.m_TickePrice1 != z )
 					{
@@ -3574,6 +3574,13 @@ void AddTransDataTo6000( a_waiter_t_rowtype & pwaiterdata )
 					gp_db->m_a6000.GetRow(0).m_Reg.a[ 43 ] += pwaiterdata.m_ReceiveBill / 100;
 					gp_db->m_a6000.GetRow(0).m_Reg.a[ 44 ] += pwaiterdata.m_CoinRecycleChgActual /*+ pwaiterdata.m_CoinSpecialChgActual*/;
 					gp_db->m_a6000.GetRow(0).m_Reg.a[ 45 ] += pwaiterdata.m_BilchgActual;
+
+					long lActualChg = pwaiterdata.m_BilchgActual + pwaiterdata.m_CoinRecycleChgActual;
+					long lNotChg = ( pwaiterdata.m_ReceiveCoin/100 + pwaiterdata.m_ReceiveBill/100 ) - 
+								   ( pwaiterdata.m_TicketoutActual * pwaiterdata.m_TickePrice1 )
+								   - lActualChg/100;
+
+					gp_db->m_a6000.GetRow(0).m_Reg.a[ 53 ] += lNotChg;   //超付金额
 					break;
 
 			}
@@ -3628,7 +3635,7 @@ void AddMachineDataTo6000()
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 50 ] = gp_db->m_b8701.GetRow(0).m_A5MaoCycleChg / 2;
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 51 ] = lBillVaultAmount;
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 52 ] = lBillChgBoxAmount;
-	gp_db->m_a6000.GetRow(0).m_Reg.a[ 53 ] = 0;
+	
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 54 ] = 0;
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 55 ] = 0;
 }
@@ -3675,44 +3682,64 @@ void AddValueTo6002( a_waiter_t_rowtype&  waiter_data )
 {
 	LOGSTREAM( gp_log[LOGAPP], LOGPOSI );
 
+	b8704_t_rowtype &R8704( gp_db->m_b8704.GetRow(0) );
 	a6002_t::ROWTYPE a6002;
 
 
 	a6002.m_uTradeCode         = (wl::tuint8)0x20;
-	a6002.m_uTicketTypeCode    = (wl::tuint8)0x01;
+	a6002.m_uTicketTypeCode    = (wl::tuint8)R8704.m_ReadOut.a[6];
 	a6002.m_lTicketMark        = 0;
 	a6002.m_lNewTicketMark     = 0;
 	a6002.m_lOperatorNum       = 0;
-	a6002.m_SingleCardSam.a[0] = 0 ,a6002.m_SingleCardSam.a[1] = 0,a6002.m_SingleCardSam.a[2] = 0,a6002.m_SingleCardSam.a[3] = 0;
-	a6002.m_lTradeDateTime     = waiter_data.m_begin_time.DiffSec(wl::SDte("1970-1-1"));
-	a6002.m_lValBeforeTrade    = 0;
+
+	a6002.m_SingleCardSam.a[0] = R8704.m_SingleCardSam.a[0];
+	a6002.m_SingleCardSam.a[1] = R8704.m_SingleCardSam.a[1];
+	a6002.m_SingleCardSam.a[2] = R8704.m_SingleCardSam.a[2];
+	a6002.m_SingleCardSam.a[3] = R8704.m_SingleCardSam.a[3];
+
+	wl::SDte dtNow = wl::SDte::GetNow();
+	a6002.m_lTradeDateTime     = dtNow.DiffSec(wl::SDte("1970-1-1"));
+
+
+	a6002.m_lValBeforeTrade    = wl::SStrf::satol( wl::SStrf::sltoa( R8704.m_ReadOut.a[7] ) + wl::SStrf::sltoa( R8704.m_ReadOut.a[8] ) );
 	a6002.m_lTradeVal          = waiter_data.m_TickePrice1;
+
 	a6002.m_SCNodecode1        = gp_db->m_a3014.GetRow(0).m_SCNodecode1;
 	a6002.m_SCNodecode2        = gp_db->m_a3014.GetRow(0).m_SCNodecode2;
 	a6002.m_SCNodecode3        = gp_db->m_a3014.GetRow(0).m_SCNodecode3;
 	a6002.m_SCNodecode4        = gp_db->m_a3014.GetRow(0).m_SCNodecode4;
+
 	a6002.m_LastSCNodecode1    = 0;
 	a6002.m_LastSCNodecode2    = 0;
 	a6002.m_LastSCNodecode3    = 0;
 	a6002.m_LastSCNodecode4    = 0;
+
 	a6002.m_uRemainTakeTimes   = 0;
+
 	a6002.m_EqpNodecode1       = gp_db->m_a3014.GetRow(0).m_EqpNodecode1;
 	a6002.m_EqpNodecode2       = gp_db->m_a3014.GetRow(0).m_EqpNodecode2;
 	a6002.m_EqpNodecode3       = gp_db->m_a3014.GetRow(0).m_EqpNodecode3;
 	a6002.m_EqpNodecode4       = gp_db->m_a3014.GetRow(0).m_EqpNodecode4;
+
 	a6002.m_lTicketTradeTerminalFlow   = gp_db->GetTicketTradeTerminalFlow();
- 	a6002.m_lTicketCounter     = 0;
+
+	a6002.m_lTicketCounter     = gp_db->m_b8703.GetRow(0).m_GoodTotal;
+
 	a6002.m_SellEqpNodecode1   = gp_db->m_a3014.GetRow(0).m_EqpNodecode1;
 	a6002.m_SellEqpNodecode2   = gp_db->m_a3014.GetRow(0).m_EqpNodecode2;
 	a6002.m_SellEqpNodecode3   = gp_db->m_a3014.GetRow(0).m_EqpNodecode3;
 	a6002.m_SellEqpNodecode4   = gp_db->m_a3014.GetRow(0).m_EqpNodecode4;
+
 	a6002.m_lPromotionVal      = 0;
-	a6002.m_uTAC1              = 0;
-	a6002.m_uTAC2              = 0;
-	a6002.m_uTAC3              = 0;
-	a6002.m_uTAC4              = 0;
+
+	a6002.m_uTAC1              = R8704.m_SaleOut.a[4];
+	a6002.m_uTAC2              = R8704.m_SaleOut.a[5];
+	a6002.m_uTAC3              = R8704.m_SaleOut.a[6];
+	a6002.m_uTAC4              = R8704.m_SaleOut.a[7];
 
 	gp_db->m_a6002.Add( a6002 );
+	
+
 }
 
 //return -1-fail 0-ok
@@ -3724,14 +3751,17 @@ int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
 	int ret=FtpClient.login2Server( update3086.sFtpIp );
 	if(ret == -1)
 	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|login2Server error" );
 		return -1; 
 	}
 	if(FtpClient.inputUserName( update3086.sUserName )==-1)
 	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|inputUserName error" );
 		return -1;
 	}
 	if(-1==FtpClient.inputPassWord( update3086.sPasswd ))
 	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|inputPassWord error" );
 		return -1;
 	}
 		
@@ -3762,8 +3792,10 @@ int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
 	f1.read(ck);
 
 	md5_encode( ck.buf() , ck.len(), binmd5 );
+
 	for(int i=0;i<8;i++)
 	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|md5_encode= "<<wl::SStrf::GetBcdStr( binmd5[i] )<<"!= picChk="<<wl::SStrf::GetBcdStr( picChk.a[i] ) );
 		if( binmd5[i] != picChk.a[i] )
 		{
 			LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|md5_encode != picChk" );
@@ -3782,6 +3814,25 @@ int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
 	printf("%s\n",cmd_str);
 	system(cmd_str);
 
+	//std::string sDestFilePath = WFile::MkDir2Path( gp_conf->Get_datapath3() );
+	//std::string ssep = ".";
+	//std::vector<std::string > vTemp;
+
+	//wl::SStrvs::vsa_imp(update3086.sPicFn,ssep,0,vTemp);
+
+	//std::string strtemp;
+	//std::string sSrcFilePath  = "/mnt/" + vTemp.at(0);
+	//snprintf(cmd_str,sizeof(cmd_str)-1,"cp -rf %s %s;",sSrcFilePath.c_str(),sDestFilePath.c_str());
+	//printf("%s\n",cmd_str);
+	//strtemp = cmd_str;
+	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|cp=" << strtemp );
+	//system(cmd_str);
+
+	//snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf %s.*;",sSrcFilePath.c_str());
+	//printf("%s\n",cmd_str);
+	//strtemp = cmd_str;
+	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|rm=" << strtemp );
+	//system(cmd_str);
 	
 	FtpClient.quitServer();
 

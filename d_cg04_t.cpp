@@ -49,7 +49,14 @@ void d_cg04_t::Proc()
 	}*/
 	while(1)
 	{
-		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
+		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) 
+		//{
+		//	if(1)
+		//		{
+		//			MYAUTOLOCK( gp_medev->m_DevLck );
+		//			gp_medev->m_IsChangeToStopSerice = 1;
+		//		}
+		//}
 		
 L_CHANGESTATUS:
 
@@ -70,7 +77,6 @@ L_CHANGESTATUS:
 					plocalcg04->graphElementsCN[i].m_iShouldShow = 0;
 					continue;
 				}
-
 			}
 		}
 		else
@@ -87,8 +93,20 @@ L_CHANGESTATUS:
 					continue;
 				}				
 			}
+			//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "plocalcg01->ErrCodeIndex = " << plocalcg01->ErrCodeIndex );
+			for(int i=0;i<plocalcg01->graphElementsCN.size();i++){
+					if(plocalcg01->graphElementsCN[i].m_name == "page1ErrCode"){
+		     			gp_ui->updateLabel(plocalcg01->graphElementsCN[i],gp_medev->GetEvtStr());
+					    gp_ui->str_task(plocalcg01->graphElementsCN[i]);
+						plocalcg01->ErrCodeIndex = i;
+						gp_ui->showLabel(plocalcg01->graphElementsCN[i]);
+						plocalcg01->graphElementsCN[i].m_iShouldShow = 1;
+						break;
+					}			
+			}
 		}
-
+		gp_ui->str_task(gp_conf->VersionDisplayLabel);
+		gp_ui->showLabel(gp_conf->VersionDisplayLabel);
 		lastmachinestatus = gp_medev->m_devstatus;
 		//d_cg01s_evtcodes_t  cg01s_evtcodes;
 
@@ -99,12 +117,26 @@ L_GETINPUT:
 
 		do{
 			gp_frontinput->GetFrontNextKey();
-			if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) return;
+			if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) 
+			{
+				if(1)
+				{
+					MYAUTOLOCK( gp_medev->m_DevLck );
+					gp_medev->m_IsChangeToStopSerice = 1;
+				}
+				break;
+			}
+					
 		}while( gp_frontinput->GetFrontCurrentKey() == "" );
 
 
 		if( 2 == cg01s_jud5041.Find_n_do_stopservice( gp_frontinput->GetFrontCurrentKey() ) )
 		{
+			//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "plocalcg01->ErrCodeIndex = " << plocalcg01->ErrCodeIndex );
+			gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex]);
+			plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex].m_iShouldShow = 0;	
+			gp_ui->showLabel(gp_conf->VersionDisplayLabel);
+			
 			plocalcg01->displayFlag = 0;
 			plocalcg01->langFlag = 0;	
 			plocalcg01->errorFlag = 0;
@@ -127,12 +159,18 @@ L_GETINPUT:
 					}
 				}
 			}
+		
 			//plocalcg01->errorFlag = 0;
 			return;
 		}
 
 		if( cg01s_jud5041.Find_n_do_gotowork(gp_frontinput->GetFrontCurrentKey()) )
 		{
+			//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "plocalcg01->ErrCodeIndex = " << plocalcg01->ErrCodeIndex );
+			gp_ui->hideLabel(plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex]);
+			plocalcg01->graphElementsCN[plocalcg01->ErrCodeIndex].m_iShouldShow = 0;
+			gp_ui->showLabel(gp_conf->VersionDisplayLabel);
+			
 			plocalcg01->displayFlag = 0;
 			plocalcg01->langFlag = 0;
 			plocalcg01->errorFlag = 0;

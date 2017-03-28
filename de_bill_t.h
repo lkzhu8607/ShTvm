@@ -24,6 +24,9 @@ public:
 	int m_safeunlock;            //0:锁上     1:解锁
     int m_iIsRepBillOk;          //1:ok   0:fail
 	int m_resetok;   //安装上箱子之后，自动复位完成1, 未完成自动复位0；
+	int m_iscleaning; //是否正在清币 0:否  1:是
+	int m_isadding;   //是否正在补币 0:否  1:是
+	int m_issetcashunit; //正在设定钱箱数据 0:否  1:是
 public:
 	virtual void OnRunTask( std::string t );
 	virtual int tr_on_user_run();

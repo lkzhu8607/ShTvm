@@ -6,26 +6,6 @@ tbool de_tcpmsg_t::SendTrade6002_1()
 	static int ShouldNum = 22;
 	static long LastUpTime = 0;
 	static tbool ZhengDirection = 0;
-		
-	if(1)
-	{
-		MYAUTOLOCK( gp_db->m_a3002.m_ut_tbl_lck );
-		a3002_t::RPSTYPE rps1, rps2;
-
-		gp_db->m_a3002.SelEc_biDelFlag( 0, rps1 ); // not del
-		//
-		gp_db->m_a3002.SelEc_biIsAffect( 1, rps2 ); // affect
-		gp_db->m_a3002.RpsAnd( rps1, rps2 );
-
-		if( gp_db->m_a3002.GetRowCount( rps1 ) != 0 ) 
-		{
-			ShouldSec = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeTimesecTrigger;
-			ShouldNum = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeItemNumTrigger;
-		}
-		if( ShouldSec > 300 ) ShouldSec = 300;
-		if( ShouldNum >= 22 ) ShouldNum = 22;
-	}
-
 	WTcpCellc  tc;
 	SCake ck;
 	SCake ck2;
@@ -35,10 +15,31 @@ tbool de_tcpmsg_t::SendTrade6002_1()
 	unitbl_t<a6002_t>	a6002tbl_1;
 	long iIdx1;
 	long iPrepareMAX = 22;
+		
+	//if(1)
+	//{
+	//	MYAUTOLOCK( gp_db->m_a3002.m_ut_tbl_lck );
+	//	a3002_t::RPSTYPE rps1, rps2;
 
-	if( (long)time(0) - LastUpTime < ShouldSec && gp_conf->m_iSend6002ShouldNum < ShouldNum ) return 0;
+	//	gp_db->m_a3002.SelEc_biDelFlag( 0, rps1 ); // not del
+	//	//
+	//	gp_db->m_a3002.SelEc_biIsAffect( 1, rps2 ); // affect
+	//	gp_db->m_a3002.RpsAnd( rps1, rps2 );
 
-	LastUpTime = (long)time(0);
+	//	if( gp_db->m_a3002.GetRowCount( rps1 ) != 0 ) 
+	//	{
+	//		ShouldSec = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeTimesecTrigger;
+	//		ShouldNum = gp_db->m_a3002.GetRow( rps1, 0 ).m_lTradeItemNumTrigger;
+	//	}
+	//	if( ShouldSec > 300 ) ShouldSec = 300;
+	//	if( ShouldNum >= 22 ) ShouldNum = 22;
+	//}
+
+	
+
+	//if( (long)time(0) - LastUpTime < ShouldSec && gp_conf->m_iSend6002ShouldNum < ShouldNum ) return 0;
+
+	//LastUpTime = (long)time(0);
 
 
 	if( !ConnSc(tc) ) 

@@ -229,7 +229,7 @@ void bu_asynwork_t::DoSetThisIp_m()
 	{
 		std::string s1 ;
 		
-		s1 = "/sbin/ifconfig eth0 " + gp_conf->getnvB("this_ip") +" netmask 255.255.255.0";
+		s1 = "/sbin/ifconfig em1 " + gp_conf->getnvB("this_ip") +" netmask 255.255.255.0";
 		WFile::run_exe( s1 );
 
 		s1 = "route add default gw " + gp_conf->getnvB("this_gateway");

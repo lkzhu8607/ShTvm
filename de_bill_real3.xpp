@@ -369,7 +369,8 @@ int de_bill_t::dBill_State()
 		m_safeunlock=0;
 	}
 	//锁到位 但是offline需要复位
-	if(g_BNRStatus.cCBSafedoor==0 && g_BNRStatus.dwErrorCode==6179)
+	if(g_BNRStatus.cCBSafedoor==0 && g_BNRStatus.dwErrorCode==6179
+	 && m_iscleaning==0 && m_isadding==0 && m_issetcashunit==0)
 	{
 		ret = bnr_demo.CBNR_ResetInit(true);	
 		m_resetok=1;
@@ -674,6 +675,7 @@ int de_bill_t::dBill_Change(int method,UINT32* CBone,UINT32* CBtwo,UINT32* CBthr
 //清币(循环箱和补币箱清空到回收箱)RE:0-3  LO: 4 数组下标
 int de_bill_t::dBill_Clean( int boxclear[5],unsigned int LOClear_Num[8],unsigned int REClear_Num[8],unsigned int CB_TotalNum[8] )
 {
+	m_iscleaning = 1;
 	using namespace BillBNR;
 	int ret = bnr_demo.CBNR_EmptytoRecycle(boxclear);
 	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
@@ -709,6 +711,7 @@ int de_bill_t::dBill_Clean( int boxclear[5],unsigned int LOClear_Num[8],unsigned
 				
 		};
 	}
+	m_iscleaning=0;
 	return 0;	
 }
 
@@ -717,7 +720,7 @@ int de_bill_t::dBill_Add(unsigned int LOAdd_Num[8] )
 {
 	using namespace BillBNR;
 	b8702_t::ROWTYPE &R8702(gp_db->GetTheRowb8702());
-
+	m_isadding=1;
 	int ret = bnr_demo.CBNR_LoadBanknotes();
 	int i=0;
 	for (i=0;i<8;i++)
@@ -726,7 +729,7 @@ int de_bill_t::dBill_Add(unsigned int LOAdd_Num[8] )
 	}
 
 	R8702.m_BillAddCountForYunYing += LOAdd_Num[3]*10;    //只补充10元
-
+	m_isadding = 0;
 	return 0;
 }
 
@@ -735,8 +738,49 @@ int de_bill_t::dBill_Work()
 {
 	//if( gp_medev->IsOnlyCoin() ) return 0;
 
+	int ret;
+	int bnrenable[7] = {1,1,1,1,1,1,1};
+
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 0 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 1 ) ) )
+	{
+		bnrenable[0] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 2 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 3 ) ) )
+	{
+		bnrenable[1] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 4 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 5 ) ) )
+	{
+		bnrenable[2] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 6 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 7 ) ) )
+	{
+		bnrenable[3] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 0 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 1 ) ) )
+	{
+		bnrenable[4] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 2 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 3 ) ) )
+	{
+		bnrenable[5] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 4 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 5 ) ) )
+	{
+		bnrenable[6] = 0;
+	}
+	
+	ret = gp_bill->dBill_Active( bnrenable ); 
+
 	using namespace BillBNR;
-	int ret = bnr_demo.CBNR_Enable();
+	ret = bnr_demo.CBNR_Enable();
 	return ret;
 }
  //关闭投币口
@@ -925,9 +969,11 @@ int de_bill_t::dBill_SetReCBPositionNum(int full[5],int high[5],int low[5],int e
 //设置循环箱(RE3 RE4 RE5 RE6 LO1即 0-4，的接收最大纸币面额元和数量)yuan_amount[i]=0 是lock该设备。yuan_maxcount[4]无效
 int de_bill_t::dBill_SetCashUnit(int yuan_amount[5] ,int yuan_maxcount[5] )
 {
+	m_issetcashunit = 1;
 	using namespace BillBNR;
 	int iResult =0;
 	iResult = bnr_demo.CBNR_SetCashUnit(yuan_amount,yuan_maxcount);
+	m_issetcashunit = 0;
 	return iResult;
 }
 
@@ -1011,8 +1057,13 @@ int de_bill_t::RepBillStock()
 	
 
 	// 10 Yuan 
+	int iRMB1000 = 0;
+	for(int i=0;i<4;i++)
+	{
+		if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 1000 ) iRMB1000 += gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
+	}
 	if( ( 4 != gp_medev->m_devstatus ) &&
-		( gp_db->m_b8702.GetRow(0).m_ReNumber.a[1] < i10YuanStockNeedRepNum ) &&
+		( iRMB1000 < i10YuanStockNeedRepNum ) &&
 		( 0 != gp_bill->m_iIsRepBillOk ) )
 	{
 		if( gp_bill->dBill_Add( LOAdd_Num ) != 0 )

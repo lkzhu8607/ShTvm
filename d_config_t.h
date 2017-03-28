@@ -4,6 +4,8 @@
 
 
 #include "2.h"
+#include "a_label_t.h"
+#include "de_ui_t.h"
 
 
 //
@@ -36,7 +38,11 @@ public:
 	std::string m_Sc2000HostIpAddr;       //零时用变量存储
 	std::string m_Sc2000BackUpIpAddr;
 
+	int m_iBillCycleChg1;
+	int m_iBillCycleChg2;
+
 	long   m_TicketTradeTerminalFlow0;    //配置读取初始交易流水号
+	a_label_t::ROWTYPE	VersionDisplayLabel;
 
 private:
 	WCrsc  m_ConfLck;
@@ -93,10 +99,12 @@ public:
 
 	std::string Get_sc_ftp_username();
 	std::string Get_sc_ftp_passwd();
+	void VersionDisplay();
 
 private:
 	std::string Get_sc_addr1();  // sc
 	std::string Get_sc_addr2();  // sc
+	
 
 };
 

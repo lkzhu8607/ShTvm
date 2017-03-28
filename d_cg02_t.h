@@ -20,8 +20,8 @@ public:
 	int payedIndex;
 	int shouldChangeIndex;
 	int MachineStateIndex;
-	//int coinIndex;
 	int notesIndex;
+	int coinsIndex;
 	int disableDisplayFlag;
 	int disGobackFlag;
 	int gobackFlag;//0,go back cg01;1,go back cg03

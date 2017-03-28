@@ -67,7 +67,8 @@ tbool de_medev_t::Refresh5041_app_sub()
 		if( Ra9999.m_tvm_big_err_flag ||  
 			Ra9999.m_stopservice_sc_flag || 
 			gp_conf->m_biSOPMode ||  
-			gp_medev->m_IsYunYingEnd == 1 )
+			gp_medev->m_IsYunYingEnd == 1 ||
+			gp_medev->m_IsChangeToStopSerice == 1 )
 		{
 			S0_CHG(1,1);
 			
@@ -80,7 +81,8 @@ tbool de_medev_t::Refresh5041_app_sub()
 
 		if( Ra9999.m_tvm_big_err_flag ||  
 			Ra9999.m_stopservice_sc_flag || 
-			gp_conf->m_biSOPMode )
+			gp_conf->m_biSOPMode ||
+			gp_medev->m_IsChangeToStopSerice == 1 )
 		{
 			EVT_CHG(55,1);
 		}

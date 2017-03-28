@@ -199,7 +199,7 @@ void d_cg02s_pieceshow_t::Show1PieceButt( int i )
 //
 void d_cg02s_pieceshow_t::ShowPieceButtBoard()
 {
-	for( int i = 1 ; i <= 9; i ++ )
+	for( int i = 1 ; i < (int)gp_db->m_a3003.GetRow(0).m_BuyTicketNumLimit + 1; i ++ )
 	{
 		Show1PieceButt( i );
 	}	
@@ -468,7 +468,11 @@ void d_cg02s_pieceshow_t::ActiveCoinBill()
 	if( !gp_medev->IsOnlyBill() )
 	{
 		gp_coin->dCoinHold();
-		irc = gp_coin->dCoin_Work( 1, 1 );
+		//参数走参数
+
+		tbool enable_mao5 =  (SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 1 ) == 1)?1:0;  //5角
+		tbool enable_yuan1 = (SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 2 ) == 1)?1:0;  // 1元
+		irc = gp_coin->dCoin_Work( enable_mao5, enable_yuan1 );
 		if( irc != 0 )
 		{
 			gp_db->m_b8701.GetRow(0).m_BigErr = 1;

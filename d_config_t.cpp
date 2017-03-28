@@ -4,6 +4,8 @@
 #include "d_config_t.h"
 
 
+
+
 //
 d_config_t  *gp_conf;
 
@@ -12,9 +14,10 @@ d_config_t  *gp_conf;
 //
 d_config_t::d_config_t()
 {
-	m_bMajorSysVer = 1;
-	m_bMinorSysVer = 2;
-	m_strSysVer = "1.02";
+	//gp_conf = this;
+	m_bMajorSysVer = 2;
+	m_bMinorSysVer = 1;
+	m_strSysVer = "2.01";
 	m_strSysVerInternal = "20170106.094101" + std::string(" ") + std::string(__DATE__) + std::string(" ") + std::string(__TIME__) + std::string(" ");
 	//20140327.153829	初版，开发中. 
 
@@ -35,6 +38,10 @@ d_config_t::d_config_t()
 
 	m_Sc2000HostIpAddr = "";
 	m_Sc2000BackUpIpAddr = "";
+
+	m_iBillCycleChg1 = 5;    //default
+	m_iBillCycleChg2 = 10;   //default
+
 }
 
 
@@ -183,7 +190,7 @@ std::string d_config_t::Get_ticket_com_port()
 {
 	if( this->IsOsWin() )
 		//return "com=44;start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=0.5;";
-		return "com=3;start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.99;";
+		return "com=4;start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.99;";
 
 	return getnvB("ticket_com_port");
 }
@@ -194,7 +201,7 @@ std::string d_config_t::Get_reader1_com_port()
 {
 	if( this->IsOsWin() )
 		//return "com=4;start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=0.5;";
-		return "com=5;start=1;stop=1;speed=57600;parity=N;datalen=8;timeoutsec=1.62;";
+		return "com=10;start=1;stop=1;speed=28800;parity=N;datalen=8;timeoutsec=1.62;";
 
 	return getnvB("reader1_com_port");
 }
@@ -214,7 +221,7 @@ std::string d_config_t::Get_bilchg_com_port()
 {
 	if( this->IsOsWin() )
 		//return "com=6;start=1;stop=1;speed=9600;parity=E;datalen=8;timeoutsec=0.51;";
-		return "com=4;start=1;stop=1;speed=9600 ;parity=E;datalen=8;timeoutsec=1.62;";
+		return "com=6;start=1;stop=1;speed=9600 ;parity=E;datalen=8;timeoutsec=1.62;";
 
 	return getnvB("bilchg_com_port");
 }
@@ -386,6 +393,7 @@ std::string d_config_t::Get_sc_addr()
 	return Get_sc_addr1();
 }
 
+
 std::string d_config_t::Get_sc_addr1()
 {
 	if( m_Sc2000HostIpAddr != "" )
@@ -429,6 +437,14 @@ std::string d_config_t::Get_sc_ftp_username()
 std::string d_config_t::Get_sc_ftp_passwd()
 {
 	return getnvB("sc_ftp_passwd");
+
+}
+
+void d_config_t::VersionDisplay(){
+	//a_label_t::ROWTYPE	row;
+	gp_ui->LabelMkStr( this->VersionDisplayLabel, 0, "shtvmVersion", this->m_strSysVer, gp_ui->X2dR( 0, 0 ), gp_ui->Y2dR( 0, 0 ), 0.01, "red" );
+	this->VersionDisplayLabel.m_hot = 0;
+	gp_ui->str_task(this->VersionDisplayLabel);
 
 }
 

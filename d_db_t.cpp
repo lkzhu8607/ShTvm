@@ -580,6 +580,14 @@ void d_db_t::LoadDb()
 			                            wl::SStrf::sltoa(R2000.m_BackUpScIpAddr.a[2]) + "." + wl::SStrf::sltoa(R2000.m_BackUpScIpAddr.a[3]) + ":"+
 									    wl::SStrf::sltoa(R2000.m_Rule1ScPort);
 	}
+	
+	//加载出纸币循环箱中的设置
+	if( gp_db->m_a3002.GetRowCount() > 0 )
+	{
+		a3002_t::ROWTYPE &R3002( gp_db->m_a3002.GetRow(0) );
+		gp_conf->m_iBillCycleChg1 = R3002.m_iBillCycleChg1;
+		gp_conf->m_iBillCycleChg2 = R3002.m_iBillCycleChg2;
+	}
 }
 	
 
@@ -932,10 +940,68 @@ std::string d_db_t::GetThatStaName( u8arr_t<4> ScNode )
 	return "";
 }
 
+std::string d_db_t::GetVaildCoinsType(){
+	std::string strVal = "";
+	if(GetLanguageState() == 0){
+		if(SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 0 ) ==1)
+			strVal += "1角 ";
+		if(SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 1 ) ==1)
+			strVal += "5角 ";
+		if(SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 2 ) ==1)
+			strVal += "1元";	
+	}
+	else{
+		if(SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 0 ) ==1)
+			strVal += "￥0.1 ";
+		if(SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 1 ) ==1)
+			strVal += "￥0.5 ";
+		if(SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 2 ) ==1)
+			strVal += "￥1 ";			
+	}
+	return strVal;
+}
+
 std::string d_db_t::GetVaildNotesType(int iShouldPayAmount){
-	//b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	std::string strVal = "";
 	b8702_t::ROWTYPE & Rb8702(gp_db->GetTheRowb8702());
-	std::string strVal;
+	int bnrenable[7] = {1,1,1,1,1,1,1};
+	/*if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 0 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 1 ) ) )
+	{
+		bnrenable[0] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 2 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 3 ) ) )
+	{
+		bnrenable[1] = 0;
+	}*/
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 4 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 5 ) ) )
+	{
+		bnrenable[2] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 6 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[0], 7 ) ) )
+	{
+		bnrenable[3] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 0 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 1 ) ) )
+	{
+		bnrenable[4] = 0;
+	}
+	if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 2 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 3 ) ) )
+	{
+		bnrenable[5] = 0;
+	}
+	/*if( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 4 ) && 
+		  0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitBillType.a[1], 5 ) ) )
+	{
+		bnrenable[6] = 0;
+	}*/
+	
+	//std::string strVal;
 	if( Rb8702.m_ConnState == 1 && 
 		Rb8702.m_BigErr == 0 && 
 		Rb8702.m_BillStopUseFlag == 0  &&
@@ -944,60 +1010,104 @@ std::string d_db_t::GetVaildNotesType(int iShouldPayAmount){
 		//a_label_t::ROWTYPE  row;
 		if(GetLanguageState() == 0)
 		{
-			strVal = "5元 10元 20元 50元";
+			//strVal = "5元 10元 20元 50元";
 			//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 			if( gp_bill->m_iIsNotBillChange == 1 )
 			{
 				if( 5000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5元 10元 20元 50元";
+					//strVal = "5元 10元 20元 50元";
+					if(bnrenable[2] == 1)
+						strVal += "5元 ";
+					if(bnrenable[3] == 1)
+						strVal += "10元 ";
+					if(bnrenable[4] == 1)
+						strVal += "20元 ";
+					if(bnrenable[5] == 1)
+						strVal += "50元 ";
+
 				}
 				else if( 2000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5元 10元 20元";
+					//strVal = "5元 10元 20元";
+					if(bnrenable[2] == 1)
+						strVal += "5元 ";
+					if(bnrenable[3] == 1)
+						strVal += "10元 ";
+					if(bnrenable[4] == 1)
+						strVal += "20元 ";					
 				}
 				else if( 1000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5元 10元";
+					//strVal = "5元 10元";
+					if(bnrenable[2] == 1)
+						strVal += "5元 ";
+					if(bnrenable[3] == 1)
+						strVal += "10元 ";					
 				}
 				else if( 500 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "5元";
+					//strVal = "5元";
+					if(bnrenable[2] == 1)
+						strVal += "5元 ";					
 				}
-				//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
-			}			
-		
+			}
+			else
+			{
+				strVal = "5元 10元 20元 50元";
+			}				
 		}
 		else
 		{
-			strVal = "￥5 ￥10 ￥20 ￥50";
+			//strVal = "￥5 ￥10 ￥20 ￥50";
 			//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
 			if( gp_bill->m_iIsNotBillChange == 1 )
 			{
 				if( 5000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "￥5 ￥10 ￥20 ￥50";
+					//strVal = "￥5 ￥10 ￥20 ￥50";
+					if(bnrenable[2] == 1)
+						strVal += "￥5 ";
+					if(bnrenable[3] == 1)
+						strVal += "￥10 ";
+					if(bnrenable[4] == 1)
+						strVal += "￥20 ";
+					if(bnrenable[5] == 1)
+						strVal += "￥50 ";					
 				}
 				else if( 2000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "￥5 ￥10 ￥20";
+					//strVal = "￥5 ￥10 ￥20";
+					if(bnrenable[2] == 1)
+						strVal += "￥5 ";
+					if(bnrenable[3] == 1)
+						strVal += "￥10 ";
+					if(bnrenable[4] == 1)
+						strVal += "￥20 ";					
 				}
 				else if( 1000 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "￥5 ￥10";
+					//strVal = "￥5 ￥10";
+					if(bnrenable[2] == 1)
+						strVal += "￥5 ";
+					if(bnrenable[3] == 1)
+						strVal += "￥10 ";					
 				}
 				else if( 500 - iShouldPayAmount - gp_db->m_a3003.GetRow(0).m_CoinChgMaxNum*100 <= 0 )
 				{
-					strVal = "￥5";
+					//strVal = "￥5";
+					if(bnrenable[2] == 1)
+						strVal += "￥5 ";					
 				}
-				//gp_ui->LabelMkStr( row, 0, GETLABELNAME, strVal, gp_ui->X2dR( 0, 377 ), gp_ui->Y2dR( 0, 710 ), 0.05, "black" );
+			}
+			else
+			{
+				strVal = "￥5 ￥10 ￥20 ￥50";
 			}				
 		}
-	}
+	}	
 	return strVal;
 }
-
-
 
 //
 tbool d_db_t::GetPossiblePrices( std::vector< int > & pricesout , u8arr_t<4> aCode /*= u8arr_t<4>()*/ )

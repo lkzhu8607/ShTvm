@@ -56,6 +56,7 @@ d_cg01_t::~d_cg01_t()
 }
 void d_cg01_t::cg01_graphElementsHide(int langFlag)
 {
+	gp_ui->hideLabel(gp_conf->VersionDisplayLabel);
 	if(langFlag == 0){
 		for(int i=0;i< (plocalcg01->graphElementsCN.size());i++){
 			if(plocalcg01->graphElementsCN[i].m_iShouldShow == 1){
@@ -424,7 +425,7 @@ void d_cg01_t::Proc()
 				//gp_frontman_mgr.graphLastPageElements.push_back(plocalcg01->graphElementsCN[i]);
 			}			
 		}
-
+		
 		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
 		//d_cg01s_backpic_t			cg01s_backpic;
 		//d_cg01s_lang_t			cg01s_lang;
@@ -444,7 +445,10 @@ void d_cg01_t::Proc()
 //L_RESHOW_seleline:
 		//d_cg01s_seleline_t   cg01s_seleline;
 		//cg01s_seleline.Showseleline();
-
+		gp_ui->str_task(gp_conf->VersionDisplayLabel);
+		gp_ui->showLabel(gp_conf->VersionDisplayLabel);
+		//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "plocalcg01->MachineStateIndex = " << plocalcg01->MachineStateIndex );
+		//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "plocalcg01->ErrCodeIndex = " << plocalcg01->ErrCodeIndex );
 L_GETINPUT:
 		//d_cg01s_machinestate_t  cg01s_machinestate;
 		//cg01s_machinestate.Showmachinestate();	
@@ -456,7 +460,15 @@ L_GETINPUT:
 		do
 		{
 			m_strInput = gp_frontinput->GetFrontNextKey();
-			if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) return;
+			if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) 
+			{
+				if(1)
+				{
+					MYAUTOLOCK( gp_medev->m_DevLck );
+					gp_medev->m_IsChangeToStopSerice = 1;
+				}
+				break;
+			}
 		}while( m_strInput == "" );
 		//refresh timedisplay
 		for(int i=0;i<(gp_timeshower->graphElements.size());i++){
@@ -542,12 +554,22 @@ L_GETINPUT:
 				}
 				plocalcg01->errorFlag = 1;
 			}
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "plocalcg01->errorDetailIndex = " << plocalcg01->errorDetailIndex );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "plocalcg01->errorPicIndex = " << plocalcg01->errorPicIndex );			
 L_GETINPUT2:
 
 			do
 			{
 				gp_frontinput->GetFrontNextKey();
-				if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) return;
+				if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) 
+				{
+					if(1)
+					{
+						MYAUTOLOCK( gp_medev->m_DevLck );
+						gp_medev->m_IsChangeToStopSerice = 1;
+					}
+					break;
+				}
 			}while( gp_frontinput->GetFrontCurrentKey() == "" );
 
 			if( 1 == cg01s_jud5041.Find_n_do_stopservice( gp_frontinput->GetFrontCurrentKey() ) )

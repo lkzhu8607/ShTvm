@@ -29,7 +29,9 @@ public:
 	int     m_IsEmergeModel;                  //是否是紧急模式 1：是  0：正常   
 
 	int     m_IsRecv3014;                     //是否接收到3014 ，需要控制纸币模块非法取钱箱问题     1 ：是  0：不是 (default)
-
+	
+	int     m_IsSCNeedSysShutdownOrReboot;      //sc 相关  shutdown and reboot 0 -不需要  1-需要
+	int     m_IsChangeToStopSerice;             //是否需要切换到停止服务  0-不需要  1-需要 
 public:
 	virtual void OnRunTask( std::string t );
 	virtual void tr_on_pre_thrd();

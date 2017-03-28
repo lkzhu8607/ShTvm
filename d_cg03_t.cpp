@@ -312,7 +312,7 @@ void d_cg03_t::Proc()
 		}
 
 
-		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
+		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
 
 		//d_cg03s_backpic_t  cg03s_backpic;
 		//cg03s_backpic.ShowBack1();

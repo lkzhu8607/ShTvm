@@ -58,6 +58,7 @@ public:
 	void PrintStrAsync( std::string str );	// “Ï≤Ω	
 
 	void PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata );
+	void PrintRepCoinChg();
 };
 
 

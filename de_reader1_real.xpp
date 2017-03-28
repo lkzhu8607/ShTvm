@@ -336,6 +336,10 @@ int de_reader1_t::rSaleCard( BYTE SaleIn[14] )
 	}
 
 	memcpy( Rb8704.m_SaleOut.a, SaleOut, 8 );
+
+	std::string strtemp ;
+	memcpy( &strtemp[0], Rb8704.m_SaleOut.a, 8 );
+	LOGSTREAM( gp_log[LOGREADER1], LOGPOSI << "m_SaleOut ="<< strtemp );
 	
 	return int_ret;
 }

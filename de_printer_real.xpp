@@ -444,8 +444,9 @@ void de_printer_t::PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata )
 {
 
 	long lActualChg = pwaiterdata.m_BilchgActual + pwaiterdata.m_CoinRecycleChgActual /*+ pwaiterdata.m_CoinSpecialChgActual*/;
-	long lNotChg = pwaiterdata.m_ReceiveCoin + pwaiterdata.m_ReceiveBill - 
-		           pwaiterdata.m_TicketoutActual * pwaiterdata.m_TickePrice1 - lActualChg;
+	long lNotChg = ( pwaiterdata.m_ReceiveCoin/100 + pwaiterdata.m_ReceiveBill/100 ) - 
+		           ( pwaiterdata.m_TicketoutActual * pwaiterdata.m_TickePrice1 )
+				   - lActualChg/100;
 
 	char cc[1024] = {0};
 	sprintf(cc,"	上海地铁TVM现金购票故障记录单\n"
@@ -477,7 +478,7 @@ void de_printer_t::PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata )
 				pwaiterdata.m_TicketoutActual ,
 				lActualChg / 100,
 				pwaiterdata.m_TicketoutPlan - pwaiterdata.m_TicketoutActual  ,
-				lNotChg / 100 );
+				lNotChg );
 
 	std::string strtemp(cc);
 
@@ -487,5 +488,42 @@ void de_printer_t::PrintAbnormalTrans( a_waiter_t_rowtype & pwaiterdata )
 
 }
 
+void de_printer_t::PrintRepCoinChg()
+{
+	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
+	a1040_t::ROWTYPE & Ra1040(gp_db->m_a1040.GetRow(0));
+
+	int ret=0;
+	int i=0;
+	int add_yuan=0;
+	char add_str[1024]={0,};
+	char tmp_str[128]={0,};
+	unsigned char t_line = 0x0F;		
+	t_line &= (Ra1040.m_CcNode.a[0] >> 4);	
+	int lineNum = (t_line * 10);	
+	t_line = Ra1040.m_CcNode.a[0] & 0x0F;	
+	lineNum += t_line;
+
+	char buffer[1024]={0};
+	sprintf(buffer, "   上海地铁TVM硬币加币记录单\n"
+                    "车站           %s\n"
+					"线路           轨道交通%d号线\n"
+					"设备号         V001\n\n"
+					"操作员ID       0\n"
+					"操作时间       %s\n\n"
+					"1元加币        %d枚\n"
+					"5角加币        %d枚\n"
+					"加币总额       %.2f元\n",
+					gp_db->GetMyStaName().c_str(),
+					lineNum,
+					SDte::GetNow().ReadString().c_str(),
+					Rb8701.m_A1YuanSpecialChg,
+					Rb8701.m_A5MaoSpecialChg,					
+					(Rb8701.m_A1YuanSpecialChg + ((float)Rb8701.m_A5MaoSpecialChg)/2)		
+				);
+
+	gp_printer->PrintStrAsync( buffer );
+	return;
+}
 
 

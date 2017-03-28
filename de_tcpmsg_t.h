@@ -27,7 +27,7 @@ public:
 
 	static tbool SendMACK( WTcpCell * ptcp, tuint16 uiMsgType, tuint8 ui1Answer, wl::tint32 lConversationFlow );
 	static tbool SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType, wl::tint32 lConversationFlow);
-	static tbool SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer, wl::tint32 lConversationFlow );
+	static tbool SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVerLocal, wl::tint32 lConversationFlow ,std::vector<long> *pvVerFromSC = NULL );
 	static tbool SendAns5002( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer, std::vector<long> vGmtTime, wl::tint32 lConversationFlow );
 	static tbool SendAns5005( WTcpCell &tc, tuint16 uiMsgType, wl::tint32 lConversationFlow );
 

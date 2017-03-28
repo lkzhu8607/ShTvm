@@ -848,6 +848,7 @@ int update_software_by_ftp()
 	std::string RemoteProgramName=ServerFilePath +"/"+ UpdatePackageName;
 	std::string LocalProgramName =ClientFilePath +"/"+ UpdatePackageName;
 	std::string LocaltmpProgramName =LocalProgramName + ".tmp";
+	std::string subname =UpdatePackageName.substr(0,UpdatePackageName.find('.',0));
 	
 	CFTPManager FtpClient;
 	int ret=FtpClient.login2Server(FTPServerIP);
@@ -876,11 +877,11 @@ int update_software_by_ftp()
 		printf("%s\n",cmd_str);
 		system(cmd_str);
 		
-		snprintf(cmd_str,sizeof(cmd_str)-1,"cd %s ;tar -xzvf %s;",ClientFilePath.c_str(),LocalProgramName.c_str());
+		snprintf(cmd_str,sizeof(cmd_str)-1,"cd %s ;unzip -o %s -d %s;",ClientFilePath.c_str(),LocalProgramName.c_str(),ClientFilePath.c_str());
 		printf("%s\n",cmd_str);
 		system(cmd_str);
 
-		snprintf(cmd_str,sizeof(cmd_str)-1,"cd %s/shtvm-update ;chmod +x update_package.sh; sh update_package.sh",ClientFilePath.c_str());
+		snprintf(cmd_str,sizeof(cmd_str)-1,"cd %s/%s ;chmod +x update_package.sh; sh update_package.sh",ClientFilePath.c_str(),subname.c_str());
 		printf("%s\n",cmd_str);
 		system(cmd_str);
 
@@ -892,9 +893,9 @@ int update_software_by_ftp()
 	}
 	FtpClient.quitServer();
 
-	snprintf(cmd_str,sizeof(cmd_str)-1,"reboot");
-	printf("%s\n",cmd_str);
-	system(cmd_str);
+	//snprintf(cmd_str,sizeof(cmd_str)-1,"reboot");
+	//printf("%s\n",cmd_str);
+	//system(cmd_str);
 	
 	return 0;
 }

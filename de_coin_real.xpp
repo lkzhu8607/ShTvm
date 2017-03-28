@@ -1,5 +1,6 @@
 
 #include "CoinCommand.h"
+#include "de_printer_t.h"
 
 
 #define LOGOBJECT	 (gp_log[LOGCOIN])	 
@@ -1133,6 +1134,8 @@ int de_coin_t::CleanCoinStock()
 
 int de_coin_t::RepCoinStock()
 {
+	int flag1yuan = 0;
+	int flag5jiao = 0;
 	int irc = 1;   
 	//检查是否需要补充硬币   //补充条件-> 1. 初始化界面 2.是否需要补币 3.补币箱中是否有币
 
@@ -1153,11 +1156,12 @@ int de_coin_t::RepCoinStock()
 		}
 		else
 		{
+			flag1yuan = 1;
 			if( gp_db->m_b8701.GetRow(0).m_A1YuanSpecialChg < gp_conf->m_coin_rep_num  )
 			{
 				if( 1 )
 				{
-					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A1YuanSpecialChg < m_coin_rep_num");
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A1YuanSpecialChg ="<<gp_db->m_b8701.GetRow(0).m_A1YuanSpecialChg );
 					MYAUTOLOCK( gp_coin->m_DevLck );
 					gp_coin->m_iIsRepCoinOk[0] = 0;
 					irc = 0;
@@ -1192,13 +1196,14 @@ int de_coin_t::RepCoinStock()
 		}
 		else
 		{
+			flag5jiao = 0;
 			if( gp_db->m_b8701.GetRow(0).m_A5MaoSpecialChg < gp_conf->m_coin_rep_num  )
 			{
 				if( 1 )
 				{
-					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A5MaoSpecialChg < m_coin_rep_num");
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A5MaoSpecialChg ="<<gp_db->m_b8701.GetRow(0).m_A5MaoSpecialChg );
 					MYAUTOLOCK( gp_coin->m_DevLck );
-					gp_coin->m_iIsRepCoinOk[0] = 0;
+					gp_coin->m_iIsRepCoinOk[1] = 0;
 					irc = 0;
 				}
 			}
@@ -1207,14 +1212,19 @@ int de_coin_t::RepCoinStock()
 				if( 1 )
 				{
 					MYAUTOLOCK( gp_coin->m_DevLck );
-					gp_coin->m_iIsRepCoinOk[0] = 1;
+					gp_coin->m_iIsRepCoinOk[1] = 1;
 				}
 			}
 			
 		}
 
 	}
-
+	if(flag5jiao == 0 && flag1yuan == 0){
+		return irc;
+	}
+	else{
+		gp_printer->PrintRepCoinChg();
+	}
 	return irc;
 
 }

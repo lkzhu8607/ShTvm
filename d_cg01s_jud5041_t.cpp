@@ -15,6 +15,7 @@
 
 
 
+
 //
 d_cg01s_jud5041_t::d_cg01s_jud5041_t()
 {
@@ -96,9 +97,11 @@ tbool d_cg01s_jud5041_t::Find_n_do_gotowork( std::string strinput )
 
 			gp_db->m_a5041.GetRow(0).m_e.a[104] = 0;       //清除事件码104
 
+			
 			gp_coin->RepCoinStock();    //检测是否需要补充硬币
 			gp_coin->CleanCoinStock();  //检测是否需要清除部分硬币
 			gp_bill->RepBillStock();    //检测是否需要补充纸币
+			
 
 			return 1;
 		}

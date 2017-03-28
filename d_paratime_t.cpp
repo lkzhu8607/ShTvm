@@ -4,6 +4,8 @@
 #include "d_db_t.h"
 #include "bu_quickflow_t.h"
 #include "d_config_t.h"
+#include "de_log_t.h"
+#include "de_bill_t.h"
 
 
 
@@ -40,6 +42,7 @@
 //
 d_paratime_t::d_paratime_t()
 {
+	m_iTakeAffectFlag = 0;
 }
 
 // return 0-Not Affect  1-Affect
@@ -251,8 +254,22 @@ void d_paratime_t::TakeAffectAll()
 	TakeAffect_1(gp_db->m_a2001);
 	TakeAffect_1(gp_db->m_a3000);
 	TakeAffect_1(gp_db->m_a3001);
-	TakeAffect_1(gp_db->m_a3002);
-	TakeAffect_1(gp_db->m_a3003);
+	if( TakeAffect_1(gp_db->m_a3002) )
+	{
+		m_iTakeAffectFlag = 1;
+
+	}
+	if( TakeAffect_1(gp_db->m_a3003) )
+	{
+		//更新3003后需要更新一下这些问题
+		
+		gp_db->m_b8702.GetRow(0).m_BillStopUseFlag = ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_WorkModeConf.a[0], 3 ) )?1:0;
+		gp_db->m_b8701.GetRow(0).m_CoinStopUseFlag = ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_WorkModeConf.a[0], 2 ) )?1:0;
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_BillStopUseFlag="<<gp_db->m_b8702.GetRow(0).m_BillStopUseFlag);
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_CoinStopUseFlag="<<gp_db->m_b8701.GetRow(0).m_CoinStopUseFlag);
+
+	}
+
 	TakeAffect_1(gp_db->m_a3006);
 	TakeAffect_1(gp_db->m_a3007);
 	TakeAffect_1(gp_db->m_a3008);
@@ -504,13 +521,18 @@ int d_paratime_t::Copy3086PicToSystemPath()
 
 	wl::SStrvs::vsa_imp(gp_db->m_a3086.GetRow(0).m_strPicFn,ssep,0,vTemp);
 
+	std::string strtemp;
 	std::string sSrcFilePath  = "/mnt/" + vTemp.at(0);
-	snprintf(cmd_str,sizeof(cmd_str)-1,"cp -rf %s %s;",sSrcFilePath.c_str(),sDestFilePath.c_str());
+	snprintf(cmd_str,sizeof(cmd_str)-1,"cp -rf %s/* %s;",sSrcFilePath.c_str(),sDestFilePath.c_str());
 	printf("%s\n",cmd_str);
+	strtemp = cmd_str;
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|cp=" << strtemp );
 	system(cmd_str);
 
-	snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf %s;",sSrcFilePath.c_str());
+	snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf %s*;",sSrcFilePath.c_str());
 	printf("%s\n",cmd_str);
+	strtemp = cmd_str;
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|rm=" << strtemp );
 	system(cmd_str);
 }
 

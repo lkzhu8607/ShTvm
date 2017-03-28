@@ -116,7 +116,7 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 	if(WR.m_TicketingFirstFlag == 0)//进行第一次发卡
 	{
 		b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
-		while( ticketbad < 3 )
+		while( ticketbad < gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes )    //该数需要走3002参数
 		{
 			//wl::WThrd::tr_sleepu(0.5);
 			if( gp_emitticket->MkTicketReady() )
@@ -133,6 +133,8 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 					ret = gp_reader1->rSaleCard2( WR.m_TickePrice1*100) ;
 					if( ret == 0 )
 					{
+
+						AddValueTo6002( WR );
 						//写卡成功则卡发出去
 						if( !gp_emitticket->eTicket_SendOut() ) // 卡住 
 						{
@@ -142,6 +144,7 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 							WR.m_TicketingFirstDone = 1;//第一次发卡成功
 							WR.m_TicketoutActual++;
 							WR.m_TicketoutOk = 1;
+							WR.m_TicketoutErrReason = 0;
 							break;
 						}
 						else
@@ -180,11 +183,21 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Perpare Tciket Error");
 				WR.m_TicketoutOk = 0;
 				//return (-1);
+				//准备票卡失败，则退出
+				break;
+
+				
 			}
 
 			ticketbad++;
 		}
 		
+		if( WR.m_TicketoutErrReason == -2 )
+		{
+			//传输中卡票，//12
+			gp_db->m_a5041.GetRow(0).m_e.a[12] = 1;
+		}
+
 		//交易结束时间为出票时间，不管是否出票成功或失败
 		WR.m_end_time = wl::SDte::GetNow();
 	}
@@ -224,6 +237,12 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 
 		}
 
+		if( WR.m_TicketoutErrReason == -2 )
+		{
+			//传输中卡票，//12
+			gp_db->m_a5041.GetRow(0).m_e.a[12] = 1;
+		}
+
 		//3.找零
 		//需要找的零钱 = 接收的总钱 - 实际出票的张数 * 每张的票价(分) * 100
 		WR.m_ShouldChgTotal = WR.m_ReceiveTotal - WR.m_TicketoutActual * WR.m_TickePrice1 * 100;
@@ -237,9 +256,18 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 			}
 			else
 			{
+				
 				//纸币找零 
 				if( WR.m_BilchgPlan )
 				{
+					while( 1 )                       //防止在有纸币压箱过程中出现找不出情况
+					{
+						if( WR.m_MoneyStoreDone )
+						{
+							break;
+						}
+						WThrd::tr_sleepu( 0.1 );
+					}
 					WR.m_BilchgOk = WR.m_BilchgDone = 0; 
 					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_BilchgPlan=" << WR.m_BilchgPlan);
 
@@ -248,7 +276,7 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 				else
 				{
 				}
-
+				
 				// 硬币循环找。如果失败下一步会转专用。 
 				if( WR.m_CoinRecycleChgPlan )
 				{
@@ -261,6 +289,7 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 				else
 				{
 				}
+
 			}
 
 		}
@@ -291,6 +320,14 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 
 	}
 
+	//记录该笔交易成功出票和失败出票
+	if(1)
+	{
+		MYAUTOLOCK( gp_db->m_b8703.m_ut_tbl_lck );
+		gp_db->m_b8703.GetRow(0).m_GoodTotal += WR.m_TicketoutActual;
+		gp_db->m_b8703.GetRow(0).m_BadTotal  += ( WR.m_TicketoutPlan - WR.m_TicketoutActual ); 
+	}
+
 	//将票出出
 	if(WR.m_TicketoutActual)
 	{
@@ -309,7 +346,8 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 			}
 			else
 			{
-				gp_emitticket->eTicket_CleanEscrow(0x01);	
+				gp_emitticket->eTicket_CleanEscrow(0x01);
+				
 				//交易数据记录
 				//先有票出都记着
 				gp_db->m_a_waiter_t.Add( WR );
@@ -318,10 +356,7 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 				AddTransDataTo6000( WR );
 				gp_db->RiseSaveFlag( gp_db->m_a6000 );
 
-				for(int i = 0 ;i < WR.m_TicketoutActual ;i++ )
-				{
-					AddValueTo6002( WR );
-				}
+				gp_db->RiseSaveFlag( gp_db->m_a6002 );    //有出票，异步保存6002
 
 				irc = 3;
 				break;

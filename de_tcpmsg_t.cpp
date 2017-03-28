@@ -267,7 +267,7 @@ tbool de_tcpmsg_t::SendMACK_2001( WTcpCell &tc, tuint16 uiMsgType, wl::tint32 lC
 
 
 //
-tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer, wl::tint32 lConversationFlow )
+tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tuint16> vType, std::vector<long> vVer, wl::tint32 lConversationFlow, std::vector<long> *pvVerFromSC /*= NULL*/ )
 {
 	
 	SCake ck;
@@ -333,7 +333,23 @@ tbool de_tcpmsg_t::SendAns5000( WTcpCell &tc, tuint16 uiMsgType, std::vector<tui
 	//send Ó¦´ð
 
 	ck.append( (wl::tchar)0 ); 	//Ó¦´ðÂë 
+	wl::tuint8 *pp = (wl::tuint8*)ck.buf() + ck.len() - 1;
 	
+	if( gp_conf->IsHT_SC() && pvVerFromSC )
+	{
+		std::vector<long> &vVerLocal(vVer);
+		std::vector<long> &vVerFromSC(*pvVerFromSC);
+		for( int i1 = 0; i1 < (int)vVerLocal.size(); i1++ )
+		{
+			if( i1 >= (int)vVerFromSC.size() ) break;
+			if( vVerLocal[i1] != vVerFromSC[i1] )
+			{
+				*pp = 0x80; 	//Ó¦´ðÂë 
+				break;
+			}
+		}
+	}
+
 	for( int i1 = 0; i1 < (int)vType.size(); i1++ )
 	{
 		ui2 = (tuint16)vType[i1];

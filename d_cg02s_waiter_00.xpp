@@ -70,15 +70,15 @@ public:
 
 		//if( SStrf::readbit( Rb8701.m_SensorStatus.a[4], 3 ) == 1 )	 //SensorStatus[4]  Bit3: 1找零器高币位没遮挡  0找零器高币位遮挡（满） 
 		//新的逻辑是，通过判断循环找零箱中的钱币个数来决策硬币是进循环箱还是直接进入回收箱
-		if( m_pWR->m_ReceiveCoin )
+		if( m_pWR->m_ReceiveCoin > 0 )
 		{
-			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A1YuanCycleChg="<<Rb8701.m_A1YuanCycleChg );
+			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_A1YuanCycleChg="<<Rb8701.m_A1YuanCycleChg << " m_ReceiveCoin="<<m_pWR->m_ReceiveCoin );
 			//if(Rb8701.m_A1YuanCycleChg < coinCycleBoxRatedCapacity)//循环箱中的硬币大于100个的时候，钱币直接进入回收箱
 			{
 				//如果进循环箱未完成则错 
 				int irc = gp_coin->dCoin2CircleChg();
 				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Con Store Circle Chg Error irc="<<irc );
-				if( gp_coin->dCoin2CircleChg() != 0 )
+				if( irc != 0 )
 				{
 					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Con Store Circle Chg Error");
 					Rb8701.m_A1YuanCycleChg += m_pWR->m_Coin1;
@@ -138,7 +138,7 @@ public:
 				int ticketbadcount = 0;
 				b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
 
-				while( ticketbadcount < 3 )
+				while( ticketbadcount < gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes  )   //该数需要走3002参数
 				{
 					//WThrd::tr_sleepu( 0.5 );
 					if(iResult = gp_emitticket->MkTicketReady())
@@ -155,6 +155,8 @@ public:
 							ret = gp_reader1->rSaleCard2( m_pWR->m_TickePrice1*100) ;
 							if( ret == 0 )
 							{
+								AddValueTo6002( *m_pWR );
+
 								//写卡成功则卡发出去
 								if( !gp_emitticket->eTicket_SendOut() ) // 
 								{
@@ -203,6 +205,7 @@ public:
 					{
 						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Fail to prepare ticketing"<<"Ticket Num="<< i+1 <<"errorCode = "<<iResult);
 						m_pWR->m_TicketoutOk = 0;
+						THREAD_END;
 						//continue;
 					}
 
@@ -241,44 +244,42 @@ public:
 	{
 		b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
 
-		if(m_pWR->m_Coin5 && (m_pWR->m_Coin5 % 2))
+		//循环箱找出20个或以内 
+		int irc  = gp_coin->CycleBoxChg( m_pWR->m_CoinRecycleChgPlan /*- m_pWR->m_CoinRecycleChgActual */);   //出现return 0 ，但是找零失败
+		m_pWR->m_CoinRecycleChgActual += Rb8701.m_CoinChangeData.a[1]; // [out] Data[1]	BYTE	找零数1~48;
+
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_CoinRecycleChgActual="<<m_pWR->m_CoinRecycleChgActual );
+
+		if( m_pWR->m_CoinRecycleChgActual < m_pWR->m_CoinRecycleChgPlan )   // 没有全部找 ，将使用5mao找零 ，
 		{
-			if(gp_coin->CyrcleJiao5ChgOut((m_pWR->m_Coin5 % 2)) != 0)
+			int iNeedChg5Mao = ( m_pWR->m_CoinRecycleChgPlan - m_pWR->m_CoinRecycleChgActual )*2  ;
+			if( Rb8701.m_A5MaoCycleChg > iNeedChg5Mao )    //此处将要加上是否使用5毛找条件
 			{
-				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "循环箱找5角零失败");
-				THREAD_END;
+				irc = gp_coin->CyrcleJiao5ChgOut(( iNeedChg5Mao ));
+				m_pWR->m_CoinRecycleChgActual += Rb8701.m_CoinChangeData.a[1];
+
+				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << " CyrcleJiao5ChgOut m_CoinChangeData="<<Rb8701.m_CoinChangeData.a[1] );
+
+				if( m_pWR->m_CoinRecycleChgActual < m_pWR->m_CoinRecycleChgPlan )
+				{
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "CyrcleJiao5ChgOut 5 Jiao fail ");
+					m_pWR->m_CoinRecycleChgOk = 0;
+					THREAD_END;
+				}
+
 			}
 			else
 			{
-				Rb8701.m_A5MaoCycleChg -= (m_pWR->m_Coin5 % 2);
+				//不使用5毛找零，故找失败
+				LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "CoinRecycleChgActual 1 Yuan fail");
+				m_pWR->m_CoinRecycleChgOk = 0;
+				THREAD_END; 
 			}
 		}
-
-		//循环箱找出20个或以内 
-		if( gp_coin->CycleBoxChg( m_pWR->m_CoinRecycleChgPlan /*- m_pWR->m_CoinRecycleChgActual */) != 0 )
-		{
-			//,如果找失败 退回，待专用找零 
-			LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "CoinRecycleChgActual 1 Yuan fail");
-			m_pWR->m_CoinRecycleChgActual += Rb8701.m_CoinChangeData.a[1]; // [out] Data[1]	BYTE	找零数1~48;
-			m_pWR->m_CoinRecycleChgOk = 0;
-			THREAD_END; 
-		}
-		else
-		{
-			//如果找成功，计.
-			m_pWR->m_CoinRecycleChgActual += Rb8701.m_CoinChangeData.a[1]; // [out] Data[1]	BYTE	找零数1~48;
-		}		 
-
-		// 如果已完成工作 
-		if( m_pWR->m_CoinRecycleChgActual >= m_pWR->m_CoinRecycleChgPlan )
-		{
-			m_pWR->m_CoinRecycleChgOk = 1;
-
-			//THREAD_END; 
-		}
-
+			
+		m_pWR->m_CoinRecycleChgOk = 1;
 		THREAD_END; 
-		//THREAD_DOAGAIN;
+
 	}
 };
 
@@ -367,7 +368,7 @@ public:
 		int big_piecenum =0;
 		int small_piecenum = 0;
 		
-		if( m_BigDenomination != 0 ) m_big_piecenum = (int)( m_pWR->m_BilchgPlan - m_pWR->m_BilchgActual ) / m_BigDenomination;
+		if( m_BigDenomination != 0 ) m_big_piecenum = (int)( m_pWR->m_BilchgPlan /*- m_pWR->m_BilchgActual*/ ) / m_BigDenomination;
 		if( m_SmallDenomination != 0 ) m_small_piecenum = (int)(m_pWR->m_BilchgPlan - m_BigDenomination*m_big_piecenum)/m_SmallDenomination;
 
 	}
@@ -396,22 +397,32 @@ public:
 			act2 = m_small_piecenum;
 		}
 		//gp_bill->dBill_Encash();
+	
 		WThrd::tr_sleep( 1 );
-		gp_bill->dBill_Change(1,&act1,&act2,&act3,&act4);
+		int irc = gp_bill->dBill_Change(1,&act1,&act2,&act3,&act4);
+			
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "dBill_Change = act1="<<act1<<"act2="<<act2 <<" irc = "<<irc );
 		
-		
-		if(m_SmallBoxNum==0)
+		if( 0 == irc )
 		{
-			m_pWR->m_BilchgActual = act1*m_SmallDenomination + act2*m_BigDenomination;
-		}
-		else
-		{
-			m_pWR->m_BilchgActual = act1*m_BigDenomination + act2*m_SmallDenomination;
-		}
-		// 如果已完成工作 
-		if( m_pWR->m_BilchgActual >= m_pWR->m_BilchgPlan )
-		{
-			m_pWR->m_BilchgOk = 1;
+			if(m_SmallBoxNum==0)
+			{
+				m_pWR->m_BilchgActual = act1*m_SmallDenomination + act2*m_BigDenomination;
+			}
+			else
+			{
+				m_pWR->m_BilchgActual = act1*m_BigDenomination + act2*m_SmallDenomination;
+			}
+			// 如果已完成工作 
+			if( m_pWR->m_BilchgActual >= m_pWR->m_BilchgPlan )
+			{
+				m_pWR->m_BilchgOk = 1;
+				
+			}
+			Rb8702.m_OutNumber.a[0] += act1;
+			Rb8702.m_OutNumber.a[1] += act2;
+			Rb8702.m_OutNumber.a[2] += act3;
+			Rb8702.m_OutNumber.a[3] += act4;
 			
 		}
 		else
@@ -420,10 +431,7 @@ public:
 			gp_db->m_a5041.GetRow(0).m_e.a[178] = 1;
 			m_pWR->m_BilchgOk = 0;
 		}
-		Rb8702.m_OutNumber.a[0] += act1;
-		Rb8702.m_OutNumber.a[1] += act2;
-		Rb8702.m_OutNumber.a[2] += act3;
-		Rb8702.m_OutNumber.a[3] += act4;
+		
 
 		THREAD_END; 
 	}

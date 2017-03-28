@@ -129,10 +129,10 @@ void d_cg06_t::Proc()
 		SetLanguageCh();
 		
 
-		
 		gp_coin->RepCoinStock();    //检测是否需要补充硬币
 		gp_coin->CleanCoinStock();  //检测是否需要清除部分硬币
 		gp_bill->RepBillStock();    //检测是否需要补充纸币
+		
 		
 		//wl::WThrd::tr_sleepu( 3 );
 		

@@ -36,6 +36,8 @@ de_medev_t::de_medev_t()
 	m_IsEmergeModel = 0;
 
 	m_IsRecv3014 = 0;
+	m_IsSCNeedSysShutdownOrReboot = 0;
+	m_IsChangeToStopSerice = 0;
 }
 
 
@@ -286,6 +288,7 @@ tbool de_medev_t::Refresh5041_dev( std::string strinput )
 	{
 		// 136	只收硬币
 		EVT_CHG(136,1);
+		EVT_CHG(135,0);
 	}
 
 	//1.模式手动改为只收纸币模式   2.硬币接收装置出现故障（硬币箱不再位）   3.硬币回收箱和硬币暂存器满  -----> 只收纸币模式
@@ -296,6 +299,7 @@ tbool de_medev_t::Refresh5041_dev( std::string strinput )
 	{
 		// 135	只收纸币
 		EVT_CHG(135,1);
+		EVT_CHG(136,0);
 	}
 	else
 	{
@@ -672,10 +676,10 @@ tbool de_medev_t::IntegratedStateGood()
 		gp_bill->dBill_QueryCashUint();
 		for(int i=0;i<4;i++)
 		{
-			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 500 )  iRMB500  = gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
-			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 1000 ) iRMB1000 = gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
-			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 2000 ) iRMB2000 = gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
-			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 5000 ) iRMB5000 = gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
+			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 500 )  iRMB500  += gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
+			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 1000 ) iRMB1000 += gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
+			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 2000 ) iRMB2000 += gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
+			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 5000 ) iRMB5000 += gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];
 		}
 
 		if ( ( 0 == SStrf::readbit( gp_db->m_a3003.GetRow(0).m_WorkModeConf.a[0], 0 ) ) || 

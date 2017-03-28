@@ -15,6 +15,7 @@ class d_paratime_t
 {
 public:
 
+	int m_iTakeAffectFlag;    //参数生效标志    0-没生效或做完该做的事   1-参数生效
 public:
 	d_paratime_t();
 	virtual ~d_paratime_t(){;}

@@ -1231,8 +1231,10 @@ void bu_backman_ele_t::f_CoinRecognizer_Test()
 
 
 	//1.work     { 打开投币口 }
+	tbool enable_mao5 =  (SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 1 ) == 1)?1:0;  //5角
+	tbool enable_yuan1 = (SStrf::readbit( gp_db->m_a3003.GetRow(0).m_PermitCoinType, 2 ) == 1)?1:0;  // 1元
 	ret = gp_coin->dCoinHold();
-	ret = gp_coin->dCoin_Work( 1, 1 );
+	ret = gp_coin->dCoin_Work( enable_mao5, enable_yuan1 );
 	if( ret != 0 )	 
 	{
 		m_Scr1.push_back( "打开硬币投币口失败" );
@@ -1805,6 +1807,8 @@ void bu_backman_ele_t::f_Print_Profit_Report()
 						MapSaleTicket[800] + MapSaleTicket[900] +
 						MapSaleTicket[1000] + iBadTicketAmount;
 	
+	
+
 	m_Scr1.clear();
 
 	m_Scr1.push_back( "打印收益报表" );
@@ -2998,6 +3002,8 @@ void bu_backman_ele_t::f_Reset()
 	m_Scr1.push_back( "正在复位读写器模块..." );
 	ShowCurrScr();
 
+	gp_db->m_b8704.GetRow(0).m_BigErr = 0;   //消除错误
+
 	irc = gp_reader1->rReset();
 	if( 0 == irc )
 	{
@@ -3006,7 +3012,6 @@ void bu_backman_ele_t::f_Reset()
 		{
 			m_Scr1.push_back( "读写器模块复位成功" );
 
-			gp_db->m_b8704.GetRow(0).m_BigErr = 0;   //消除错误
 		}
 		else
 		{

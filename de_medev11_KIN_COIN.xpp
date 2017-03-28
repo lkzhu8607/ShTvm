@@ -16,20 +16,26 @@
 
 
 		//  77	门被打开			√	√	√	2
+		//78 门被用钥匙开锁
 		tuint8 ui1;
 
 		ui1 = Rb8701.m_SensorStatus.a[1];	//	[out] SensorStatus[1]	Bit0:=1/0  门到位：	0=到位；	1=未到 
 		if( SStrf::readbit( ui1, 0 ) == 1 )	
+		{
 			EVT_CHG(77,1);
-		else
-			EVT_CHG(77,0);
-
-		//78 门被用钥匙开锁
-		ui1 = Rb8701.m_SensorStatus.a[1];	//	[out] SensorStatus[1]	Bit1:=1/0  门锁到位（保留）：0，到位；1，未到位
-		if( SStrf::readbit( ui1, 1 ) == 1 )	
 			EVT_CHG(78,1);
+		}
 		else
+		{
+			EVT_CHG(77,0);
 			EVT_CHG(78,0);
+		}
+
+		//ui1 = Rb8701.m_SensorStatus.a[1];	//	[out] SensorStatus[1]	Bit1:=1/0  门锁到位（保留）：0，到位；1，未到位
+		//if( SStrf::readbit( ui1, 1 ) == 1 )	
+		//	EVT_CHG(78,1);
+		//else
+		//	EVT_CHG(78,0);
 
 
 		
@@ -53,6 +59,7 @@
 			if( 0 == m_legal_authority )
 			{
 				EVT_CHG(169,1);
+				EVT_CHG(15,1);
 			}
 		}
 		else
@@ -67,14 +74,14 @@
 		// 139 硬币回收箱满 
 		if( SStrf::readbit( Rb8701.m_SensorStatus.a[2], 7 ) == 1 ||
 			( Rb8701.m_A5MaoStoreBox + Rb8701.m_A1YuanStoreBox >= 
-			  (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxCapacity/100.0 * gp_db->m_a3002.GetRow(0).m_iCoinBoxWillFullPercent ) ) )			//	Bit7:=1/0  硬币回收箱：0，正常；1，满
+			  (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxCapacity/100.0 * gp_db->m_a3002.GetRow(0).m_iCoinBoxFullPercent ) ) )			//	Bit7:=1/0  硬币回收箱：0，正常；1，满
 		{
 			EVT_CHG(139,1);
 			EVT_CHG(138,0);
 		}
 		else if( ( Rb8701.m_A1YuanStoreBox + Rb8701.m_A5MaoStoreBox ) >= 1800 ||
 			     ( Rb8701.m_A5MaoStoreBox + Rb8701.m_A1YuanStoreBox >= 
-			       (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxCapacity/100.0 * gp_db->m_a3002.GetRow(0).m_iCoinBoxFullPercent ) ) )
+			       (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxCapacity/100.0 * gp_db->m_a3002.GetRow(0).m_iCoinBoxWillFullPercent ) ) )
 		{
 			EVT_CHG(139,0);
 			EVT_CHG(138,1);
@@ -99,6 +106,7 @@
 			if( 1 != m_legal_authority )
 			{
 				EVT_CHG(171,1);
+				EVT_CHG(15,1);
 			}
 		}
 		else
@@ -130,6 +138,7 @@
 			if( 1 != m_legal_authority )
 			{
 				EVT_CHG(172,1);
+				EVT_CHG(15,1);
 			}
 		}
 		else
@@ -167,21 +176,24 @@
 		// 159 硬币循环斗1空
 		// 160 硬币循环斗1将满
 		// 161 硬币循环斗1满
-		if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 3 ) == 0 )   //	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 3 ) == 0 ||
+			Rb8701.m_A1YuanCycleChg > gp_db->m_a3002.GetRow(0).m_lCoinBoxMaxCapacity )   //	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
 		{
 			EVT_CHG(161,1);
 			EVT_CHG(160,0);
 			EVT_CHG(159,0);
 			EVT_CHG(158,0);
 		}
-		else if( Rb8701.m_A1YuanCycleChg > 180 )
+		else if( Rb8701.m_A1YuanCycleChg > 180 ||
+			Rb8701.m_A1YuanCycleChg > (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxMaxCapacity * 0.8 ) )
 		{
 			EVT_CHG(161,0);
 			EVT_CHG(160,1);
 			EVT_CHG(159,0);
 			EVT_CHG(158,0);
 		}
-		else if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 2 ) == 1 )   //	Bit2:=1/0  1找零器低币位没遮挡（空）0找零器低币位遮挡
+		else if( SStrf::readbit( Rb8701.m_SensorStatus.a[3], 2 ) == 1 ||
+			Rb8701.m_A1YuanCycleChg < gp_db->m_a3002.GetRow(0).m_lCoinBoxMaxCapacity )   //	Bit2:=1/0  1找零器低币位没遮挡（空）0找零器低币位遮挡
 		{
 			EVT_CHG(161,0);
 			EVT_CHG(160,0);
@@ -207,21 +219,24 @@
 		// 164 硬币循环斗2空
 		// 165 硬币循环斗2将满
 		// 166 硬币循环斗2满
-		if( SStrf::readbit( Rb8701.m_SensorStatus.a[4], 3 ) == 0 )   //	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
+		if( SStrf::readbit( Rb8701.m_SensorStatus.a[4], 3 ) == 0 ||
+			Rb8701.m_A5MaoCycleChg > gp_db->m_a3002.GetRow(0).m_lCoinBoxMaxCapacity )   //	Bit3: =1/0  1找零器高币位没遮挡 0找零器高币位遮挡（满）
 		{
 			EVT_CHG(166,1);
 			EVT_CHG(165,0);
 			EVT_CHG(164,0);
 			EVT_CHG(163,0);
 		}
-		else if( Rb8701.m_A5MaoCycleChg > 180 )
+		else if( Rb8701.m_A5MaoCycleChg > 180 ||
+			Rb8701.m_A5MaoCycleChg > (long)( gp_db->m_a3002.GetRow(0).m_lCoinBoxMaxCapacity * 0.8 ) )
 		{
 			EVT_CHG(166,0);
 			EVT_CHG(165,1);
 			EVT_CHG(164,0);
 			EVT_CHG(163,0);
 		}
-		else if(  SStrf::readbit( Rb8701.m_SensorStatus.a[4], 2 ) == 1 )   //	Bit2:=1/0  1找零器低币位没遮挡（空） 0找零器低币位遮挡
+		else if(  SStrf::readbit( Rb8701.m_SensorStatus.a[4], 2 ) == 1 ||
+			Rb8701.m_A5MaoCycleChg < gp_db->m_a3002.GetRow(0).m_lCoinBoxMaxCapacity )   //	Bit2:=1/0  1找零器低币位没遮挡（空） 0找零器低币位遮挡
 		{
 			EVT_CHG(166,0);
 			EVT_CHG(165,0);

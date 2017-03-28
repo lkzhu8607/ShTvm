@@ -543,6 +543,13 @@ tbool bu_me_ele_t::do_a3000()
 			rc = 0;
 		}
 
+		if( row.m_uiCmdCode == 0x62)	//	62h
+		{
+			gp_conf->m_biSysShouldShutdown= 1;
+			gp_medev->m_IsSCNeedSysShutdownOrReboot = 1;
+			rc = 0;
+		}
+
 		if( row.m_uiCmdCode == 0x63 )	//	63h	COC、SOC	SLE	关闭
 		{
 			a9999_t::ROWTYPE &Ra9999(gp_db->GetTheRowa9999());
@@ -592,6 +599,7 @@ tbool bu_me_ele_t::do_a3000()
             {
                 LOGSTREAM( gp_log[LOGSC], LOGPOSI << "update software success ..." );
 				gp_conf->m_biSysShouldReboot = 1;
+				gp_medev->m_IsSCNeedSysShutdownOrReboot = 1;
             }
 		}
 
@@ -813,6 +821,11 @@ tbool bu_me_ele_t::do_a3002()
 		deat.eat_bin( row.m_RES11 );
 		deat.eat_bin( row.m_RES12 );
 		deat.eat_bin( row.m_RES13 );
+		//
+		row.m_iBillCycleChg1 = deat.eat_data<wl::tuint8>();
+		row.m_iBillCycleChg2 = deat.eat_data<wl::tuint8>();
+		row.m_iBillCycleChg3 = deat.eat_data<wl::tuint8>();
+		row.m_iBillCycleChg4 = deat.eat_data<wl::tuint8>();
 		deat.eat_bin( row.m_RES14 );
 
 		deat.eat_bin( row.m_RES15 );
@@ -2090,7 +2103,8 @@ tbool bu_me_ele_t::do_a5000()
 	}
 	
 	std::vector<tuint16> vType;
-	std::vector<long> vVer;
+	std::vector<long> vVerLocal;
+	std::vector<long> vVerFromSC;
 
 	S_dataeater_t deat(m_ckWholeMsg);
 	
@@ -2104,15 +2118,19 @@ tbool bu_me_ele_t::do_a5000()
 
 		u = deat.eat_data<tuint16>();
 		vType.push_back( u );
-		vVer.push_back( pt.GetParaCurrVer(u) );
-		deat.eat_skip( 4 );
+		vVerLocal.push_back( pt.GetParaCurrVer(u) );
+
+		wl::tuint32 ui4;
+		ui4 = deat.eat_data<tuint32>();
+		vVerFromSC.push_back( (long)ui4 );
+
 	}
 
 	goto L_SEND_ACK;
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer,m_lConversationFlow ); 
+	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVerLocal,m_lConversationFlow ,&vVerFromSC ); 
 
 	return 1;
 }
@@ -2128,7 +2146,8 @@ tbool bu_me_ele_t::do_a5003()
 	}
 	
 	std::vector<tuint16> vType;
-	std::vector<long> vVer;
+	std::vector<long> vVerLocal;
+	std::vector<long> vVerFromSC;
 
 	S_dataeater_t deat(m_ckWholeMsg);
 	
@@ -2142,16 +2161,20 @@ tbool bu_me_ele_t::do_a5003()
 
 		u = deat.eat_data<tuint16>();
 		vType.push_back( u );
-		vVer.push_back( pt.GetParaNewVer(u) );
-		deat.eat_skip( 4 );
-		deat.eat_skip( 4 );
+		vVerLocal.push_back( pt.GetParaNewVer(u) );
+
+		wl::tuint32 ui4;
+		ui4 = deat.eat_data<tuint32>();        //deat.eat_skip( 4 );    //版本号
+		vVerFromSC.push_back( (long)ui4 ); 
+		
+		deat.eat_skip( 4 );    //生效时间
 	}
 
 	goto L_SEND_ACK;
 
 	//send ack
 L_SEND_ACK:
-	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVer,m_lConversationFlow ); 
+	de_tcpmsg_t::SendAns5000( m_tSvr, m_uiMsgType, vType, vVerLocal,m_lConversationFlow ,&vVerFromSC ); 
 
 	return 1;
 }

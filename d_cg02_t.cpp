@@ -42,15 +42,13 @@ d_cg02_t::d_cg02_t()
 	langFlag = 0;	
 	payedIndex = 0;
 	shouldChangeIndex = 0;
-	//normalNoteIndex = 0;
-	//exceptNoteIndex = 0;
 	notesIndex = 0;
+	coinsIndex = 0;
 	pageGraphElementsFlags = 0;
 	disableDisplayFlag = 0;
 	gobackFlag = 0;
 	MachineStateIndex = 0;
 	disGobackFlag = 0;
-	//coinIndex = 0;
 
 }
 
@@ -222,9 +220,9 @@ void d_cg02_t::Proc()
 					}	*/				
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsCN[i].m_name == "CN_CoinType"){
+							plocalcg02->coinsIndex = i;
 							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
 							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
-							//plocalcg02->coinIndex = i;
 							continue;
 						}
 					}
@@ -343,9 +341,9 @@ void d_cg02_t::Proc()
 					}*/	
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsEN[i].m_name == "EN_CoinType"){
+							plocalcg02->coinsIndex = i;
 							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
 							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
-							//plocalcg02->coinIndex = i;
 							continue;
 						}
 					}
@@ -376,7 +374,7 @@ void d_cg02_t::Proc()
 			plocalcg02->displayFlag = 1;
 		}
 		
-		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
+		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
 
 		//d_cg02s_backpic_t  cg02s_backpic;
 
@@ -416,6 +414,12 @@ L_GETINPUT:
 		int irc(0);
 		if(plocalcg02->langFlag == 0){
 			SetLanguageCh();
+			gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->coinsIndex]);
+			gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->coinsIndex],gp_db->GetVaildCoinsType());
+			gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->coinsIndex]);
+			plocalcg02->graphElementsCN[plocalcg02->coinsIndex].m_iShouldShow = 1; 
+
+			
 			gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex]);
 			gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
 			gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->notesIndex]);
@@ -423,9 +427,22 @@ L_GETINPUT:
 			if(gp_bill->m_iIsNotBillChange == 1){
 				if(plocalcg02->MachineStateIndex !=0){
 					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+					gp_ui->str_task(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
+					
 					//gp_ui->updateLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
 					gp_ui->showLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
 					plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
+				}
+				else{
+					for(int i = 0;i < plocalcg02->graphElementsCN.size();i++){
+						if(plocalcg02->graphElementsCN[i].m_name == "CN_page2MachineState"){
+							gp_ui->hideLabel(plocalcg02->graphElementsCN[i]);
+							gp_ui->str_task(plocalcg02->graphElementsCN[i]);
+							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
+							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
+							break;
+						}
+					}
 				}
 			}
 			else{
@@ -433,10 +450,17 @@ L_GETINPUT:
 					gp_ui->hideLabel(plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex]);
 					plocalcg02->graphElementsCN[plocalcg02->MachineStateIndex].m_iShouldShow = 0;
 				}
+				
 			}
 		}
 		else if(plocalcg02->langFlag == 1){
 			SetLanguageEn();
+			gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->coinsIndex]);
+			gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->coinsIndex],gp_db->GetVaildCoinsType());
+			gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->coinsIndex]);
+			plocalcg02->graphElementsEN[plocalcg02->coinsIndex].m_iShouldShow = 1; 
+
+			
 			gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex]);
 			gp_ui->updateLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex],gp_db->GetVaildNotesType(waiter_data.m_TickePriceTotal));
 			gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->notesIndex]);
@@ -445,9 +469,21 @@ L_GETINPUT:
 			if(gp_bill->m_iIsNotBillChange == 1){
 				if(plocalcg02->MachineStateIndex !=0){
 					gp_ui->hideLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
+					gp_ui->str_task(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
 					gp_ui->showLabel(plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex]);
 					plocalcg02->graphElementsEN[plocalcg02->MachineStateIndex].m_iShouldShow = 1;
 				}
+				else{
+					for(int i = 0;i < plocalcg02->graphElementsEN.size();i++){
+						if(plocalcg02->graphElementsEN[i].m_name == "EN_page2MachineState"){
+							gp_ui->hideLabel(plocalcg02->graphElementsEN[i]);
+							gp_ui->str_task(plocalcg02->graphElementsEN[i]);
+							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
+							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
+							break;
+						}
+					}
+				}				
 			}
 			else{
 				if(plocalcg02->MachineStateIndex !=0){
@@ -585,7 +621,7 @@ L_GETINPUT:
 					plocalcg06->langFlag = 1;
 					//plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 				}				
-				
+
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg06;			
 				gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;	
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
@@ -609,6 +645,8 @@ L_GETINPUT:
 		if( ret = cg01s_jud5041.Find_n_do_stopservice(gp_frontinput->GetFrontCurrentKey()) )
 		{
 			//如果有投钱，则退钱 或 列印异常交易
+			ReturnCoinAndBill( waiter_data );
+
 			if(ret == 2){
 				plocalcg01->displayFlag = 0;
 				plocalcg01->langFlag = 0;
@@ -634,7 +672,7 @@ L_GETINPUT:
 		goto L_GETINPUT;
 	}
 
-			
+
 	return;
 }
 

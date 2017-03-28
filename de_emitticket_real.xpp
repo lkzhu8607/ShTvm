@@ -71,7 +71,8 @@ int de_emitticket_t::tr_on_user_run()
 			if( m_de_state == 2 ) 
 			{
 				WThrd::tr_sleepu( 5 );
-				continue;
+				//continue;
+				return 1;
 			}
 			else
 				return 1;
@@ -335,8 +336,6 @@ int de_emitticket_t::eTicket_SendIn()
 		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Prepar Ticket fail");
 		return iResult;
 	}
-
-	gp_db->m_b8703.GetRow(0).m_BadTotal ++;   //进回收箱成功，则记录+1
 
 	return iResult;
 }

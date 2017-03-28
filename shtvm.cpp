@@ -178,7 +178,9 @@ int main( int argc, char *argv[] )
 
 	gp_ui = &ui;
 	gp_ui->MyInit();
+	gp_conf->VersionDisplay();
 	
+
 	if( gp_conf->getnvB("scrall_width") == "" )
 		backupg_go();
 
@@ -284,37 +286,7 @@ int main( int argc, char *argv[] )
 	//gp_ui->LineScrPrintA( "UPS初始化" );
 	//gp_upsdev = &upsdev;
 	//gp_upsdev->UpsInit();
-
-	gp_backman_mgr = &backman;
-	gp_backman_mgr->backmanInit();
-
-	//gp_frontman_mgr = &frontman;
-	//gp_frontman_mgr->frontmanInit();
-
-	//gp_backman_mgr = &backman;
-	//gp_backman_mgr->backmanInit();
-
-
-	//test_top_scr();
-	//test_printer();
-	//test_printline();
-	g_bill_cashbox =&bill_cashbox;
-	g_bill_cashbox->bill_cashbox_init();  //初始化监测纸币箱
 	
-	gp_coinbox = &coinbox;
-	gp_coinbox->coinbox_init();
-	
-	bu_asynwork_t::RepeatSendReg6000();
-
-	gp_medev->EvtInitBegin();
-	WThrd::tr_sleep( 3 );
-	gp_medev->EvtInitEnd();
-
-
-
-	gp_ui->LineScrClearA();
- 
-	wl::SDte dtnow = wl::SDte::GetNow();
 	if(plocalcg01->pageGraphElementsFlags == 0){
 		bu_timeshower_t timeshower;
 		d_cg01s_backpic_t			cg01s_backpic;
@@ -415,8 +387,44 @@ int main( int argc, char *argv[] )
 		//SetLanguageCh();
 	}
 
+	gp_backman_mgr = &backman;
+	gp_backman_mgr->backmanInit();
+
+	//gp_frontman_mgr = &frontman;
+	//gp_frontman_mgr->frontmanInit();
+
+	//gp_backman_mgr = &backman;
+	//gp_backman_mgr->backmanInit();
+
+
+	//test_top_scr();
+	//test_printer();
+	//test_printline();
+	g_bill_cashbox =&bill_cashbox;
+	g_bill_cashbox->bill_cashbox_init();  //初始化监测纸币箱
+	
+	gp_coinbox = &coinbox;
+	gp_coinbox->coinbox_init();
+	
+	bu_asynwork_t::RepeatSendReg6000();
+
+
+	gp_medev->EvtInitBegin();
+	WThrd::tr_sleep( 3 );
+	gp_medev->EvtInitEnd();
+
+
+
+	gp_ui->LineScrClearA();
+ 
+	wl::SDte dtnow = wl::SDte::GetNow();
+
+
 	gp_frontman_mgr = &frontman;
 	gp_frontman_mgr->frontmanInit();
+
+	bu_quickflow_t::qf_counter_t  iQfForSystemModule;
+	int iFlagForSetTimeout = 0;   // 0-没设置(defaule)  1-设置了超时
 
 	//主循环 
 
@@ -433,16 +441,82 @@ int main( int argc, char *argv[] )
 		pt.Purge();
 		de_tcpmsg_t::SendTrade6002_1();
 
+
 		WThrd::tr_sleep( 1 );
 
 		gp_db->SaveDb();
 
+		if( 1 == pt.m_iTakeAffectFlag )
+		{
+			if(1)
+			{
+				MYAUTOLOCK( gp_db->m_a3002.m_ut_tbl_lck );
+				a3002_t::RPSTYPE rps1, rps2;
+
+				gp_db->m_a3002.SelEc_biDelFlag( 0, rps1 ); // not del
+				//
+				gp_db->m_a3002.SelEc_biIsAffect( 1, rps2 ); // affect
+				gp_db->m_a3002.RpsAnd( rps1, rps2 );
+
+				if( gp_db->m_a3002.GetRowCount( rps1 ) != 0 ) 
+				{
+					if( gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg1 != gp_conf->m_iBillCycleChg1 ||
+						gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg2 != gp_conf->m_iBillCycleChg2 )
+					{
+						//循环箱设置有变化，需要重新设置
+						int yuan_amount[5]={5,10,0,0,0}; 
+						int yuan_maxcount[5]={5,10,0,0,0}; 
+						for(int i=0;i<5;i++)
+						{
+							yuan_maxcount[i] = gp_db->m_a3002.GetRow(rps1, 0).m_lCashChgBoxCapacity; 
+							//yuan_maxcount[i] = 50; 
+						}
+						yuan_amount[0] = (int)gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg1 ;
+						yuan_amount[1] = (int)gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg2 ;
+						//yuan_amount[0] = 5 ;
+						//yuan_amount[1] = 10 ;
+						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "yuan_amount[0]="<<yuan_amount[0]<< "yuan_amount[1]="<<yuan_amount[1] );
+						int irc = gp_bill->dBill_SetCashUnit( yuan_amount,yuan_maxcount );
+						pt.m_iTakeAffectFlag = 0;
+
+						gp_conf->m_iBillCycleChg1 = gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg1;
+						gp_conf->m_iBillCycleChg2 = gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg2;
+
+						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_iBillCycleChg1="<<gp_conf->m_iBillCycleChg1 << wl::SStrf::sltoa( gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg1 )<<"irc="<<irc );
+						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_iBillCycleChg2="<<gp_conf->m_iBillCycleChg2 << wl::SStrf::sltoa( gp_db->m_a3002.GetRow(rps1, 0).m_iBillCycleChg2 ) );
+
+					}
+				}
+		
+			}
+			
+		}
+
 		WThrd::tr_sleep( 1 );
 		
-		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot )
-			break;
+		if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) 
+		{
+			if( gp_medev->m_IsSCNeedSysShutdownOrReboot )     //和sc相关，需要等5min
+			{
+				if( !iFlagForSetTimeout )
+				{
+					gp_qf->GetQf( iQfForSystemModule ); //设置超时
+					iFlagForSetTimeout = 1;
+				}
+
+				if(gp_qf->IsLongQf( iQfForSystemModule, 5*60 ) )
+				{
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
 
 		dtnow.MakeNow();
+
 
 		// 参数运营结束处理逻辑
 		if( gp_medev->m_IsYunYingEnd == 0 )
@@ -497,11 +571,13 @@ int main( int argc, char *argv[] )
 		
 	if( gp_conf->m_biSysShouldShutdown )
 	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "tvm m_biSysShouldShutdown = 1" );
 		std::string strCmd;
 		strCmd = "poweroff";
 		if(!IsOsWin())
 			WFile::run_exe(strCmd);
 		WThrd::tr_sleep(9);
+		
 	}
 	
 	if( gp_conf->m_biSysShouldReboot )

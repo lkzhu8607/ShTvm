@@ -476,6 +476,10 @@ static void __stdcall statusOccured(
 {
 	
 	UINT32 i=0;
+	T_ModuleStatus SP_Status;
+	T_ModuleStatus RE_Status;
+	T_ModuleStatus LO_Status;
+	T_ModuleStatus BU_Status;
 	if(g_log_status_thread== false)
 	{
 		init_log_thread("StatusOccured");
@@ -838,18 +842,46 @@ static void __stdcall statusOccured(
 				}			
 				break;
 			case XFS_S_CDR_SD_OPEN:
-				xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_CASH_TAKEN");
+				xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_SD_OPEN");
 				break;
 			case XFS_S_CDR_SD_LOCKED:
-				xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_CASH_TAKEN");
+				xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_SD_LOCKED");
 				break;
 			case XFS_S_CDR_SD_UNKNOWN:
-				xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_CASH_TAKEN");
+				xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_SD_UNKNOWN");
 				break;
 			case XFS_S_CDR_MAINTENANCE_STATUS_CHANGED:
 				{
-					xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_CASH_TAKEN");
+					xx1_log_debug(LOG_LEVEL_DEBUG,"XFS_S_CDR_MAINTENANCE_STATUS_CHANGED");
 					memcpy(&g_ModuleIdList, data, sizeof(T_ModuleIdList));
+					
+					pthread_mutex_lock (&listenerEvent_mutex);
+					result = module_GetStatus(g_ModuleList.dwreid[0], &RE_Status);
+					result = module_GetStatus(g_ModuleList.dwloid, &LO_Status);
+					result = module_GetStatus(g_ModuleList.dwspineid, &SP_Status);
+					if (abs(result) == BXR_USB_NO_SUCH_DEVICE || abs(result)==BXR_USB_DEVICE_REMOVED) //BXR_USB_NO_SUCH_DEVICE ¾ø¶ÔÖµ, BXR_USB_DEVICE_REMOVED
+					{
+						g_iDoOpen = -1;
+					}
+					else
+					{
+						g_iDoOpen = result;
+					}
+					pthread_mutex_unlock (&listenerEvent_mutex);
+					if (result == BXR_NO_ERROR)
+					{
+						if(RE_Status.recyclerStatus.billTransportStatus == BTS_BILL_JAM||
+							LO_Status.loaderStatus.billTransportStatus == BTS_BILL_JAM||
+							SP_Status.spineStatus.billTransportStatus== BTS_BILL_JAM)
+						{
+							g_BNRStatus.isJam = 1;
+						}
+						else
+						{
+							g_BNRStatus.isJam = 0;
+						}
+						
+					}
 				}			
 				break;
 			case XFS_S_CDR_TP_OK:
@@ -2334,7 +2366,7 @@ T_BnrXfsResult CBNROperation::CBNR_Enable()
 	g_IsRealBanknote = true; 
 	if(m_IsCashInStarted = true)
 	{
-		g_StoredNote = 0;
+		//g_StoredNote = 0;  //delete by jfren @20170316
 		tresult = CBNR_CashIn();
 		xx1_log_debug(LOG_LEVEL_DEBUG,"end CBNR_Enable ");
 	}
@@ -2869,6 +2901,7 @@ T_BnrXfsResult CBNROperation::CBNR_GetMoudles(T_ModuleIdList *moduleList)
 			 if ((moduleId & MODULE_CLASS_MASK) == BUNDLER_CLASS)
 			 {
 			 	printf("BUNDLER_ID=[%06x]\n",moduleId);
+				g_ModuleList.dwbuid=moduleId;
 			 }
 			 if((moduleId & MODULE_CLASS_MASK) == CASHBOX_CLASS)
 			 {
@@ -2878,6 +2911,7 @@ T_BnrXfsResult CBNROperation::CBNR_GetMoudles(T_ModuleIdList *moduleList)
 			 if((moduleId & MODULE_CLASS_MASK) == SPINE_CLASS)
 			 {
 			 	printf("SPINE_ID=[%06x]\n",moduleId);
+				g_ModuleList.dwspineid=moduleId;
 			 }
 			 if((moduleId & MODULE_CLASS_MASK) == BARCODE_READER_CLASS)
 			 {

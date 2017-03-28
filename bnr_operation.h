@@ -167,6 +167,7 @@ typedef  struct tagBNRStatus
 	BYTE cREBOX[4];  //循环箱，RE3-RE6  0:在位 1:不在位
 	UINT32 dwErrorCode;	//纸币模块故障码
 	T_ModuleId dwcuid;//回收箱id
+	BYTE isJam;        //  0:没卡币   1:卡币
 }BNRStatus_t;
 
 extern BNRStatus_t g_BNRStatus;
@@ -181,6 +182,8 @@ typedef struct tagModuleList
 	T_ModuleId dwloid; //è¡¥å¸ç®±ID
 	T_ModuleId dwreid[4]; //4ä¸ªå¾ªçŽ¯ç®±ID
 	T_ModuleId dwcbid; //回收箱ID
+	T_ModuleId dwbuid;//暂存区ID
+	T_ModuleId dwspineid;         //通道ID
 	char CBSerialNum[16];//回收箱序列号列号
 	char RESerialNum[4][16];//循环箱序列号 
 	char LOSerialNum[16];//补币箱序列号
@@ -229,7 +232,7 @@ const std::string Elis_BNR_VERSION = "Elis_BNR_DRIVER_V1.0.1.5";
 
 #define BNR_GET_MOUDLES_TIMEOUT_IN_MS (1000)
 #define BNR_CASHTAKEN_TIME_OUT_IN_MS            (30000)
-#define BNR_DEFAULT_OPERATION_TIME_OUT_IN_MS    (5000)
+#define BNR_DEFAULT_OPERATION_TIME_OUT_IN_MS    (15000)
 #define BNR_OPEN_OPERATION_TIME_OUT_IN_MS       (1000)
 #define BNR_RESET_OPERATION_TIME_OUT_IN_MS      (60000)
 #define BNR_CASHIN_OPERATION_TIME_OUT_IN_MS     (30000)

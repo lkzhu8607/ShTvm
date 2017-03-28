@@ -27,7 +27,7 @@ void d_cg02s_machinestate_t::ShowStatus()
 	std::string strNAME = GETLABELNAME;
 	if(1){
 		a_label_t::ROWTYPE  row;
-		gp_ui->LabelMkStr( row, 0, "CN_page2MachineState", "ÎŞÖ½±ÒÕÒÁã", m_x,m_y, 0.038, "black" );
+		gp_ui->LabelMkStr( row, 0, "CN_page2MachineState", "æ— çº¸å¸æ‰¾é›¶", m_x,m_y, 0.038, "black" );
 		this->AddLg( m_Lg, row );
 		//gp_ui->LabelPrep(row);
 		gp_ui->str_task(row);

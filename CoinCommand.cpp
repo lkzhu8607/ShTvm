@@ -210,14 +210,29 @@ bool CCoin::SendCommand(BYTE * Data,int nLen)
 		OriData[nLen] ^= OriData[i];
 	}
 
+	
+	wl::SCake ck;
+	ck.let( (char*)Data,nLen );
+	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << ck.Seri_S());
+
 	unsigned char localdata[COIN_RECV_BUFFER_LEN_];
 	localdata[0] = COIN_STX;
 	unsigned int nNewLen = InsertDLE(OriData, nLen+1, localdata+1) + 2;
 	localdata[nNewLen-1] = COIN_ETX;
 
+	
+
 	BUF_T buff_in;
+	std::string strsend;
 	for(unsigned int i=0;i<nNewLen;i++)
+	{
 		buff_in.push_back(localdata[i]);
+		strsend += wl::SStrf::sltoa( localdata[i] );
+		strsend += " ";
+	}
+
+	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << strsend );
+
 	if(	SendFrame(buff_in))
 	{    
 		/*for(int i=0;i<buff_in.size();i++)
@@ -252,7 +267,15 @@ bool CCoin::RecvCommand(BYTE * Data,int & nLen)
 		cout<<"读日志："<<hex<<int(buf_out[i])<<endl;*/
 		 //cLog.Trace(_T("Recv: "),pBuf,nLen);
 		 ////////////
+		
+
 	     nLen=DeleteDLE(pBuf,nLen,Data);
+
+
+	    wl::SCake ck;
+		ck.let( (char*)Data,nLen );
+		LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << ck.Seri_S());
+
 		 //检查长度
 		 if(nLen>4 && Data[1]==nLen-4)
 		 {   

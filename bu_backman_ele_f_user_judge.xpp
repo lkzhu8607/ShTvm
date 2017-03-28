@@ -83,6 +83,7 @@ L_ASK_USERNAME:
 			if( 1 == iQfFlag && gp_qf->IsLongQf( iQf1_user_idle , iQf1_user_idleMAX ) )
 			{
 				LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "LoginTimeout：" );
+				gp_db->m_a5041.GetRow(0).m_e.a[15] = 1;   //非法入侵
 				//一直报警 到合法登入
 				gp_coin->dCoinOpenAlert();
 				fIsIllegalAlarm = true;
@@ -223,6 +224,9 @@ L_ASK_USERNAME:
 	
 			m1 = SStrf::b2s( binmd5, 8 );
 			m2 = SStrf::b2s( row.m_PIN.a, 8 );
+
+			LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "binmd5 md5=：" << m1<<" m_PIN="<<m2 );
+			LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "m_lOperatorNum=：" << row.m_lOperatorNum<<" strUser="<<SStrf::satoul( strUser )<<" strUser2_16="<<SStrf::satoul_16( strUser ) );
 
 			if( ( row.m_lOperatorNum == SStrf::satoul( strUser )  || 
 				row.m_lOperatorNum == SStrf::satoul_16( strUser )	) &&
