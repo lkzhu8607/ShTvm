@@ -110,10 +110,12 @@ int bu_me_ele_t::tr_on_user_run()
 {
 	//std::map< tuint16, tbool(bu_me_ele_t::*)() >::iterator it;
 	//tbool(bu_me_ele_t::*p)();
+	wl::tbool irc = -1;
 
 	try
 	{
-		if( !GetWholeMsg() ) //没收到 
+		irc = GetWholeMsg();
+		if( 1 != irc ) //没收到 
 		{
 			throw (tuint8)0x01;
 		}
@@ -138,9 +140,14 @@ int bu_me_ele_t::tr_on_user_run()
 		My_SendMACK( (tuint8)0xff );
 	}
 
-	m_tSvr.DisConn();
-
-	return 0;
+	if(-1 == irc)
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << " My DisConn");
+		m_tSvr.DisConn();    
+		return 0;     //20170417 modify for Service can Disconn 
+	}
+	
+	return 1;     
 }
 
 
@@ -154,12 +161,27 @@ tbool bu_me_ele_t::GetWholeMsg()
 	tuint8  isLast;
 	tuint32  uiSenderId;
 	tint32   lConversationFlow;
+	static long lRecvTimes = 0;
 
 	for( int iRcvIdx = 0; ; iRcvIdx++ )
 	{
 		try
 		{
-			m_tSvr.recv_len( ck, 2 );
+			wl::tbool irc = m_tSvr.recv_len( ck, 2 );
+
+			LOGSTREAM( gp_log[LOGSC], LOGPOSI << "irc="<<irc);
+			if( irc == 0 )
+			{
+				lRecvTimes++;
+				if(3 == lRecvTimes)
+				{
+					lRecvTimes = 0;
+					LOGSTREAM( gp_log[LOGSC], LOGPOSI << "3 times Not Recv Mess I'm Think Dis Conn");
+					return -1;
+				}
+				continue;
+			}
+			lRecvTimes = 0;
 			if( ck.len() != 2 ) throw (int)0;
 
 			uiPkgLen = *(tuint16*)ck.buf();
@@ -177,15 +199,6 @@ tbool bu_me_ele_t::GetWholeMsg()
 			m_lConversationFlow = deat.eat_data<tint32>(); // 会话流水号 
 			deat.eat_skip<tuint16>();                      // 包序列号	0 ~ 65535，按包序递增	Word	2
 			isLast = 0x01 & deat.eat_data<tuint8>();       // 标志Bit7~2：[未定义]Bit1：0-请求消息1-应答消息Bit0：0-还有更大的包序列号的包1-这是本消息的最后一包
-
-			////save ck?
-			//if(!BLINU)
-			//{
-			//	static int aa=1000;
-			//	WFile fl;
-			//	fl.bind( "..\\fakesc\\" + SStrf::sltoa(aa++) + "_" + SStrf::sltoa(m_uiMsgType,16) + "_" + SStrf::sltoa(iRcvIdx) + ".bin" );
-			//	fl.write( ck );
-			//}
 
 			ck2.let( ck.buf() + 16, ck.len() - 16 - 16 );
 
@@ -660,6 +673,12 @@ tbool bu_me_ele_t::do_a3001()
 		}
 		if( ( row.m_ModeCode.a[0] == 0x00 ) && 
 			( row.m_ModeCode.a[1] == 0x01 ) )    //紧急模式
+		{
+			gp_medev->m_IsEmergeModel = 1;
+		}
+
+		if( ( row.m_ModeCode.a[0] == 0x00 ) && 
+			( row.m_ModeCode.a[1] == 0x10 ) )    //列车故障模式
 		{
 			gp_medev->m_IsEmergeModel = 1;
 		}
@@ -1408,6 +1427,8 @@ tbool bu_me_ele_t::do_a3083()
 		}
 	}
 
+	gp_medev->m_iIsUpdateParaToStopSerice = 1;
+
 	RISE_TBLLSAVEFLAG(m_a3083);
 	goto L_SEND_ACK;
 
@@ -1464,6 +1485,8 @@ tbool bu_me_ele_t::do_a3084()
 			gp_db->m_a3084.Add(row);
 		}
 	}
+
+	gp_medev->m_iIsUpdateParaToStopSerice = 1;
 
 	RISE_TBLLSAVEFLAG(m_a3084);
 	goto L_SEND_ACK;
@@ -1564,6 +1587,7 @@ tbool bu_me_ele_t::do_a3086()
 			if( 0 == update_3086_by_ftp( update3086,row.m_PicChk ) )
 			{
 				row.m_PkgDownloaded = 1;
+				//Copy3086PicToSystemPath();
 
 				gp_db->m_a3086.Add(row);
 
@@ -2114,15 +2138,37 @@ tbool bu_me_ele_t::do_a5000()
 	while( deat.HaveMoreData() )
 	{
 		tuint16 u;
-		d_paratime_t pt;
+		//d_paratime_t pt;
 
 		u = deat.eat_data<tuint16>();
 		vType.push_back( u );
-		vVerLocal.push_back( pt.GetParaCurrVer(u) );
+		
 
 		wl::tuint32 ui4;
 		ui4 = deat.eat_data<tuint32>();
 		vVerFromSC.push_back( (long)ui4 );
+		if(0x3083 == u)
+		{
+			gp_medev->m_A3083Get5000NewVer = (long)ui4;
+		}
+		if(0x3084 == u)
+		{
+			gp_medev->m_A3084Get5000NewVer = (long)ui4;
+		}
+		if(0x3086 == u)
+		{
+			gp_medev->m_A3086Get5000NewVer = (long)ui4;
+		}
+
+		if( 0x3010 == u )
+		{
+			vVerLocal.push_back( (long)ui4 );
+		}
+		else
+		{
+			vVerLocal.push_back( gp_paratime_t->GetParaCurrVer(u) );
+		}
+		
 
 	}
 
@@ -2157,11 +2203,11 @@ tbool bu_me_ele_t::do_a5003()
 	while( deat.HaveMoreData() )
 	{
 		tuint16 u;
-		d_paratime_t pt;
+		//d_paratime_t pt;
 
 		u = deat.eat_data<tuint16>();
 		vType.push_back( u );
-		vVerLocal.push_back( pt.GetParaNewVer(u) );
+		vVerLocal.push_back( gp_paratime_t->GetParaNewVer(u) );
 
 		wl::tuint32 ui4;
 		ui4 = deat.eat_data<tuint32>();        //deat.eat_skip( 4 );    //版本号
@@ -2192,29 +2238,30 @@ tbool bu_me_ele_t::do_a5001()
 	
 	std::vector<tuint16> vType;
 	std::vector<long> vVer;
-	d_paratime_t pt;
+	//d_paratime_t pt;
 
 	S_dataeater_t deat(m_ckWholeMsg);
 	
 	//目的方标识	节点标识码	Block	4
 	deat.eat_skip( 4 );
 
-	vType.push_back(0x1040); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x2000); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3002); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3003); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3006); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3009); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3011); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3083); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3084); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x3086); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x4001); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x4002); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x4003); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x4004); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x4006); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
-	vType.push_back(0x4007); vVer.push_back( pt.GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x1040); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x2000); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3002); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3003); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3006); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3007); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3009); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3011); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3083); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3084); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x3086); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4001); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4002); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4003); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4004); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4006); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
+	vType.push_back(0x4007); vVer.push_back( gp_paratime_t->GetParaCurrVer(*vType.rbegin()) );
 
 
 	goto L_SEND_ACK;
@@ -2246,22 +2293,23 @@ tbool bu_me_ele_t::do_a5002()
 	//目的方标识	节点标识码	Block	4
 	deat.eat_skip( 4 );
 
-	vType.push_back(0x1040); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x2000); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3002); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3003); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3006); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3009); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3011); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3083); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3084); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x3086); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x4001); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x4002); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x4003); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x4004); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x4006); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
-	vType.push_back(0x4007); vGmtTime.push_back(0); vVer.push_back( pt.GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x1040); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x2000); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3002); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3003); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3006); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3007); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3009); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3011); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3083); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3084); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x3086); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4001); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4002); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4003); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4004); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4006); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
+	vType.push_back(0x4007); vGmtTime.push_back(0); vVer.push_back( gp_paratime_t->GetParaNewVer( *vType.rbegin(), &(*(vGmtTime.rbegin())) ) );
 
 
 	goto L_SEND_ACK;

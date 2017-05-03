@@ -6,6 +6,10 @@
 #include "de_ui_t.h"
 #include "d_str_res.h"
 #include "d_cg01_t.h"
+#include "d_cg02_t.h"
+#include "bu_frontman_mgr_t.h"
+
+
 #include "2.h"
 
 
@@ -161,6 +165,93 @@ void d_cg01s_linepic_t::ShowLinePic()
 			plocalcg01->graphMainInterfaceEN.push_back(row);
 		}	
 	}
+	//临时在主界面上添加5个可以触摸的站点2017-04-07,蓝村路，上海体育馆，人民广场，金沙江路，四平路,图片为m2013i.jpg
+	if(plocalcg01->mainClickNeededFlags == 1){
+		if(1){
+				a_label_t::ROWTYPE  row;
+				gp_ui->LabelMkPic( row, 0, 
+									"MainPic_lancun", 
+									"", 
+									gp_ui->X2dR( 0, 651 ), 
+									gp_ui->Y2dR( 0, 749 ), 
+									gp_ui->X2dR( 0, 78 ), 
+									gp_ui->Y2dR( 0, 36 )   );
+				gp_ui->CalcPicX2Y2(row);
+				row.m_hot = 1;
+				row.m_funcname = "lancun";
+				row.m_funcvalue = 0;
+				plocalcg01->graphMainInterfaceCN.push_back(row);
+				plocalcg01->graphMainInterfaceEN.push_back(row);		
+		}
+		if(1){
+				a_label_t::ROWTYPE  row;
+				gp_ui->LabelMkPic( row, 0, 
+									"MainPic_tiyuguan", 
+									"", 
+									gp_ui->X2dR( 0, 162 ), 
+									gp_ui->Y2dR( 0, 695 ), 
+									gp_ui->X2dR( 0, 86 ), 
+									gp_ui->Y2dR( 0, 38 )   );
+				gp_ui->CalcPicX2Y2(row);
+				row.m_hot = 1;
+				row.m_funcname = "tiyuguan";
+				row.m_funcvalue = 0;
+				plocalcg01->graphMainInterfaceCN.push_back(row);
+				plocalcg01->graphMainInterfaceEN.push_back(row);		
+		}
+		if(1){
+				a_label_t::ROWTYPE  row;
+				gp_ui->LabelMkPic( row, 0, 
+									"MainPic_renmin", 
+									"", 
+									gp_ui->X2dR( 0, 532 ), 
+									gp_ui->Y2dR( 0, 398 ), 
+									gp_ui->X2dR( 0, 74 ), 
+									gp_ui->Y2dR( 0, 36 )   );
+				gp_ui->CalcPicX2Y2(row);
+				row.m_hot = 1;
+				row.m_funcname = "renmin";
+				row.m_funcvalue = 0;
+				plocalcg01->graphMainInterfaceCN.push_back(row);
+				plocalcg01->graphMainInterfaceEN.push_back(row);		
+		}
+		if(1){
+				a_label_t::ROWTYPE  row;
+				gp_ui->LabelMkPic( row, 0, 
+									"MainPic_jinshajiang", 
+									"", 
+									gp_ui->X2dR( 0, 104 ), 
+									gp_ui->Y2dR( 0, 163 ), 
+									gp_ui->X2dR( 0, 85 ), 
+									gp_ui->Y2dR( 0, 39 )   );
+				gp_ui->CalcPicX2Y2(row);
+				row.m_hot = 1;
+				row.m_funcname = "jinshajiang";
+				row.m_funcvalue = m_row3083.m_DirButt4MainUiIdx;
+				//this->AddLg( m_Lg, row );
+				//gp_ui->LabelPrep(row);
+				//gp_ui->pic_task(row);
+				plocalcg01->graphMainInterfaceCN.push_back(row);
+				plocalcg01->graphMainInterfaceEN.push_back(row);		
+		}
+		if(1){
+				a_label_t::ROWTYPE  row;
+				gp_ui->LabelMkPic( row, 0, 
+									"MainPic_siping", 
+									"", 
+									gp_ui->X2dR( 0, 820 ), 
+									gp_ui->Y2dR( 0, 158 ), 
+									gp_ui->X2dR( 0, 68 ), 
+									gp_ui->Y2dR( 0, 31 )   );
+				gp_ui->CalcPicX2Y2(row);
+				row.m_hot = 1;
+				row.m_funcname = "siping";
+				row.m_funcvalue = 0;
+				plocalcg01->graphMainInterfaceCN.push_back(row);
+				plocalcg01->graphMainInterfaceEN.push_back(row);		
+		}	
+	}
+
 }
 
 //
@@ -239,7 +330,7 @@ tbool d_cg01s_linepic_t::Find_n_do_ShowDirButt( std::string strinput )
 							continue;
 						}
 					}
-				}
+				}				
 			}
 			/*if( row.m_funcname == "ShowDirButt" )
 			{
@@ -252,6 +343,109 @@ tbool d_cg01s_linepic_t::Find_n_do_ShowDirButt( std::string strinput )
 	return 0;
 }
 
-
-
-
+tbool d_cg01s_linepic_t::Find_n_do_MainTempStation(std::string strinput){
+	if(plocalcg01->mainClickNeededFlags == 0){
+		return 0;
+	}
+	std::vector<a_label_t::ROWTYPE> row;
+	int flag = 0;
+	if(plocalcg01->langFlag == 0){
+		if( this->LocateHot( plocalcg01->graphMainInterfaceCN, strinput, row ) ){
+			u8arr_t<4>	ScNode;
+			std::vector< int >	v;				
+			for(int i=0;i<row.size();i++){
+				if( row[i].m_funcname == "lancun"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(6) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(30) );	
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "tiyuguan"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(1) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(17) );	
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "renmin"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(1) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(23) );	
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "jinshajiang"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(3) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(19) );	
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "siping"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(10) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(61) );	
+					flag = 1;
+				}
+				if( !gp_db->GetPossiblePrices(v,ScNode) )
+				{
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "???????????????" << SStrf::b2s(ScNode) << " ??????" << SStrf::b2s(gp_db->GetTheRowa3014().m_EqpNode) );
+					return 0;
+				}				
+			}
+			if(flag == 1){
+				plocalcg02->displayFlag = 0;
+				plocalcg02->langFlag = 0;
+				plocalcg01->isFastFlag = 1;
+				plocalcg02->m_iPieceNum = 1;
+				plocalcg01->mianClickStationFlag = 1;
+				gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;
+				gp_frontman_mgr->m_cg02.m_iPrice = v[0];
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
+				return 1;
+			}		
+		}
+	}
+	if(plocalcg01->langFlag == 1){
+		if( this->LocateHot( plocalcg01->graphMainInterfaceEN, strinput, row ) ){
+			u8arr_t<4>	ScNode;
+			std::vector< int >	v;	
+			for(int i=0;i<row.size();i++){		
+				if( row[i].m_funcname == "lancun"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(6) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(30) );	
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "tiyuguan"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(1) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(17) );	
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "renmin"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(1) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(23) );	
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "jinshajiang"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(3) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(19) );
+					flag = 1;
+				}
+				else if(row[i].m_funcname == "siping"){
+					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)(10) );
+					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)(61) );
+					flag = 1;
+				}
+				if( !gp_db->GetPossiblePrices(v,ScNode) )
+				{
+					LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "???????????????" << SStrf::b2s(ScNode) << " ??????" << SStrf::b2s(gp_db->GetTheRowa3014().m_EqpNode) );
+					return 0;
+				}				
+			}
+			if(flag == 1){
+				plocalcg02->displayFlag = 0;
+				plocalcg02->langFlag = 1;
+				plocalcg01->isFastFlag = 1;
+				plocalcg02->m_iPieceNum = 1;
+				plocalcg01->mianClickStationFlag = 1;
+				gp_frontman_mgr->m_cg02.m_SelectedScNode = ScNode;
+				gp_frontman_mgr->m_cg02.m_iPrice = v[0];
+				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg02;
+				return 1;
+			}
+		}
+	}
+	return 0;
+}

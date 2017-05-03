@@ -4,8 +4,6 @@
 #include "d_config_t.h"
 
 
-
-
 //
 d_config_t  *gp_conf;
 
@@ -14,10 +12,9 @@ d_config_t  *gp_conf;
 //
 d_config_t::d_config_t()
 {
-	//gp_conf = this;
-	m_bMajorSysVer = 2;
+	m_bMajorSysVer = 1;
 	m_bMinorSysVer = 1;
-	m_strSysVer = "2.01";
+	m_strSysVer = "V1.01";
 	m_strSysVerInternal = "20170106.094101" + std::string(" ") + std::string(__DATE__) + std::string(" ") + std::string(__TIME__) + std::string(" ");
 	//20140327.153829	初版，开发中. 
 

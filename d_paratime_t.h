@@ -11,7 +11,7 @@
 
 //用于参数更新
 
-class d_paratime_t
+class d_paratime_t : public bu_hot_thrd_t
 {
 public:
 
@@ -19,6 +19,8 @@ public:
 public:
 	d_paratime_t();
 	virtual ~d_paratime_t(){;}
+
+	virtual int tr_on_user_run();
 
 private:
 	std::string GetRowAffectPk( unitbl_base_t & tbl, long y );
@@ -40,12 +42,11 @@ public:
 	long GetParaNewVer( unitbl_base_t & tbl , long * plAffcGmtTime = NULL );  
 	long GetParaNewVer( tuint16 itype , long * plAffcGmtTime = NULL );  
 
-	int Copy3086PicToSystemPath();
 };
 
 
 
-
+extern d_paratime_t * gp_paratime_t;
 
 
 #endif

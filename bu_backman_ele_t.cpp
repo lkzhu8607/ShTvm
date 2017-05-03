@@ -74,6 +74,8 @@ static void SOPLabel( const std::string & strName, const std::string & strValue,
 {
 	gp_ui->LabelMkStrPrep( 1, strName, strValue , 
 							x , y , SOPFONTSIZE , "black" );
+
+	
 }
 
 //
@@ -113,7 +115,11 @@ static int UseChMap(int ch)
 
 static std::string get_menu_ele( int x, int y )
 {
-	return SStrvs::vsa2v_get( iv_strMenuContent, std::string("\n"), 0, std::string("\t"), 0, y, x );
+	std:string strMenu; 
+	//LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "iv_strMenuContent=" <<iv_strMenuContent );
+	strMenu = SStrvs::vsa2v_get( iv_strMenuContent, std::string("\n"), 0, std::string("\t"), 0, y, x );
+	//LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "strMenu=" <<strMenu );
+	return strMenu;
 }
 
 
@@ -344,6 +350,7 @@ void bu_backman_ele_t::MkCurrMenu()
 	{
 		strCurrEle = get_menu_ele( m_x, j++ );
 		SStrf::strim( strCurrEle );
+		//LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "strCurrEle=" <<strCurrEle );
 
 		if( strCurrEle == "" ) continue;
 
@@ -1338,7 +1345,7 @@ void bu_backman_ele_t::f_CoinReturn_Test()
 
 	ret = 0;
 	//1.硬币退币
-	gp_coin->returnCoin();
+	gp_coin->returnCoin(9);
 	
 	if( ret != 0 )	 
 	{
@@ -1488,6 +1495,11 @@ void bu_backman_ele_t::f_BillStock_Test()
 		return ;
 	}
 
+
+	UINT32 ReDeno[4]={0,0,0,0};
+	UINT32 ReCount[4]={0,0,0,0};
+	gp_bill->dBill_GetRecycleDenomination(ReDeno,ReCount);
+
 	m_Scr1.push_back( "发送命令成功" );
 }
 
@@ -1532,6 +1544,8 @@ void bu_backman_ele_t::f_BillCollect_Test()
 		gp_db->m_a5041.GetRow(0).m_e.a[127] = 1;     //设置压箱失败事件码
 		return ;
 	}
+
+	gp_bill->dBill_QueryCashUint();
 
 	m_Scr1.push_back( "发送命令成功" );
 }
@@ -2429,7 +2443,7 @@ void bu_backman_ele_t::f_ClearingCoin()
 
 	//清出的数字记LOG
 	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << "硬币清币 1元循环找零数量：" << Rb8701.m_CoinCleanCount );
-	BACK_REC( "硬币清币 1元循环找零数量：" << Rb8701.m_CoinCleanCount );
+	//BACK_REC( "硬币清币 1元循环找零数量：" << Rb8701.m_CoinCleanCount );
 	m_Scr1.push_back( "硬币清币硬件 1元循环找零数量：" + SStrf::sltoa( Rb8701.m_CoinCleanCount ) );
 	m_Scr1.push_back( "硬币清币内存 1元循环找零数量：" + SStrf::sltoa( Rb8701.m_A1YuanCycleChg ) );
 
@@ -2441,7 +2455,7 @@ void bu_backman_ele_t::f_ClearingCoin()
 	gp_coin->dCoin_End_Clean( 0x02 );
 	//清出的数字记LOG
 	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << "硬币清币 5角循环找零数量：" << Rb8701.m_CoinCleanCount );
-	BACK_REC( "硬币清币 5角循环找零数量：" << Rb8701.m_CoinCleanCount );
+	//BACK_REC( "硬币清币 5角循环找零数量：" << Rb8701.m_CoinCleanCount );
 	m_Scr1.push_back( "硬币清币硬件 5角循环找零数量：" + SStrf::sltoa( Rb8701.m_CoinCleanCount ) );
 	m_Scr1.push_back( "硬币清币内存 5角循环找零数量：" + SStrf::sltoa( Rb8701.m_A5MaoCycleChg ) );
 
@@ -2454,7 +2468,7 @@ void bu_backman_ele_t::f_ClearingCoin()
 	gp_coin->dCoin_End_Clean( 0x04 );
 	//清出的数字记LOG
 	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << "硬币清币 1元专用找零数量：" << Rb8701.m_CoinCleanCount );
-	BACK_REC( "硬币清币 1元专用找零数量：" << Rb8701.m_CoinCleanCount );
+	//BACK_REC( "硬币清币 1元专用找零数量：" << Rb8701.m_CoinCleanCount );
 	m_Scr1.push_back( "硬币清币硬件 1元专用找零数量：" + SStrf::sltoa( Rb8701.m_CoinCleanCount ) );
 	m_Scr1.push_back( "硬币清币内存 1元专用找零数量：" + SStrf::sltoa( Rb8701.m_CoinCleanCount ) );
 
@@ -2468,7 +2482,7 @@ void bu_backman_ele_t::f_ClearingCoin()
 	gp_coin->dCoin_End_Clean( 0x08 );
 	//清出的数字记LOG
 	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << "硬币清币 5角专用找零数量：" << Rb8701.m_CoinCleanCount );
-	BACK_REC( "硬币清币 5角专用找零数量：" << Rb8701.m_CoinCleanCount );
+	//BACK_REC( "硬币清币 5角专用找零数量：" << Rb8701.m_CoinCleanCount );
 	m_Scr1.push_back( "硬币清币硬件 5角专用找零数量：" + SStrf::sltoa( Rb8701.m_CoinCleanCount ) );
 	m_Scr1.push_back( "硬币清币内存 5角专用找零数量：" + SStrf::sltoa( Rb8701.m_CoinCleanCount ) );
 

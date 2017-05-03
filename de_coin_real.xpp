@@ -632,6 +632,50 @@ int de_coin_t::dCoinBletRoll()
 	return iResult;
 }
 
+int de_coin_t::dCoinBletRoll(int CoinCount)
+{
+	MYAUTOLOCK( m_DevLck );
+	int iResult;
+
+	//if ( IsCoinStopUse() ) return 0;
+	BYTE Data[6] = {0,0,0,0,0,0};
+	if(CoinCount < 10){
+		Data[0] = 0x05;
+		SStrf::writebit( &(Data[0]), 7, 0 );
+		Data[1] = 0x14;
+		SStrf::writebit( &(Data[1]), 7, 1 );
+
+		Data[2] = 0x05;
+		SStrf::writebit( &(Data[2]), 7, 0 );
+		Data[3] = 0x06;
+		SStrf::writebit( &(Data[3]), 7, 1 );
+
+		Data[4] = 0x05;
+		SStrf::writebit( &(Data[4]), 7, 0 );
+		Data[5] = 0x14;
+		SStrf::writebit( &(Data[5]), 7, 1 );
+	}
+	else{
+		Data[0] = 0x05;
+		SStrf::writebit( &(Data[0]), 7, 0 );
+		Data[1] = 0x23;
+		SStrf::writebit( &(Data[1]), 7, 1 );
+
+		Data[2] = 0x05;
+		SStrf::writebit( &(Data[2]), 7, 0 );
+		Data[3] = 0x05;
+		SStrf::writebit( &(Data[3]), 7, 1 );
+
+		Data[4] = 0x0A;
+		SStrf::writebit( &(Data[4]), 7, 0 );
+		Data[5] = 0x1E;
+		SStrf::writebit( &(Data[5]), 7, 1 );
+	}
+	iResult = m_coinmodule.Coin_Belt_Roll(Data);
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Coin_Belt_Roll Result="<<iResult );
+	return iResult;
+}
+
 
 //
 int de_coin_t::dCoinHold()
@@ -1013,7 +1057,7 @@ int de_coin_t::CycleBoxChg(long Yuan1Count)
 		return -1;
 	}
 	WThrd::tr_sleepu( 0.2 );
-	this->dCoinBletRoll();//通过转动皮带将找零的硬币提升到退币口
+	this->dCoinBletRoll(Yuan1Count);//通过转动皮带将找零的硬币提升到退币口
 }
 
 void de_coin_t::returnCoin()//出票不成功退币
@@ -1024,6 +1068,16 @@ void de_coin_t::returnCoin()//出票不成功退币
 	this->dCoin2Return();//非找零性退币
 	WThrd::tr_sleepu( 0.2 );
 	this->dCoinBletRoll();
+}
+
+void de_coin_t::returnCoin(int CoinCount)//出票不成功退币
+{
+	//if ( IsCoinStopUse() ) return ;
+
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin2Return();//非找零性退币
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoinBletRoll(CoinCount);
 }
 
 
@@ -1080,6 +1134,19 @@ void de_coin_t::padTriggerReturnKey()
 	//return 0;
 }
 
+//界面触发"返回"
+void de_coin_t::padTriggerReturnKey(int CoinCount)
+{
+	//if ( IsCoinStopUse() ) return ;
+	//WThrd::tr_sleepu( 0.2 );
+	this->dCoin_Stop();//关投币口
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin2Return();//非找零性退币
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoinBletRoll(CoinCount);//提升皮带将退币退回到找币口
+	//return 0;
+}
+
 //界面触发"取消"
 void de_coin_t::padTriggerCancelKey()
 {
@@ -1091,6 +1158,19 @@ void de_coin_t::padTriggerCancelKey()
 	this->dCoin2Return();//非找零性退币
 	WThrd::tr_sleepu( 0.2 );
 	this->dCoinBletRoll();
+}
+
+//界面触发"取消"
+void de_coin_t::padTriggerCancelKey(int CoinCount)
+{
+	//if ( IsCoinStopUse() ) return ;
+
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin_Stop();
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoin2Return();//非找零性退币
+	WThrd::tr_sleepu( 0.2 );
+	this->dCoinBletRoll(CoinCount);
 }
 
 int de_coin_t::CleanCoinStock()
@@ -1190,7 +1270,7 @@ int de_coin_t::RepCoinStock()
 			if( 1 )
 			{
 				MYAUTOLOCK( gp_coin->m_DevLck );
-				gp_coin->m_iIsRepCoinOk[0] = 0;
+				gp_coin->m_iIsRepCoinOk[1] = 0;
 				irc = 0;
 			}
 		}

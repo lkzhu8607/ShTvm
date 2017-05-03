@@ -659,10 +659,11 @@ int de_bill_t::dBill_Reboot()
 }
 
 //获取版本信息
-int de_bill_t::dBill_GetVersion()
+int de_bill_t::dBill_GetVersion(char Appversion[16],char MainModelSN[16])
 {	
 	using namespace BillBNR;
-	return 0;
+	int ret = bnr_demo.CBNR_GetMoudleInfo(Appversion,MainModelSN);
+	return ret;
 }
 //找零
 int de_bill_t::dBill_Change(int method,UINT32* CBone,UINT32* CBtwo,UINT32* CBthree,UINT32 *CBfour)

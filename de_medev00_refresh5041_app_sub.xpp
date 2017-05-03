@@ -29,7 +29,26 @@ tbool de_medev_t::Refresh5041_app_sub()
 	{
 		EVT_CHG(4,0);
 	}
-
+	
+	//Check Is Update Para To Stop Serice
+	if(1 == gp_medev->m_iIsUpdateParaToStopSerice)
+	{
+		long lParaVer3083 = gp_paratime_t->GetParaCurrVer(0x3083);
+		long lParaVer3084 = gp_paratime_t->GetParaCurrVer(0x3084);
+		long lParaVer3086 = gp_paratime_t->GetParaCurrVer(0x3086);
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"GetParaCurrVer 0x3083 = "<<lParaVer3083<<"m_A3083Get5000NewVer="<<gp_medev->m_A3083Get5000NewVer );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"GetParaCurrVer 0x3084 = "<<lParaVer3083<<"m_A3084Get5000NewVer="<<gp_medev->m_A3084Get5000NewVer );
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"GetParaCurrVer 0x3086 = "<<lParaVer3083<<"m_A3086Get5000NewVer="<<gp_medev->m_A3086Get5000NewVer );
+		if(lParaVer3083 == gp_medev->m_A3083Get5000NewVer &&
+		   lParaVer3084 == gp_medev->m_A3084Get5000NewVer)
+		{
+			if(lParaVer3086 == gp_medev->m_A3086Get5000NewVer)
+			{
+				//gp_medev->m_iIsUpdateParaToStopSerice =0;
+				gp_medev->m_iIsUpdatePic = 1;
+			}
+		}
+	}
 
 	//8	连续通信故障	√	√		√		5
 	if( gp_conf->m_biScConnOk )
@@ -71,11 +90,25 @@ tbool de_medev_t::Refresh5041_app_sub()
 			gp_medev->m_IsChangeToStopSerice == 1 )
 		{
 			S0_CHG(1,1);
+		
+			if( 0 == (m_bSendReg6000EventFlag & (0x01 << 4)) )
+			{
+				//send 6000 1F
+				bu_asynwork_t::SendReg6000ForEvent(0x1F);
+				m_bSendReg6000EventFlag |= (0x01 << 4) ;
+			}
+			
 			
 		}
 		else
 		{
 			S0_CHG(1,0);
+			if( 0 != (m_bSendReg6000EventFlag & (0x01 << 4)) )
+			{
+				//send 6000 1E
+				bu_asynwork_t::SendReg6000ForEvent(0x1E);
+				m_bSendReg6000EventFlag &= ~(0x01 << 4) ;
+			}
 			
 		}
 

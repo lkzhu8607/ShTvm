@@ -64,9 +64,13 @@ int de_coinbox_t::tr_on_user_run()
 		WThrd::tr_sleep( 1 );
 	}*/
 	
-    // index 4:回收箱   5:补币箱
+    // 
 	if(SStrf::readbit( Rb8701.m_SensorStatus.a[2], 5) == 0 )
 	{
+		if(1 == m_already_printflag)
+		{
+			bu_asynwork_t::SendReg6000ForEvent(0x08);
+		}
 		m_already_printflag=0;
 		//WThrd::tr_sleep(0.5);
 		if(alertFlag == 1){
@@ -120,10 +124,11 @@ int de_coinbox_t::tr_on_user_run()
 	{
 		strcat(info_str,"非法取走硬币回收箱\n");
 		m_coinbox_ok_flag = 0;
-		LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "illegal Take Coin Box：" );
+		//LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "illegal Take Coin Box：" );
 		//bu_asynwork_t::DoAlarmnSec(5);
 		if (!alertFlag){
 			gp_coin->dCoinOpenAlert();
+			LOGSTREAM( gp_log[LOGSOP], LOGPOSI << "illegal Take Coin Box：" );
 			alertFlag = 1;
 		}
 	}
@@ -156,6 +161,10 @@ int de_coinbox_t::tr_on_user_run()
 	std::string str(info_str);
 	gp_printer->PrintStrAsync( str );
 	m_already_printflag = 1;
+
+	//上传6000
+	bu_asynwork_t::SendReg6000ForEvent(0x07);
+
 	return 1;
 }
 

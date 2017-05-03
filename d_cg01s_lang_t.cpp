@@ -50,11 +50,11 @@ void d_cg01s_lang_t::ShowLangButt()
 	row.m_hot = 1;
 	row.m_funcname = "ShowLangButt";
 	row.m_funcvalue = 0;
-	this->AddLg( m_Lg, row );
+	//this->AddLg( m_Lg, row );
 	//gp_ui->LabelPrep(row);
 	//gp_ui->pic_task(row);
-	plocalcg01->graphElementsCN.push_back(row);
-	plocalcg01->graphElementsEN.push_back(row);
+	plocalcg01->graphMainInterfaceCN.push_back(row);
+	plocalcg01->graphMainInterfaceEN.push_back(row);
 }
 
 
@@ -64,7 +64,7 @@ tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 	std::vector<a_label_t::ROWTYPE>  row;
 	plocalcg01->displayFlag = 0;
 	if(plocalcg01->langFlag == 0){
-		if( this->LocateHot( plocalcg01->graphElementsEN, strinput, row ) )
+		if( this->LocateHot( plocalcg01->graphMainInterfaceCN, strinput, row ) )
 		{
 			for(int j=0;j<row.size();j++){
 				if( row[j].m_funcname == "ShowLangButt")
@@ -77,7 +77,7 @@ tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 		}
 	}
 	else if(plocalcg01->langFlag == 1){
-		if( this->LocateHot( plocalcg01->graphElementsEN, strinput, row ) )
+		if( this->LocateHot( plocalcg01->graphMainInterfaceEN, strinput, row ) )
 		{
 			for(int j=0;j<row.size();j++){
 				if( row[j].m_funcname == "ShowLangButt")
@@ -85,7 +85,7 @@ tbool d_cg01s_lang_t::Find_n_do_ShowLangButt( std::string strinput )
 					plocalcg01->cg01_graphElementsHide(plocalcg01->langFlag);
 					plocalcg01->langFlag = 0;		
 					return 1;
-				}
+				}			
 			}
 		}
 	}

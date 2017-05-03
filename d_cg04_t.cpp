@@ -77,6 +77,7 @@ L_CHANGESTATUS:
 					plocalcg04->graphElementsCN[i].m_iShouldShow = 0;
 					continue;
 				}
+
 			}
 		}
 		else

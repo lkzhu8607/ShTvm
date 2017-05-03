@@ -138,7 +138,8 @@ public:
 				int ticketbadcount = 0;
 				b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
 
-				while( ticketbadcount < gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes  )   //该数需要走3002参数
+				long lTicketWriteFailTimes = (gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes>=3)?gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes:3;
+				while( ticketbadcount < lTicketWriteFailTimes  )   //该数需要走3002参数
 				{
 					//WThrd::tr_sleepu( 0.5 );
 					if(iResult = gp_emitticket->MkTicketReady())

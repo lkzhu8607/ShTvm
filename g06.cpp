@@ -3177,15 +3177,10 @@ void GetYunYingDT( wl::SDte &YunYingStartDt,wl::SDte &YunYingEndDt )
 
 	YunYingStartDt.RelativeSec( (tint32)gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0]*15*60 );    //运营开始时间
 
-	LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"YunYingStartDt="<<wl::SStrf::sltoa(gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0]*15 ) );
+	//LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"YunYingStartDt="<<wl::SStrf::sltoa(gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0]*15 ) );
 
-	if( gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0] >= gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1] )
-	{
-		YunYingEndDt.RelativeDay(1);
-	}
-	
 	YunYingEndDt.RelativeSec( (tint32)gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1]*15*60 );    //运营结束时间
-	LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"YunYingEndDt="<<wl::SStrf::sltoa( gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1]*15 ) );
+	//LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"YunYingEndDt="<<wl::SStrf::sltoa( gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1]*15 ) );
 }
 
 // 是否处于运营时间段  1表示在
@@ -3197,7 +3192,14 @@ int IsYunYingDT( wl::SDte dtnow ,wl::SDte *pdtstart /*= NULL*/ )
 	dtstart = dtnow;
 	dtend = dtnow;
 
+	if( gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[0] >= gp_db->m_a3002.GetRow(0).m_StaWorkTime.a[1] )
+	{
+		dtend.RelativeDay(1);
+	}
+
 	GetYunYingDT( dtstart,dtend );
+
+	//LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"dtstart="<<dtstart.ReadString()<<"dtend="<<dtend.ReadString()<<"dtnow="<<dtnow.ReadString());
 
 	if( dtstart <= dtnow &&
 		dtnow <= dtend )
@@ -3209,6 +3211,8 @@ int IsYunYingDT( wl::SDte dtnow ,wl::SDte *pdtstart /*= NULL*/ )
 	dtstart.RelativeDay(-1);
 	dtend.RelativeDay(-1);
 	GetYunYingDT( dtstart,dtend );
+	//LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"dtstart="<<dtstart.ReadString()<<"dtend="<<dtend.ReadString()<<"dtnow="<<dtnow.ReadString());
+
 
 	if( dtstart <= dtnow &&
 		dtnow <= dtend )
@@ -3449,6 +3453,10 @@ bool CanChange( int iChangeLimit /*= 4900*/ ,long *iChangeCoin /*= NULL*/ ,long 
 		rcoin = gp_db->m_b8701.GetRow(0);
 	}
 
+	UINT32 ReDeno[4]={0,0,0,0};
+	UINT32 ReCount[4]={0,0,0,0};
+	gp_bill->dBill_GetRecycleDenomination(ReDeno,ReCount);
+
 	b8702_t::ROWTYPE rbill;
 	if(1)
 	{
@@ -3459,10 +3467,6 @@ bool CanChange( int iChangeLimit /*= 4900*/ ,long *iChangeCoin /*= NULL*/ ,long 
 	iRMB50  = rcoin.m_A5MaoCycleChg /*+ rcoin.m_A5MaoSpecialChg*/ ;
 	iRMB100 = rcoin.m_A1YuanCycleChg /*+ rcoin.m_A1YuanSpecialChg*/ ;
 	//gp_bill->dBill_QueryCashUint();
-
-	UINT32 ReDeno[4]={0,0,0,0};
-	UINT32 ReCount[4]={0,0,0,0};
-	gp_bill->dBill_GetRecycleDenomination(ReDeno,ReCount);
 
 	for(int i=0;i<4;i++)
 	{
@@ -3638,6 +3642,8 @@ void AddMachineDataTo6000()
 	
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 54 ] = 0;
 	gp_db->m_a6000.GetRow(0).m_Reg.a[ 55 ] = 0;
+
+	gp_db->RiseSaveFlag( gp_db->m_a6000 );
 }
 
 
@@ -3646,7 +3652,7 @@ int ReturnCoinAndBill( a_waiter_t_rowtype&  waiter_data )
 	
 	if(waiter_data.m_ReceiveCoin >0)
 	{
-		gp_coin->returnCoin();//退硬币
+		gp_coin->returnCoin(waiter_data.m_ReceiveCoin);//退硬币
 		//waiter_data.m_ReceiveCoin = 0;
 		//waiter_data.m_ReceiveTotal = waiter_data.m_ReceiveBill;
 	}
@@ -3767,7 +3773,7 @@ int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
 		
 	std::string sRemoteFile = update3086.sPicPath + "/" + update3086.sPicFn;
 
-	std::string sLoaclFilePath  =  "/mnt";
+	std::string sLoaclFilePath  =  "/mnt/db3";
 	std::string sLoaclFileName = update3086.sPicFn;
 	std::string sLoaclFile  =  sLoaclFilePath +"/"+ sLoaclFileName;
 	std::string sLoaclTempFile = sLoaclFileName + ".tmp";
@@ -3795,7 +3801,7 @@ int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
 
 	for(int i=0;i<8;i++)
 	{
-		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|md5_encode= "<<wl::SStrf::GetBcdStr( binmd5[i] )<<"!= picChk="<<wl::SStrf::GetBcdStr( picChk.a[i] ) );
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|md5_encode= "<<wl::SStrf::GetBcdStr( binmd5[i] )<<" picChk="<<wl::SStrf::GetBcdStr( picChk.a[i] ) );
 		if( binmd5[i] != picChk.a[i] )
 		{
 			LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|md5_encode != picChk" );
@@ -3814,25 +3820,19 @@ int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
 	printf("%s\n",cmd_str);
 	system(cmd_str);
 
-	//std::string sDestFilePath = WFile::MkDir2Path( gp_conf->Get_datapath3() );
-	//std::string ssep = ".";
-	//std::vector<std::string > vTemp;
+	std::string sDestFilePath = WFile::MkDir2Path( gp_conf->Get_datapath3() );
+	std::string ssep = ".";
+	std::vector<std::string > vTemp;
 
-	//wl::SStrvs::vsa_imp(update3086.sPicFn,ssep,0,vTemp);
+	wl::SStrvs::vsa_imp(update3086.sPicFn,ssep,0,vTemp);
 
-	//std::string strtemp;
-	//std::string sSrcFilePath  = "/mnt/" + vTemp.at(0);
-	//snprintf(cmd_str,sizeof(cmd_str)-1,"cp -rf %s %s;",sSrcFilePath.c_str(),sDestFilePath.c_str());
-	//printf("%s\n",cmd_str);
-	//strtemp = cmd_str;
-	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|cp=" << strtemp );
-	//system(cmd_str);
+	std::string strtemp;
+	snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf /mnt/db3/*.zip;");
+	printf("%s\n",cmd_str);
+	strtemp = cmd_str;
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|rm=" << strtemp );
+	system(cmd_str);
 
-	//snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf %s.*;",sSrcFilePath.c_str());
-	//printf("%s\n",cmd_str);
-	//strtemp = cmd_str;
-	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|rm=" << strtemp );
-	//system(cmd_str);
 	
 	FtpClient.quitServer();
 
@@ -3840,5 +3840,133 @@ int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk )
 	//printf("%s\n",cmd_str);
 	//system(cmd_str);
 	
+	return 0;
+}
+
+int Copy3086PicToSystemPath()
+{
+
+	char cmd_str[512]={0,};
+	std::string sDestFilePath = WFile::MkDir2Path( gp_conf->Get_datapath3() );
+	std::string ssep = ".";
+	std::vector<std::string > vTemp;
+
+	wl::SStrvs::vsa_imp(gp_db->m_a3086.GetRow(0).m_strPicFn,ssep,0,vTemp);
+
+	std::string strtemp;
+	std::string sSrcFilePath  = "/mnt/" + vTemp.at(0);
+	snprintf(cmd_str,sizeof(cmd_str)-1,"cp -rf %s/* %s;",sSrcFilePath.c_str(),sDestFilePath.c_str());
+	printf("%s\n",cmd_str);
+	strtemp = cmd_str;
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|cp=" << strtemp );
+	system(cmd_str);
+
+	snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf %s*;",sSrcFilePath.c_str());
+	printf("%s\n",cmd_str);
+	strtemp = cmd_str;
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|rm=" << strtemp );
+	system(cmd_str);
+}
+
+int get_mac(char *mac ,int len_limit)
+{
+	struct ifreq ifreq;
+	int sock;
+	
+	if((sock = socket(AF_INET ,SOCK_STREAM ,0)) < 0)
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "|socket Error" );
+		return -1;
+	}
+
+	strcpy(ifreq.ifr_name ,"em1");
+	if(ioctl(sock,SIOCGIFHWADDR ,&ifreq) < 0)
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "|ioctl Error" );
+		return -1;
+	}
+
+	return snprintf(mac ,len_limit ,"%02X:%02X:%02X:%02X:%02X:%02X",
+			(unsigned char)ifreq.ifr_hwaddr.sa_data[0] ,
+			(unsigned char)ifreq.ifr_hwaddr.sa_data[1] ,
+			(unsigned char)ifreq.ifr_hwaddr.sa_data[2] ,
+			(unsigned char)ifreq.ifr_hwaddr.sa_data[3] ,
+			(unsigned char)ifreq.ifr_hwaddr.sa_data[4] ,
+			(unsigned char)ifreq.ifr_hwaddr.sa_data[5] );
+}
+
+//return value:   -1 error   0:change  1:first 2 :no change
+int GetIsChangeMachine(std::string & strNewMAC)
+{
+	//1.获得主机MAC
+	char szMac[18] = {0};
+	int nRtn = get_mac(szMac ,sizeof(szMac));
+	if(nRtn < 0)
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "|get_mac error");
+		return -1;
+	}
+
+	std::string strMAC (szMac);
+	
+	//2.读文件中MAC
+	wl::SFile fLastMAC ;
+	fLastMAC.bind("thismacaddr.txt");
+	if(!fLastMAC.exists())
+	{
+		//write
+		fLastMAC.write_str(strMAC);
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "|First Read MAC ADDR:"<< strMAC);
+		return 1;
+	}
+
+	std::string strConfMAC = "";
+	fLastMAC.read_str(strConfMAC);
+	SStrf::strim( strConfMAC );
+	//3.比较两个MAC
+	if(strMAC == strConfMAC)
+	{
+		return 2;
+	}
+
+	LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "|MAC Have Change:This MAC="<< strMAC<<" LastMAC="<<strConfMAC);
+	strNewMAC = strMAC;
+	fLastMAC.write_str(strMAC);
+	return 0;
+
+}
+
+int CheckMachineChangeAndSend5043()
+{
+	int irc = -1;
+	std::string strNewMAC;
+	//1.检测工控机是否换过
+	irc = GetIsChangeMachine(strNewMAC);
+	if( irc != 0 )
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "Machine No Change");
+		return -1;
+	}
+
+	//发送5043
+	EQUIPPARTMESS5041 equippartmess;
+	std::vector<EQUIPPARTMESS5041> vEquipPartMess;
+	equippartmess.bType = 0x1C;
+	memset(equippartmess.bVersion,0,sizeof(equippartmess.bVersion));
+	memset(equippartmess.bPins,0,sizeof(equippartmess.bPins));
+
+
+	std::string ssep = ":";
+	std::vector<std::string> vTemp;
+	wl::SStrvs::vsa_imp(strNewMAC,ssep,0,vTemp);
+	for(int i=0;i<(int)vTemp.size();i++)
+	{
+		//LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "vTemp[i]="<<vTemp[i]<<" transto u16="<<(tuint8)wl::SStrf::satol_16(vTemp[i]));
+		equippartmess.bPins[i] = (tuint8)wl::SStrf::satol_16(vTemp[i]);
+	}
+
+	vEquipPartMess.push_back(equippartmess);
+
+	de_tcpmsg_t::SendEquipPartMessage5043(vEquipPartMess);
 	return 0;
 }

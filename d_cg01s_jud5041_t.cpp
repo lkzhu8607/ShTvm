@@ -15,7 +15,6 @@
 
 
 
-
 //
 d_cg01s_jud5041_t::d_cg01s_jud5041_t()
 {
@@ -29,8 +28,8 @@ d_cg01s_jud5041_t::~d_cg01s_jud5041_t()
 
 
 //return value :
-// 2 : ??????
-// 1 : ??????
+// 2 : 故障暂停服务
+// 1 : 普通暂停服务
 // 0 : normal 
 tbool d_cg01s_jud5041_t::Find_n_do_stopservice( std::string strinput )
 {
@@ -38,11 +37,11 @@ tbool d_cg01s_jud5041_t::Find_n_do_stopservice( std::string strinput )
 	{
 		//a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041());
 
-		//?if????,?return 1
+		//再if状态不对，则return 1
 		int irc = gp_medev->IntegratedStateGood();
 		if( 0 == irc )
 		{
-			a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041()); //????	
+			a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041()); //试验代码	
 
 			//gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 			//plocalcg01->displayFlag = 0;
@@ -84,7 +83,7 @@ tbool d_cg01s_jud5041_t::Find_n_do_gotowork( std::string strinput )
 	{
 		//a5041_t::ROWTYPE & Ra5041(gp_db->GetTheRowa5041());
 		 
-		// ?????????,???gotowork 
+		// 综合状态可以工作的，要返回gotowork 
 		int irc = gp_medev->IntegratedStateGood() ;
 		if( ( 1 == irc ) )
 		{

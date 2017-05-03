@@ -244,7 +244,7 @@ int de_bill_t::dBill_Reboot()
 }
 
 //获取版本信息
-int de_bill_t::dBill_GetVersion()
+int de_bill_t::dBill_GetVersion(char Appversion[16],char MainModelSN[16])
 {
 	return 0;
 }

@@ -76,8 +76,6 @@ void d_cg03s_oneline_t::Showoneline()
 		row1.m_hot = 0;
 		row1.m_funcname = "EN_line"+SStrf::sltoa((int)row3084tmp.m_LineCode)+"Pic";
 		row1.m_funcvalue = row3084tmp.m_LineCode;
-		//this->AddLg( m_Lg, row1 );
-		//gp_ui->LabelPrep(row1);
 		gp_ui->pic_task(row1);
 		ENtmp.push_back(row1);
 		
@@ -96,12 +94,8 @@ void d_cg03s_oneline_t::Showoneline()
 			row.m_hot = 1;
 			row.m_funcname = "CN_line"+SStrf::sltoa((int)row3084tmp.m_LineCode);
 			row.m_funcvalue = row3084t.m_StaCode.a[i];
-			//this->AddLg( m_Lg, row );
-			//gp_ui->LabelPrep(row);
-			//gp_ui->pic_task(row);
 			CNtmp.push_back(row);
 			ENtmp.push_back(row);
-			//gp_ui->LabelPrep(row);
 		}	
 		plocalcg03->graphLineStationCN.push_back(CNtmp);
 		plocalcg03->graphLineStationEN.push_back(ENtmp);
@@ -112,6 +106,22 @@ void d_cg03s_oneline_t::Showoneline()
 //
 tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 {
+	//购当前站票不被允许
+	//a1040_t::ROWTYPE & Ra1040(gp_db->m_a1040.GetRow(0));
+	//std::string CurrentStation;
+	//std::string TargetStation;
+	
+	/*unsigned char t_line = 0x0F;	
+	
+	t_line &= (Ra1040.m_CcNode.a[0] >> 4);	
+	int lineNum = (t_line * 10);	
+	t_line = Ra1040.m_CcNode.a[0] & 0x0F;	
+	lineNum += t_line;	*/
+	a3014_t::ROWTYPE r3014;
+	r3014 = gp_db->m_a3014.GetRow(0);
+	
+	//CurrentStation = gp_db->GetMyStaName();
+	
 	std::vector<a_label_t::ROWTYPE>  row;
 	if(plocalcg03->langFlag == 0){
 		if( this->LocateHot( plocalcg03->graphLineStationCN[plocalcg03->lineIndex], strinput, row ) )
@@ -124,7 +134,12 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 				
 					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)gp_frontman_mgr->m_cg03.m_iLineCode );
 					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)row[i].m_funcvalue );
-			
+					
+					//TargetStation = gp_db->GetThatStaName(ScNode);
+					//if(CurrentStation.compare(TargetStation) == 0)
+					if(r3014.m_ScNode.a[0] == ScNode.a[0] && r3014.m_ScNode.a[1] == ScNode.a[1])
+						return 0;
+					
 					if( !gp_db->GetPossiblePrices(v,ScNode) )
 					{
 						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "???????????????" << SStrf::b2s(ScNode) << " ??????" << SStrf::b2s(gp_db->GetTheRowa3014().m_EqpNode) );
@@ -158,7 +173,12 @@ tbool d_cg03s_oneline_t::Find_n_do_Showoneline( std::string strinput )
 				
 					ScNode.a[0] = SStrf::Num2Bcd( (tuint8)gp_frontman_mgr->m_cg03.m_iLineCode );
 					ScNode.a[1] = SStrf::Num2Bcd( (tuint8)row[i].m_funcvalue );
-			
+					
+					//TargetStation = gp_db->GetThatStaName(ScNode);
+					//if(CurrentStation.compare(TargetStation) == 0)
+					if(r3014.m_ScNode.a[0] == ScNode.a[0] && r3014.m_ScNode.a[1] == ScNode.a[1])
+						return 0;
+					
 					if( !gp_db->GetPossiblePrices(v,ScNode) )
 					{
 						LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "???????????????" << SStrf::b2s(ScNode) << " ??????" << SStrf::b2s(gp_db->GetTheRowa3014().m_EqpNode) );

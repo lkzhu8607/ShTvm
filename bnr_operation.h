@@ -389,9 +389,9 @@ class CBNROperation
 		T_BnrXfsResult CBNR_LockCashBox(std::string vstrname, bool block);
 
 
-		//èŽ·å–çº¸å¸æ¨¡å—ä¿¡æ¯
-		T_BnrXfsResult CBNR_GetMoudleInfo();
-		//èŽ·å–æ¨¡å—IDåˆ—è¡¨
+		//获取纸币模块信息
+		T_BnrXfsResult CBNR_GetMoudleInfo(char Appversion[16],char MainModelSN[16]);
+		//获取模块ID列表
 		T_BnrXfsResult CBNR_GetMoudles(T_ModuleIdList *moduleList);
 		//å¤„ç†USBçº¿è¢«æ‹”æŽ‰å’Œé‡æ–°æ’ä¸?
 		T_BnrXfsResult CBNR_DoUSBOpen(T_BnrXfsResult iresult);

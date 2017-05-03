@@ -102,6 +102,11 @@ int de_bill_cashbox_t::tr_on_user_run()
     // index 4:回收箱   5:补币箱
 	if(R8702.m_boxExist.a[4]==1)
 	{
+		if(1 == m_already_printflag)
+		{
+			bu_asynwork_t::SendReg6000ForEvent(0x19);
+		}
+
 		m_already_printflag=0;
 		WThrd::tr_sleep(0.5);
 		return 1;
@@ -218,6 +223,9 @@ int de_bill_cashbox_t::tr_on_user_run()
 	std::string str(info_str);
 	gp_printer->PrintStrAsync( str );
 	m_already_printflag = 1;
+
+	//上传6000
+	bu_asynwork_t::SendReg6000ForEvent(0x18);
 	return 1;
 	
 }

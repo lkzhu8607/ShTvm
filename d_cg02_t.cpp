@@ -104,18 +104,6 @@ void d_cg02_t::Proc()
 	d_cg01s_jud5041_t  cg01s_jud5041;
 	b8701_t::ROWTYPE & Rb8701(gp_db->GetTheRowb8701());
 	b8702_t::ROWTYPE & Rb8702(gp_db->GetTheRowb8702());
-	/*if(plocalcg02->pageGraphElementsFlags == 0){
-		cg02s_backpic.ShowBack1();
-		cg02s_goback.ShowGoback();
-		cg02s_pieceshow.ShowPieceButtBoard();
-		cg02s_pieceshow.ShowPieceInfo();
-		cg02s_pieceshow.ShowPayednchg();
-		cg02s_cancel.Showcancel();
-		cg02s_goodbillcoin.ShowValidMoneyType();
-		cg02s_machinestate.ShowStatus();
-		plocalcg02->pageGraphElementsFlags = 1;
-		//SetLanguageCh();
-	}*/
 	
 	a_waiter_t_rowtype  waiter_data; // 本窗体接收钱。记录收钱各币种的数量。 
 	//de_coin_t coin_data;//主界面直接调用coin操作
@@ -192,15 +180,6 @@ void d_cg02_t::Proc()
 							continue;
 						}
 					}
-
-					/*if(plocalcg02->graphElementsCN[i].m_name == "CN_exceptionNotesType"){
-						plocalcg02->exceptNoteIndex = i;
-						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 && gp_bill->m_iIsNotBillChange == 1){
-							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
-							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
-							continue;
-						}
-					}*/
 					if(plocalcg02->graphElementsCN[i].m_name == "CN_NotesType"){
 						plocalcg02->notesIndex = i;
 						//SetLanguageCh();
@@ -210,14 +189,7 @@ void d_cg02_t::Proc()
 						continue;
 
 					}						
-					/*if(plocalcg02->graphElementsCN[i].m_name == "CN_NormalNotesType"){
-						plocalcg02->normalNoteIndex = i;
-						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0){
-							gp_ui->showLabel(plocalcg02->graphElementsCN[i]);
-							plocalcg02->graphElementsCN[i].m_iShouldShow = 1;
-							continue;
-						}
-					}	*/				
+									
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsCN[i].m_name == "CN_CoinType"){
 							plocalcg02->coinsIndex = i;
@@ -314,15 +286,6 @@ void d_cg02_t::Proc()
 							continue;
 						}
 					}
-
-					/*if(plocalcg02->graphElementsEN[i].m_name == "EN_exceptionNotesType"){
-						plocalcg02->exceptNoteIndex = i;
-						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0 && gp_bill->m_iIsNotBillChange == 1){
-							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
-							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
-							continue;
-						}
-					}*/
 					if(plocalcg02->graphElementsEN[i].m_name == "EN_NotesType"){
 						plocalcg02->notesIndex = i;
 						//SetLanguageEn();
@@ -331,14 +294,6 @@ void d_cg02_t::Proc()
 						plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
 						continue;
 					}
-					/*if(plocalcg02->graphElementsEN[i].m_name == "EN_NormalNotesType"){
-						plocalcg02->normalNoteIndex = i;
-						if(Rb8702.m_ConnState == 1 && Rb8702.m_BigErr == 0 && Rb8702.m_BillStopUseFlag == 0){
-							gp_ui->showLabel(plocalcg02->graphElementsEN[i]);
-							plocalcg02->graphElementsEN[i].m_iShouldShow = 1;
-							continue;
-						}
-					}*/	
 					if( Rb8701.m_ConnState == 1 && Rb8701.m_BigErr == 0 && Rb8701.m_CoinStopUseFlag == 0 ){
 						if(plocalcg02->graphElementsEN[i].m_name == "EN_CoinType"){
 							plocalcg02->coinsIndex = i;
@@ -374,40 +329,7 @@ void d_cg02_t::Proc()
 			plocalcg02->displayFlag = 1;
 		}
 		
-		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
-
-		//d_cg02s_backpic_t  cg02s_backpic;
-
-		//cg02s_backpic.ShowBack1();
-
-		//d_cg02s_goback_t  cg02s_goback;
-
-		//cg02s_goback.ShowGoback();
-
-		//d_cg02s_cancel_t  cg02s_cancel;
-
-		//cg02s_cancel.Showcancel();
-		//如果无纸币找零，则显示无纸币找零
-		//d_cg02s_machinestate_t cg02s_machinestate;
-
-		/*if( gp_bill->m_iIsNotBillChange == 1 )
-		{
-			cg02s_machinestate.ShowStatus();
-		}*/
-
-		//d_cg01s_evtcodes_t  cg01s_evtcodes;
-		//d_cg02s_goodbillcoin_t cg02s_goodbillcoin;
-
-		// show about piece 
-		//d_cg02s_pieceshow_t  cg02s_pieceshow;
-
-		//cg02s_pieceshow.ShowPieceButtBoard();
-		//cg02s_pieceshow.ShowPieceInfo();
-		//cg02s_pieceshow.ShowPayednchg();
 		cg02s_pieceshow.ActiveCoinBill();//激活硬币模块
-
-		//d_cg02s_waiter_t  cg02s_waiter;
-
 
 L_GETINPUT:
 		//d_cg01s_jud5041_t  cg01s_jud5041;
@@ -492,10 +414,6 @@ L_GETINPUT:
 				}
 			}
 		}
-
-		//cg01s_evtcodes.ShowEvtCodes();
-		//cg02s_goodbillcoin.ShowValidMoneyType();
-
 		do
 		{
 			gp_frontinput->GetFrontNextKey();
@@ -621,7 +539,7 @@ L_GETINPUT:
 					plocalcg06->langFlag = 1;
 					//plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 				}				
-
+				
 				gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg06;			
 				gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;	
 				gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;
@@ -637,6 +555,7 @@ L_GETINPUT:
 				}	
 
 				SetLanguageCh();
+				
 			}
 			return;
 		}
@@ -672,7 +591,7 @@ L_GETINPUT:
 		goto L_GETINPUT;
 	}
 
-
+			
 	return;
 }
 

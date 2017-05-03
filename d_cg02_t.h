@@ -20,6 +20,7 @@ public:
 	int payedIndex;
 	int shouldChangeIndex;
 	int MachineStateIndex;
+	//int coinIndex;
 	int notesIndex;
 	int coinsIndex;
 	int disableDisplayFlag;

@@ -203,17 +203,6 @@ void d_cg02s_pieceshow_t::ShowPieceButtBoard()
 	{
 		Show1PieceButt( i );
 	}	
-	
-	/*if(m_ButtType == UP){
-		m_ButtType = DOWN;
-		Show1PieceButt(1);
-	}
-	else if(m_ButtType == DISABLE){
-		m_ButtType = DOWN;
-		Show1PieceButt(m_iPieceNum);
-		m_ButtType = DISABLE;
-	}
-	gp_ui->LabelCommit();*/
 }
 
 

@@ -10,7 +10,13 @@
 //
 typedef WNava * PTcpMsgTaskType_t;
 
+typedef struct 
+{
+	wl::tuint8 bType;
+	wl::tuint8 bVersion[4];
+	wl::tuint8 bPins[10];
 
+}EQUIPPARTMESS5041;
 
 //
 class de_tcpmsg_t : public WIdleThrd< PTcpMsgTaskType_t >    
@@ -36,6 +42,8 @@ public:
 
 	static tbool Send1Evt5041( long e_old, long e, int iEventCode );
 	static tbool SendAllEvt5041();
+
+	static tbool SendEquipPartMessage5043(std::vector<EQUIPPARTMESS5041> vEquipPartMess);
 
 	static wl::tbool SendReg6000( wl::tuint8 uiAuditType );
 	

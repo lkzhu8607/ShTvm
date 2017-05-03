@@ -247,8 +247,8 @@ tbool d_cg01s_seleline_t::Find_n_do_changepage( std::string strinput )
 					gp_ui->hideLabel(plocalcg01->graphLineButtonCN[i]);
 					//gp_frontman_mgr->graphLastPageElements.push_back(plocalcg01->graphLineButtonCN[i]);
 					plocalcg01->graphLineButtonCN[i].m_iShouldShow = 0;
-				}
-			}*/
+				}			
+			}*/	
 			for(int j = 0; j < row.size(); j++){
 				if(row[j].m_funcname == "EN_NextButton"  && plocalcg01->pageFlag == 1 && GetLanguageState()==1)
 				{

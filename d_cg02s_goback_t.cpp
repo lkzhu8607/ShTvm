@@ -110,7 +110,7 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 					else 
 						plocalcg01->pageFlag = 0;
 					plocalcg02->m_iPieceNum = 1;
-					if(plocalcg01->isFastFlag ==1){
+					if(plocalcg01->isFastFlag ==1 && plocalcg01->mianClickStationFlag ==0){
 						//plocalcg02->gobackFlag = 1;
 						plocalcg03->displayFlag = 0;
 						plocalcg03->langFlag = 0;	
@@ -120,11 +120,12 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 						plocalcg01->displayFlag = 0;
 						plocalcg01->langFlag = 0;	
 						plocalcg01->errorFlag = 0;
-						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;	
+						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 					}
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;					
-					
+
+					plocalcg01->mianClickStationFlag = 0;
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);
 					return 1;
 				}
@@ -141,7 +142,7 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 					else 
 						plocalcg01->pageFlag = 0;
 					plocalcg02->m_iPieceNum = 1;
-					if(plocalcg01->isFastFlag ==1){
+					if(plocalcg01->isFastFlag ==1 && plocalcg01->mianClickStationFlag ==0){
 						//plocalcg02->gobackFlag = 1;
 						plocalcg03->displayFlag = 0;
 						plocalcg03->langFlag = 1;	
@@ -153,6 +154,7 @@ tbool d_cg02s_goback_t::Find_n_do_ShowGoback( std::string strinput )
 						plocalcg01->errorFlag = 0;
 						gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;
 					}						
+					plocalcg01->mianClickStationFlag = 0;
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
 					plocalcg02->cg02_graphElementsHide(plocalcg02->langFlag);

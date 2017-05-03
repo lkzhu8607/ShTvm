@@ -29,7 +29,7 @@ static	bu_quickflow_t::qf_counter_t  v_QfDownlight = 0;
 //
 d_cg02s_waiter_t::d_cg02s_waiter_t()
 {
-	gp_coin->dCoinOpenUplight();
+	//gp_coin->dCoinOpenUplight();
 
 	v_QfDownlight = 0;
 	gp_coin->dCoinOpenDownlight();
@@ -39,7 +39,7 @@ d_cg02s_waiter_t::d_cg02s_waiter_t()
 //
 d_cg02s_waiter_t::~d_cg02s_waiter_t()
 {
-	gp_coin->dCoinCloseUplight();
+	//gp_coin->dCoinCloseUplight();
 
 	gp_qf->GetQf( v_QfDownlight );
 	bu_asynwork_t::DelayCloseDownlight(&v_QfDownlight);
@@ -116,7 +116,9 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 	if(WR.m_TicketingFirstFlag == 0)//进行第一次发卡
 	{
 		b8704_t::ROWTYPE &Rb8704(gp_db->GetTheRowb8704());
-		while( ticketbad < gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes )    //该数需要走3002参数
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "m_lTicketWriteFailTimes="<<gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes);
+		long lTicketWriteFailTimes = (gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes>=3)?gp_db->m_a3002.GetRow(0).m_lTicketWriteFailTimes:3;
+		while( ticketbad < lTicketWriteFailTimes )    //该数需要走3002参数
 		{
 			//wl::WThrd::tr_sleepu(0.5);
 			if( gp_emitticket->MkTicketReady() )
@@ -364,6 +366,9 @@ int d_cg02s_waiter_t::FnD_WaiterJob( std::string strinput , a_waiter_t_rowtype *
 			
 		}
 	}
+
+	//查一下纸币数据
+	gp_bill->dBill_QueryCashUint();
 
 	//连续三次出票失败
 	if( WR.m_TicketoutOk == 0 )

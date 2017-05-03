@@ -59,7 +59,7 @@ public:
 	int dBill_Reset(bool OnlyReset);//复位	true:只机械复位  false:复位且做一些基础设置
 
 	int dBill_Reboot();         //纸币系统重启
-	int dBill_GetVersion();	    //获取版本信息
+	int dBill_GetVersion(char Appversion[16],char MainModelSN[16]);	    //获取版本信息
 	int dBill_Change(int method,UINT32* CBone,UINT32* CBtwo,UINT32* CBthree,UINT32 *CBfour); //找零  method 1优化的找零策略
 
 	int dBill_Clean(int boxclear[5],unsigned int LOClear_Num[8],unsigned int REClear_Num[8],unsigned int CB_TotalNum[8]);		//清币(循环箱和补币箱清空到回收箱)数组下标 0-6分别对应1 2 5 10 20 50 100 元 ，下标7对应 不识别面额(回收箱总币数)

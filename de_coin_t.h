@@ -72,6 +72,7 @@ public:
 	//一元专用找出X，返回是否成功	
 	int SpecialChgOut( long PlanYuan1 );
 	int dCoinBletRoll();
+	int dCoinBletRoll(int CoinCount);
 	int dCoin_Supplementary(BYTE Box[2]);
 	int CyrcleYuan1ChgOut( long PlanYuan1 );
 	int CyrcleJiao5ChgOut( long PlanJiao5 );
@@ -80,6 +81,11 @@ public:
 	int SupplementaryJiao5Coins(long Jiao5Count);
 	void padTriggerReturnKey();
 	void padTriggerCancelKey();
+
+	void padTriggerReturnKey(int CoinCount);
+	void padTriggerCancelKey(int CoinCount);
+	void returnCoin(int CoinCount);
+	
 	void returnCoin();
 
 	bool IsVaultFull();              //硬币箱是否满    true：表示满， false ：正常

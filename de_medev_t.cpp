@@ -13,6 +13,8 @@
 #include "de_bill_t.h"
 #include "de_topscr_t.h"
 #include "g06.h"
+#include "d_paratime_t.h"
+#include "bu_asynwork_t.h"
 
 
 
@@ -38,6 +40,10 @@ de_medev_t::de_medev_t()
 	m_IsRecv3014 = 0;
 	m_IsSCNeedSysShutdownOrReboot = 0;
 	m_IsChangeToStopSerice = 0;
+	m_iIsUpdateParaToStopSerice = 0;
+
+	m_iIsUpdatePic = 0;
+	m_bSendReg6000EventFlag = 0;
 }
 
 
@@ -438,6 +444,13 @@ tbool de_medev_t::IntegratedStateGood()
 		return 0;
 	}
 
+	if( 1 == gp_medev->m_iIsUpdateParaToStopSerice)
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Update Para ..." );
+		m_devstatus = 7;
+		gp_topscr->DispStr( strshow );
+		return -1;
+	}
 	// s0.a[0]		0	开(1)/关(0)
 	if( Ra5041.m_s0.a[0] == 0 )
 	{
@@ -459,8 +472,8 @@ tbool de_medev_t::IntegratedStateGood()
 	// s0.a[1]		1	停止服务(1)/无故障(0)
 	if( Ra5041.m_s0.a[1] == 1 )
 	{
-		 strshow = "      关闭服务      "
-			       "    Stop Service   ";
+		 strshow = "      系统关闭      "
+			       "    Close System ";
 
 		LOGSTREAM( gp_log[LOGAPP], LOGPOSI <<"Ra5041.m_s0.a[1] = " );
 		m_devstatus = 9;
@@ -673,7 +686,7 @@ tbool de_medev_t::IntegratedStateGood()
 		int iRMB500 ,iRMB1000 ,iRMB2000 ,iRMB5000;
 		iRMB500 = iRMB1000 = iRMB2000 = iRMB5000 = 0;
 		
-		gp_bill->dBill_QueryCashUint();
+		//gp_bill->dBill_QueryCashUint();
 		for(int i=0;i<4;i++)
 		{
 			if( gp_db->m_b8702.GetRow(0).m_ReDenomination.a[i] == 500 )  iRMB500  += gp_db->m_b8702.GetRow(0).m_ReNumber.a[i];

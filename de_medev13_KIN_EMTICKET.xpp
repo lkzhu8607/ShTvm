@@ -94,8 +94,8 @@
 		}
 
 		// 116 ·ÏÆ±ÏäÂú 
-		if( Rb8703.m_BadTotal >= 1 )       //Îª²âÊÔ
-		//if( Rb8703.m_BadTotal >= 50 )
+		//if( Rb8703.m_BadTotal >= 1 )       //Îª²âÊÔ
+		if( Rb8703.m_BadTotal >= 50 )
 		{
 			EVT_CHG(116,1);
 		}

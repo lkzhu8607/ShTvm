@@ -983,7 +983,122 @@ tbool de_tcpmsg_t::SendAllEvt5041()
 	return RecvMACK(&tc);
 }
 
+tbool de_tcpmsg_t::SendEquipPartMessage5043(std::vector<EQUIPPARTMESS5041> vEquipPartMess)
+{
+	WTcpCellc  tc;
+	SCake ck;
+	SCake ck2;
+	tuint8  ui1;
+	tuint16 ui2;
+	tuint32 ui4;
 
+	if( !ConnSc(tc) ) 
+	{
+		LOGSTREAM( gp_log[LOGSC], LOGPOSI << "无法连接SC:" << gp_conf->Get_sc_addr() );
+		return 0;
+	}
+	
+	//消息分类/类型码 
+	ui2 = (tuint16)0x5043;
+	SStrf::chgendian(ui2);
+	ck.append( (tchar*)&ui2, 2 );
+	
+	// 发送方标识码 
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode1 );
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode2 );
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode3 );
+	ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode4 );
+
+	// 会话流水号  
+	ui4 = gp_db->GetSendConversationFlow() ;
+	SStrf::chgendian(ui4);
+	ck.append( (tchar*)&ui4, 4 );
+
+	//包序列号	0 ~ 65535，按包序递增	Word	2 
+	if( gp_conf->Get_pkg_seri_style() == 0 )
+		ui2 = 0;
+	else
+		ui2 = 0;
+	SStrf::chgendian(ui2);
+	ck.append( (tchar*)&ui2, 2 );
+
+	// 标志		Bit1：0-请求消息1-应答消息		Bit0：0-还有更大的包序列号的包1-这是本消息的最后一包 
+	ui1 = 1;	 
+	ck.append( (tchar)ui1 );
+
+	tuint16 recordNum = 0;    //	记录数0~65535，对于没有长度可变部分的包,填0，否则，为长度可变部分中包含的记录数	
+	recordNum = (tuint16)vEquipPartMess.size();	 
+	SStrf::chgendian(recordNum) ;
+	ck.append( (tchar*)&recordNum, 2 );
+	
+	//压缩/加密算法  
+	ui1 = 0;
+	ck.append( (tchar)ui1 );
+
+	//send 
+
+	for( int j = 0; j < (int)vEquipPartMess.size() ; j++ )
+	{
+		//设备节点
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode1 );
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode2 );
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode3 );
+		ck.append( (tchar)gp_db->GetTheRowa3014().m_EqpNodecode4 );
+
+		//上报部件信息时间
+		ui4 = (tuint32)SDte::GetNow().DiffSec(SDte("1970-1-1"));
+		SStrf::chgendian(ui4) ;
+		ck.append( (tchar*)&ui4, 4 );
+
+		//部件类型
+		ui1 = (tchar)vEquipPartMess[j].bType;
+		SStrf::chgendian(ui1) ;
+		ck.append( (wl::tchar*)&ui1, 1 );
+
+		//部件软件版本号		Block	4
+		ck.append( (tchar)vEquipPartMess[j].bVersion[0] );
+		ck.append( (tchar)vEquipPartMess[j].bVersion[1] );
+		ck.append( (tchar)vEquipPartMess[j].bVersion[2] );
+		ck.append( (tchar)vEquipPartMess[j].bVersion[3] );
+
+		//部件唯一身份识别码		Block	10
+		for(int k=0;k<10;k++)
+		{
+			ck.append( (tchar)vEquipPartMess[j].bPins[k] );
+		}
+		
+		//保留		Byte	5
+		ui1 = 0;
+		ck.append( (tchar)ui1 );
+		ui1 = 0;
+		ck.append( (tchar)ui1 );
+		ui1 = 0;
+		ck.append( (tchar)ui1 );
+		ui1 = 0;
+		ck.append( (tchar)ui1 );
+		ui1 = 0;
+		ck.append( (tchar)ui1 );
+	}
+
+	//MAC
+	AppendMd5(ck);
+
+	//长度 
+	ui2 = (tuint16)ck.len();
+	SStrf::chgendian(ui2);
+
+	//组织全部数据为一个包  
+	ck2.append( (tchar*)&ui2, 2 );
+	ck2.append( ck );
+
+	///
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck2.Seri_S() );
+
+	if( !tc.send_bin( ck2 ) )
+		return 0;
+
+	return RecvMACK(&tc);
+}
 // 
 tbool de_tcpmsg_t::SendReg6000( wl::tuint8 uiAuditType )
 {
@@ -1093,22 +1208,22 @@ tbool de_tcpmsg_t::SendReg6000( wl::tuint8 uiAuditType )
 	ui2 = (tuint16)ck.len();
 	SStrf::chgendian(ui2);
 
-	////组织全部数据为一个包  
-	//ck2.append( (tchar*)&ui2, 2 );
-	//ck2.append( ck );
+	//组织全部数据为一个包  
+	ck2.append( (tchar*)&ui2, 2 );
+	ck2.append( ck );
 
 	///
-	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck2.Seri_S() );
-	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck.Seri_S() );
+	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck2.Seri_S() );
+	//LOGSTREAM( gp_log[LOGSC], LOGPOSI << "通信原始数据data:" << ck.Seri_S() );
 
-	if( !tc.send_bin( ui2 ) )
-		return 0;
-
-	if( !tc.send_bin( ck ) )
-		return 0;
-
-	//if( !tc.send_bin( ck2 ) )
+	//if( !tc.send_bin( ui2 ) )
 	//	return 0;
+
+	//if( !tc.send_bin( ck ) )
+	//	return 0;
+
+	if( !tc.send_bin( ck2 ) )
+		return 0;
 
 	return RecvMACK(&tc);
 }

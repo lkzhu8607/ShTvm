@@ -26,6 +26,7 @@ public:
 	void ShowLinePic();
 	//void ShowDirButt();
 	tbool Find_n_do_ShowDirButt( std::string strinput );
+	tbool Find_n_do_MainTempStation(std::string strinput);
 };
 
 

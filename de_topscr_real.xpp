@@ -180,7 +180,7 @@ int de_topscr_t::tr_on_user_run()
 
 		if( ck.len() )
 		{
-			static int iNoResponseCount = 0;
+			static long iNoResponseCount = 0;
 			if( !mySerialPort.send_bin( ck ) )
 			{
 				//·¢ËÍ´íÎó

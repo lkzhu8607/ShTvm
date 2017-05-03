@@ -8,6 +8,7 @@
 #include "de_bill_t.h"
 
 
+d_paratime_t * gp_paratime_t;
 
 //
 #define DETECT_AFFECT(tblname)	\
@@ -18,31 +19,28 @@
 
 
 
-////
-//#define TAKE_AFFECT_1(tblname)	\
-//				do{	\
-//					if(1)\
-//					{\
-//						MYAUTOLOCK( tblname.m_ut_tbl_lck );\
-//						std::string s1=GetPrepareAffectPk(tblname) ;\
-//						if( s1.empty() ) break;\
-//						TakeAffect( tblname, s1 );\
-//					}\
-//					if( 1 )\
-//					{\
-//						MYAUTOLOCK( gp_db->m_DbMgrLck );\
-//						std::string strTblName = tblname.ut_GetItemStr(-1,"strTblName");\
-//						gp_db->m_mTbllSaveFlag[1][strTblName] = "aaa";\
-//						gp_db->m_mTbllSaveFlag[2][strTblName] = "aaa";\
-//					}\
-//				}while(0)
-
-
-
 //
 d_paratime_t::d_paratime_t()
 {
 	m_iTakeAffectFlag = 0;
+}
+
+int d_paratime_t::tr_on_user_run()
+{
+
+	if( DetectAffect() )
+	{
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "DetectAffect" );
+		TakeAffectAll();
+	}
+
+	MarkDel();
+	Purge();
+
+	wl::WThrd::tr_sleep(1,0.91);
+
+	return 1;
+
 }
 
 // return 0-Not Affect  1-Affect
@@ -249,11 +247,27 @@ tbool d_paratime_t::DetectAffect()
 //
 void d_paratime_t::TakeAffectAll()
 {
-	TakeAffect_1(gp_db->m_a1040);
-	TakeAffect_1(gp_db->m_a2000);
-	TakeAffect_1(gp_db->m_a2001);
-	TakeAffect_1(gp_db->m_a3000);
-	TakeAffect_1(gp_db->m_a3001);
+	int irc = 0;
+	irc = TakeAffect_1(gp_db->m_a1040);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a1040=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a2000);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a2000=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a2001);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a2001=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3000);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3000=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3001);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3001=");
+	irc = 0;
 	if( TakeAffect_1(gp_db->m_a3002) )
 	{
 		m_iTakeAffectFlag = 1;
@@ -270,34 +284,87 @@ void d_paratime_t::TakeAffectAll()
 
 	}
 
-	TakeAffect_1(gp_db->m_a3006);
-	TakeAffect_1(gp_db->m_a3007);
-	TakeAffect_1(gp_db->m_a3008);
-	TakeAffect_1(gp_db->m_a3009);
-	TakeAffect_1(gp_db->m_a3011);
-	TakeAffect_1(gp_db->m_a3014);
-	TakeAffect_1(gp_db->m_a3082);
+	irc = TakeAffect_1(gp_db->m_a3006);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3006=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3007);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3007=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3008);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3008=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3009);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3009=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3011);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3011=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3014);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3014=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a3082);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3082=");
+	irc = 0;
 
 	if( TakeAffect_1(gp_db->m_a3083) ||
 		TakeAffect_1(gp_db->m_a3084) )
 	{
-		//copy 3086的位图
-		if( gp_db->m_a3086.GetRow(0).m_PkgDownloaded )
-			Copy3086PicToSystemPath();
+		////copy 3086的位图
+		//if( gp_db->m_a3086.GetRow(0).m_PkgDownloaded )
+		//	Copy3086PicToSystemPath();
+		
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a3084=");
 	}
 
 	TakeAffect_1(gp_db->m_a3085);
 	TakeAffect_1(gp_db->m_a3086);
-	TakeAffect_1(gp_db->m_a4001);
-	TakeAffect_1(gp_db->m_a4002);
-	TakeAffect_1(gp_db->m_a4003);
-	TakeAffect_1(gp_db->m_a4004);
-	TakeAffect_1(gp_db->m_a4006);
-	TakeAffect_1(gp_db->m_a4007);
-	TakeAffect_1(gp_db->m_a4008);
-	TakeAffect_1(gp_db->m_a4009);
-	TakeAffect_1(gp_db->m_a4015);
-	TakeAffect_1(gp_db->m_a4016);
+	irc = TakeAffect_1(gp_db->m_a4001);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4001=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4002);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4002=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4003);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4003=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4004);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4004=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4006);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4006=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4007);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4007=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4008);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4008=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4009);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4009=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4015);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4015=");
+	irc = 0;
+	irc = TakeAffect_1(gp_db->m_a4016);
+	if( irc ) 
+		LOGSTREAM( gp_log[LOGAPP], LOGPOSI << "TakeAffect_1 m_a4016=");
+	irc = 0;
 }
 
 
@@ -510,31 +577,6 @@ long d_paratime_t::GetParaNewVer( tuint16 itype , long * plAffcGmtTime /*= NULL*
 	return 0;
 }
 
-
-int d_paratime_t::Copy3086PicToSystemPath()
-{
-
-	char cmd_str[512]={0,};
-	std::string sDestFilePath = WFile::MkDir2Path( gp_conf->Get_datapath3() );
-	std::string ssep = ".";
-	std::vector<std::string > vTemp;
-
-	wl::SStrvs::vsa_imp(gp_db->m_a3086.GetRow(0).m_strPicFn,ssep,0,vTemp);
-
-	std::string strtemp;
-	std::string sSrcFilePath  = "/mnt/" + vTemp.at(0);
-	snprintf(cmd_str,sizeof(cmd_str)-1,"cp -rf %s/* %s;",sSrcFilePath.c_str(),sDestFilePath.c_str());
-	printf("%s\n",cmd_str);
-	strtemp = cmd_str;
-	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|cp=" << strtemp );
-	system(cmd_str);
-
-	snprintf(cmd_str,sizeof(cmd_str)-1,"rm -rf %s*;",sSrcFilePath.c_str());
-	printf("%s\n",cmd_str);
-	strtemp = cmd_str;
-	LOGSTREAM( gp_log[LOGSC], LOGPOSI << "|rm=" << strtemp );
-	system(cmd_str);
-}
 
 
 

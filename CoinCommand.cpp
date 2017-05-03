@@ -62,7 +62,7 @@ bool CCoin::SendFrame(const BUF_T & buf_in)
 		SCake ck;
 
 		ck.let( (char*)&buf_in[0], (int)buf_in.size() );
-		//LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << ck.Seri() );
+		LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << ck.Seri_S() );
 		return m_aCom.send_bin( ck ) ? true : false;
 	}
 }
@@ -210,10 +210,10 @@ bool CCoin::SendCommand(BYTE * Data,int nLen)
 		OriData[nLen] ^= OriData[i];
 	}
 
-	
-	wl::SCake ck;
-	ck.let( (char*)Data,nLen );
-	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << ck.Seri_S());
+	//
+	//wl::SCake ck;
+	//ck.let( (char*)Data,nLen );
+	//LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << ck.Seri_S());
 
 	unsigned char localdata[COIN_RECV_BUFFER_LEN_];
 	localdata[0] = COIN_STX;
@@ -223,15 +223,13 @@ bool CCoin::SendCommand(BYTE * Data,int nLen)
 	
 
 	BUF_T buff_in;
-	std::string strsend;
+	//std::string strsend;
 	for(unsigned int i=0;i<nNewLen;i++)
 	{
 		buff_in.push_back(localdata[i]);
-		strsend += wl::SStrf::sltoa( localdata[i] );
-		strsend += " ";
+		//strsend += wl::SStrf::sltoa( localdata[i] );
+		//strsend += " ";
 	}
-
-	LOGSTREAM( gp_log[LOGCOIN], LOGPOSI << strsend );
 
 	if(	SendFrame(buff_in))
 	{    
@@ -1289,7 +1287,6 @@ int CCoin::Coin_OpenClose(BYTE Data1[2],BYTE Data2[2])
 		{
 			memset(szRecv, 0, sizeof(szRecv));
 			int nRecvLen = 0;
-
 			if (RecvCommand(szRecv, nRecvLen))
 			{
 				//cWriteLog.Trace(_T("Recv Success1: "),szRecv,nRecvLen);

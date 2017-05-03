@@ -30,6 +30,8 @@ public:
 	int errorFlag;//0:hide,1:show
 	int errorDetailIndex;
 	int errorPicIndex;
+	int mianClickStationFlag;//0,表示未从主界面点击站点;1,从主界面点击站点
+	int mainClickNeededFlags;//0，表示不需要;1，表示需要
 
 public:
 	d_cg01_t();

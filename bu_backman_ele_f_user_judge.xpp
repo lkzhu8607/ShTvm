@@ -27,6 +27,11 @@ void bu_backman_ele_t::f_user_judge()
 	ShowCurrScr();
 
 	//进入用户判断，合法登录标志清空
+	if(1 == gp_medev->m_IsLegalLoginMaintenance)   //合法登入过，
+	{
+		bu_asynwork_t::SendReg6000ForEvent(0x03);
+	}
+
 	if(1)
 	{
 		if(1)
@@ -286,6 +291,8 @@ L_ASK_USERNAME:
 			fIsIllegalAlarm = false;
 		}
 		
+		//合法登入 上传6000
+		bu_asynwork_t::SendReg6000ForEvent(0x02);
 
 		return;
 	}

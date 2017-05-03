@@ -160,6 +160,10 @@ int de_printer_t::PrinterReset()
 
 	this->Query();
 
+	if(0 != Rb8707.m_RtnVal)
+	{
+		return -1;
+	}
 	this->m_de_ShouldReset = 0;
 
 	return 0;

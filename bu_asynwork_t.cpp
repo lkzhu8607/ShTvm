@@ -12,6 +12,7 @@
 #include "de_emitticket_t.h"
 #include "de_reader1_t.h"
 #include "de_bilchg_t.h"
+#include "g06.h"
 
 
 
@@ -172,8 +173,27 @@ void bu_asynwork_t::RepeatSendReg6000_m()
 	}
 }
 
+void bu_asynwork_t::SendReg6000ForEvent( wl::tuint8 uiAuditType)
+{
+	bu_asynwork_t  *paw;
 
+	SStrf::newobjptr(paw);
+	paw->m_f = &bu_asynwork_t::SendReg6000ForEvent_m;
 
+	paw->m_para.let( "p", SStrf::b2s(uiAuditType) );
+
+	paw->tr_openx();
+}
+
+void bu_asynwork_t::SendReg6000ForEvent_m()
+{
+	wl::tuint8 uiAuditType;
+
+	SStrf::s2b( m_para.get("p") , uiAuditType );
+
+	AddMachineDataTo6000();
+	gp_tcpmsg->SendReg6000(uiAuditType);
+}
 
 
 //
@@ -334,6 +354,31 @@ void bu_asynwork_t::DoAlarmnSec_m()
 
 	gp_coin->dCoinCloseAlert();
 
+}
+
+void bu_asynwork_t::SendAllEvt5041AsyncRepeat15m( int iMin)
+{
+	bu_asynwork_t  *paw;
+
+	SStrf::newobjptr(paw);
+	paw->m_f = &bu_asynwork_t::SendAllEvt5041AsyncRepeat15m_m;
+
+	paw->m_para.let( "p", SStrf::b2s(iMin) );
+
+	paw->tr_openx();
+}
+void bu_asynwork_t::SendAllEvt5041AsyncRepeat15m_m()
+{
+	int iMin;
+
+	SStrf::s2b( m_para.get("p") , iMin );
+
+	for(;;)
+	{
+		WThrd::tr_sleep(iMin * 60);
+
+		gp_tcpmsg->SendAllEvt5041();
+	}
 }
 
 

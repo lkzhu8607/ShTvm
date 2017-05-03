@@ -36,6 +36,10 @@ public:
 	void RepeatSendReg6000_m();
 
 	static 
+	void SendReg6000ForEvent( wl::tuint8 uiAuditType);  // 各种事件 异步发送6000
+	void SendReg6000ForEvent_m();
+
+	static 
 	void DelayReboot( int iSec );
 	void DelayReboot_m();
 
@@ -54,6 +58,12 @@ public:
 	static 
 	void DoAlarmnSec( int iSec);
 	void DoAlarmnSec_m();
+
+	static 
+	void SendAllEvt5041AsyncRepeat15m( int iMin);
+	void SendAllEvt5041AsyncRepeat15m_m();
+
+
 
 };
 

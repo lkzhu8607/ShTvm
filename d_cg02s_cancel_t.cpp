@@ -81,6 +81,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 					plocalcg02->m_iPieceNum = 1;
 					plocalcg01->errorFlag = 0;
 					plocalcg02->disableDisplayFlag = 0;
+					plocalcg01->mianClickStationFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	
@@ -101,6 +102,7 @@ tbool d_cg02s_cancel_t::Find_n_do_Showcancel( std::string strinput )
 					plocalcg02->m_iPieceNum = 1;
 					plocalcg01->errorFlag = 0;
 					plocalcg02->disableDisplayFlag = 0;
+					plocalcg01->mianClickStationFlag = 0;
 					gp_frontman_mgr->m_pcg = &gp_frontman_mgr->m_cg01;		
 					gp_frontman_mgr->m_cg01.m_cg01s_linepic_MainUiIdx = 1;
 					gp_frontman_mgr->m_cg01.m_cg01s_seleline_PageStartIdx = 0;	

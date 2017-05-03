@@ -311,27 +311,6 @@ void d_cg03_t::Proc()
 			}
 		}
 
-
-		//if( gp_conf->m_biSysShouldExit + gp_conf->m_biSysShouldShutdown + gp_conf->m_biSysShouldReboot ) break;
-
-		//d_cg03s_backpic_t  cg03s_backpic;
-		//cg03s_backpic.ShowBack1();
-		//d_cg03s_rightsidemsg_t  cg03s_rightsidemsg;
-		//cg03s_rightsidemsg.Showrightsidemsg();
-		//d_cg03s_lang_t  cg03s_lang;
-		//cg03s_lang.ShowLangButt();
-		//d_cg03s_goback_t  cg03s_goback;
-		//cg03s_goback.ShowGoback();
-		//d_cg01s_evtcodes_t  cg01s_evtcodes;
-//L_RESHOW_oneline:
-		//d_cg03s_oneline_t  cg03s_oneline;
-		//cg03s_oneline.Showoneline();
-//L_RESHOW_seleline:
-		//d_cg01s_seleline_t   cg01s_seleline;
-		//cg01s_seleline.Showseleline();
-		//¨®D¦Ì??¡Â ??D???3?¨º¡À
-		//gp_qf->GetQf( iQf1_user_idle );
-
 L_GETINPUT:
 			for(int i=0;i<(gp_timeshower->graphElements.size());i++){
 				if(gp_timeshower->graphElements[i].m_name == "dateDisplay"){
@@ -359,13 +338,6 @@ L_GETINPUT:
 				gp_ui->showLabel(plocalcg03->graphElementsEN[plocalcg03->MachineStateIndex]);
 				plocalcg03->graphElementsEN[plocalcg03->MachineStateIndex].m_iShouldShow = 1;
 			}
-
-		//d_cg03s_machinestate_t  cg03s_machinestate;
-		//cg03s_machinestate.Showmachinestate();
-		//d_cg01s_jud5041_t  cg01s_jud5041;
-		//cg01s_evtcodes.m_x = 0.32;
-		//cg01s_evtcodes.ShowEvtCodes();
-
 		do{
 			gp_frontinput->GetFrontNextKey();
 

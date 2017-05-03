@@ -1453,10 +1453,13 @@ int CBNROperation::CBNR_OddChange(int imethod,UINT32 *ireone, UINT32 *iretwo, UI
 		*irefour = g_BNRResult.ReChangeCount[3];
 		xx1_log_debug(LOG_LEVEL_DEBUG,"实际找零:(RE3=[%d],RE4=[%d],RE5=[%d],RE6=[%d])\n",*ireone,*iretwo,*irethree,*irefour);
 		ret = 0;
+		LOGSTREAM( gp_log[LOGBILL], LOGPOSI <<"CBNR_OddChange 实际找零:RE3=["<<*ireone<<"],RE4=["<<*iretwo<<"],RE5=["<<*irethree<<"],RE6=["<<*irefour<<"]." );
 	}
 	else
 	{
 		xx1_log_debug(LOG_LEVEL_DEBUG,"找零失败");
+		LOGSTREAM( gp_log[LOGBILL], LOGPOSI <<"CBNR_OddChange 找零失败" );
+	
 	}
 	return ret;
 }
@@ -1543,6 +1546,7 @@ T_BnrXfsResult CBNROperation::CBNR_Dispense(int imethod,UINT32 ireone, UINT32 ir
 	strncpy(dispenseRequest.currency.currencyCode, currencyCode,sizeof(T_XfsCurrencyCode));
 
 	
+	
 	if (imethod == 1)
 	{
 		dispenseRequest.mixNumber = BNRXFS_C_CDR_MXA_OPTIMUM_CHANGE;
@@ -1572,6 +1576,9 @@ T_BnrXfsResult CBNROperation::CBNR_Dispense(int imethod,UINT32 ireone, UINT32 ir
 	
 	pthread_mutex_lock (&listenerEvent_mutex);
 	result = bnr_Dispense(&dispenseRequest);
+	LOGSTREAM( gp_log[LOGBILL], LOGPOSI <<"CBNR_Dispense 准备找零:RE3=["<<ireone<<"],RE4=["<<iretwo<<"],RE5=["<<irethree<<"],RE6=["<<irefour<<"].");
+	LOGSTREAM( gp_log[LOGBILL], LOGPOSI <<"g_ibilldeno[0]=["<<g_ibilldeno[0]<<"],g_ibilldeno[1]=["<<g_ibilldeno[1]<<"],g_ibilldeno[2]=["<<g_ibilldeno[2]<<"],g_ibilldeno[3]=["<<g_ibilldeno[3]<<"]." );
+	LOGSTREAM( gp_log[LOGBILL], LOGPOSI <<"Result="<<result);
 	if (abs(result) == BXR_USB_NO_SUCH_DEVICE || abs(result)==BXR_USB_DEVICE_REMOVED) //BXR_USB_NO_SUCH_DEVICE 绝对值, BXR_USB_DEVICE_REMOVED
 	{
 		g_iDoOpen = -1;
@@ -2791,9 +2798,11 @@ T_BnrXfsResult CBNROperation::CBNR_LockCashBox(std::string vstrname, bool block)
 	return result;
 }
 //获取纸币模块信息
-T_BnrXfsResult CBNROperation::CBNR_GetMoudleInfo()
+T_BnrXfsResult CBNROperation::CBNR_GetMoudleInfo(char Appversion[16],char MainModelSN[16])
 {
 	//先获取固件版本,再获取序列号,组合
+	Appversion[0]='\0';
+	MainModelSN[0]='\0';
 	T_FullVersion ver;
 	BOOL bupdate;
 	T_ModuleIdentification moduleid;
@@ -2835,6 +2844,8 @@ T_BnrXfsResult CBNROperation::CBNR_GetMoudleInfo()
 		snprintf(version_name,sizeof(version_name)-1,"%s",moduleid.Name);
 	}
 	printf("%s %s\n",version_name,version_id);
+	snprintf(Appversion,15,"%s",version_id);
+	snprintf(MainModelSN,15,"%s",version_name);
 	if (result==BXR_NO_ERROR && ret==BXR_NO_ERROR)
 	{
 		judge = result;
@@ -2949,6 +2960,7 @@ T_BnrXfsResult CBNROperation::CBNR_GetMoudles(T_ModuleIdList *moduleList)
 			 	strncpy(g_ModuleList.CBSerialNum,ModuleIdentification.Name+3,8);
 			 }
 			 pthread_mutex_unlock (&listenerEvent_mutex);
+			 
 			 print_msg_ModuleIdentification(&ModuleIdentification);
 			
 		}
@@ -3405,6 +3417,7 @@ void usage()
 	printf("*49.GetTransaction(获取交易状态)\n");
 	printf("*50.LockLOCashUint(锁LO箱)\n");
 	printf("*51.Clear(清LO CB数据)\n");
+	printf("*52.CBNR_GetMoudleInfo\n");
 	printf("*99.Change g_used\n");
 	printf("************************************************************************\n");
 }
@@ -3439,6 +3452,8 @@ int new_test(int argc, char* argv[])
 		int lows[4] = {8,16,8,16};
 		int emptys[4]= {0,0,0,0};
 		T_TransactionStatus TransactionStatus;
+		char Appversion[16]={0,};
+		char MainModelSN[16]={0,};
 		memset(&TransactionStatus,0,sizeof(T_TransactionStatus));
 		
 		usage();
@@ -3578,8 +3593,6 @@ int new_test(int argc, char* argv[])
 				printf("CBNR_SetCashUnit,result=[%d]\n",ret);
 				break;
 			case 47:
-				ret = bnr_demo.CBNR_GetMoudleInfo();
-				printf("CBNR_GetMoudleInfo,result=[%d]\n",ret);
 				ret= bnr_demo.print_BNRStatus(&g_BNRStatus);
 				break;
 			case 48:
@@ -3600,6 +3613,10 @@ int new_test(int argc, char* argv[])
 				printf("CBNR_ClearCashUnit LO1: %d\n",ret);
 				ret = bnr_demo.CBNR_ClearCashUnit("CB");
 				printf("CBNR_ClearCashUnit CB: %d\n",ret);
+				break;
+			case 52:
+				ret  = bnr_demo.CBNR_GetMoudleInfo(Appversion,MainModelSN);
+				printf("CBNR_GetMoudleInfo ret: %d ,Appversion=[%s],MainModelSN=[%s]\n",ret,Appversion,MainModelSN);
 				break;
 			case 99:
 				g_used = !g_used;

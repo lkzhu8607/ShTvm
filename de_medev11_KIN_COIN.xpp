@@ -24,20 +24,25 @@
 		{
 			EVT_CHG(77,1);
 			EVT_CHG(78,1);
+
+			if( 0 == (m_bSendReg6000EventFlag & (0x01 << 0)) )
+			{
+				//send 6000 05
+				bu_asynwork_t::SendReg6000ForEvent(0x05);
+				m_bSendReg6000EventFlag |= (0x01 << 0) ;
+			}
 		}
 		else
 		{
 			EVT_CHG(77,0);
 			EVT_CHG(78,0);
+			if( 0 != (m_bSendReg6000EventFlag & (0x01 << 0)) )
+			{
+				//send 6000 06
+				bu_asynwork_t::SendReg6000ForEvent(0x06);
+				m_bSendReg6000EventFlag &= ~(0x01 << 0) ;
+			}
 		}
-
-		//ui1 = Rb8701.m_SensorStatus.a[1];	//	[out] SensorStatus[1]	Bit1:=1/0  ÃÅËøµ½Î»£¨±£Áô£©£º0£¬µ½Î»£»1£¬Î´µ½Î»
-		//if( SStrf::readbit( ui1, 1 ) == 1 )	
-		//	EVT_CHG(78,1);
-		//else
-		//	EVT_CHG(78,0);
-
-
 		
 		//129Ó²±Ò´¦ÀíÄ£¿é¹ÊÕÏ 
 		if( /*Rb8701.m_BigErr || */ Rb8701.m_ConnState == 0 ) 
@@ -108,11 +113,24 @@
 				EVT_CHG(171,1);
 				EVT_CHG(15,1);
 			}
+
+			if( 0 == (m_bSendReg6000EventFlag & (0x01 << 2)) )
+			{
+				//send 6000 1C
+				bu_asynwork_t::SendReg6000ForEvent(0x1C);
+				m_bSendReg6000EventFlag |= (0x01 << 2) ;
+			}
 		}
 		else
 		{
 			EVT_CHG(143,0);
 			EVT_CHG(167,0);
+			if( 0 != (m_bSendReg6000EventFlag & (0x01 << 2)) )
+			{
+				//send 6000 1D
+				bu_asynwork_t::SendReg6000ForEvent(0x1D);
+				m_bSendReg6000EventFlag &= ~(0x01 << 2) ;
+			}
 		}
 
 		// 144 Ó²±ÒÕÒÁãÏä1½«¿Õ 
@@ -130,6 +148,7 @@
 		// 168  Ó²±Ò²¹³äÏä2²»ÔÚÎ»
 
 		// 172 ·Ç·¨²Ù×÷Ó²±ÒÕÒÁãÏä2
+		static int iSend6000FlagCoinChgBox2 = 0;
 		if( SStrf::readbit( Rb8701.m_SensorStatus.a[0], 6 ) == 1 )     // Data0  Bit6:=1/0  5½Ç²¹±ÒÏä£¨±£Áô£©£º0£¬µ½Î»£»1£¬Î´µ½Î»
 		{
 			EVT_CHG(146,1);
@@ -140,11 +159,24 @@
 				EVT_CHG(172,1);
 				EVT_CHG(15,1);
 			}
+
+			if( 0 == (m_bSendReg6000EventFlag & (0x01 << 3)) )
+			{
+				//send 6000 1C
+				bu_asynwork_t::SendReg6000ForEvent(0x1C);
+				m_bSendReg6000EventFlag |= (0x01 << 3) ;
+			}
 		}
 		else
 		{
 			EVT_CHG(146,0);
 			EVT_CHG(168,0);
+			if( 0 != (m_bSendReg6000EventFlag & (0x01 << 3)) )
+			{
+				//send 6000 1D
+				bu_asynwork_t::SendReg6000ForEvent(0x1D);
+				m_bSendReg6000EventFlag &= ~(0x01 << 3) ;
+			}
 		}
 
 		// 147 Ó²±ÒÕÒÁãÏä2½«¿Õ 

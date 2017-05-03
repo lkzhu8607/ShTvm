@@ -82,9 +82,22 @@ typedef struct update_3086
 }UPDATE_3086;
 
 int update_3086_by_ftp( UPDATE_3086 update3086,wl::u8arr_t<8> picChk );
+int Copy3086PicToSystemPath();
 
 
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
 
+
+int get_mac(char *mac ,int len_limit);
+
+int GetIsChangeMachine(std::string & strNewMAC);
+
+int CheckMachineChangeAndSend5043();
 
 
 

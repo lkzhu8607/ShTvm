@@ -195,7 +195,14 @@ public:
 	
 	static void * smalloc( tsize i )
 	{
-		return malloc( i );
+		void* ret;
+        ret = (void*)malloc(i);
+        if(ret!=NULL)
+        {
+                memset(ret,0,i);
+        }
+        return ret;
+		//return malloc( i );
 	}
 
 	
@@ -19133,7 +19140,14 @@ public:
 	
 	static void * smalloc( tsize i )
 	{
-		return malloc( i );
+		void* ret;
+        ret = (void*)malloc(i);
+        if(ret!=NULL)
+        {
+                memset(ret,0,i);
+        }
+        return ret;
+		//return malloc( i );
 	}
 
 	
@@ -35841,7 +35855,14 @@ public:
 	
 	static void * smalloc( tsize i )
 	{
-		return malloc( i );
+		void* ret;
+        ret = (void*)malloc(i);
+        if(ret!=NULL)
+        {
+                memset(ret,0,i);
+        }
+        return ret;
+		//return malloc( i );
 	}
 
 	
